@@ -25,27 +25,18 @@ static const uint8_t blinkCompare[2] = {blinkDuty,blinkTotal};
 // set by hardware
 // cols are numbers of elements that are read 'at the same time'
 // rows are multiplexed in time
-static const uint8_t leds_cols = 12;
+static const uint8_t leds_cols = 8;
 static const uint8_t leds_rows = 4;
 static const uint8_t buttons_cols = 4;
-static const uint8_t buttons_rows = 12;
+static const uint8_t buttons_rows = 8;
 
 static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
 
 
-// internal defines for RAM
-#define NOP asm volatile ("nop\n\t")
-
-#define SCK B,5
-#define MISO B,4
-#define MOSI B,3
 
 
-
-
-
-void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number)) {
+void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)()) {
 
 	cli();
 
@@ -57,10 +48,27 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number)) {
 	bit_dir_inp(BUTTONCOL_2);
 	bit_dir_inp(BUTTONCOL_3);
 
+
+
+	bit_dir_outp(LEDCOL_0);
+	bit_dir_outp(LEDCOL_1);
+	bit_dir_outp(LEDCOL_2);
+	bit_dir_outp(LEDCOL_3);
+
+
 	bit_set(BUTTONCOL_0);
 	bit_set(BUTTONCOL_1);
 	bit_set(BUTTONCOL_2);
 	bit_set(BUTTONCOL_3);
+
+	bit_clear(LEDCOL_0);
+	bit_clear(LEDCOL_1);
+	bit_clear(LEDCOL_2);
+	bit_clear(LEDCOL_3);
+
+	bit_dir_inp(CLOCK_IN_PIN);
+	bit_clear(CLOCK_IN_PIN);
+
 
 	// LEDS
 	for (uint8_t row=0; row<leds_rows; row++) {
@@ -70,32 +78,13 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number)) {
 		ledStatesEnd [row] = ledStatesBeg[row]; 			// copy to second set of states
 	}
 
-	// SPI
-	bit_dir_outp(SCK);
-	bit_dir_outp(MOSI);
-	bit_dir_inp(MISO);
-	bit_dir_outp(SS_RAM);
-	bit_dir_outp(SS_SDCARD);
 
-	bit_clear(SCK);
-	bit_clear(MOSI);
-	bit_clear(MISO);
-	bit_set(SS_RAM);
-	bit_set(SS_SDCARD);
 
-	// Configure SPI
-	SPCR |= _BV(SPE);    // enable SPI
-	SPCR &= ~_BV(SPIE);  // SPI interrupts off
-	SPCR &= ~_BV(DORD);  // MSB first
-	SPCR |= _BV(MSTR);   // SPI master mode
-	SPCR &= ~_BV(CPOL);  // leading edge rising
-	SPCR &= ~_BV(CPHA);  // sample on leading edge
-	SPCR &= ~_BV(SPR1);  // speed = clock/4
-	SPCR &= ~_BV(SPR0);
-	SPSR |= _BV(SPI2X);  // 2X speed
 
 	// store callback pointer for changed buttons
 	 this->buttonChangeCallback = buttonChangeCallback;
+
+	 this->clockInCallback = clockInCallback;
 
 	// Disable Timer1 interrupt
 	//TIMSK1 &= ~_BV(TOIE1);
@@ -108,8 +97,6 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number)) {
 	TCNT2  = 0;
 
 
-	// DISPLAY
-	initDisplay();
 	sei();
 }
 
@@ -169,18 +156,50 @@ void sekvojHW::setLED(uint8_t number, IHWLayer::LedState state) {
 
 
 void sekvojHW::isr_updateNextLEDRow() {
+
+
+
 	static uint8_t currentRow = 0;
 	static uint8_t blinkCounter = 0;
+	/*
+	bit_clear(LEDCOL_0);
+	bit_clear(LEDCOL_1);
+	bit_clear(LEDCOL_2);
+	bit_clear(LEDCOL_3);
+	*/
+
+
 
 	if (blinkCounter < blinkCompare[0]) {
-		shiftRegFast::write_16bit(ledStatesBeg[currentRow]);
+
+		shiftRegFast::write_8bit(ledStatesBeg[currentRow]);
 	} else {
-		shiftRegFast::write_16bit(ledStatesEnd[currentRow]);
+		shiftRegFast::write_8bit(ledStatesEnd[currentRow]);
 	}
 
+	shiftRegFast::write_8bit(trigState);
 	shiftRegFast::enableOutput();
 
 	// go no next row
+
+
+	switch(currentRow){
+
+	case 0:
+		bit_set(LEDCOL_0);
+		break;
+	case 1:
+		bit_set(LEDCOL_1);
+		break;
+	case 2:
+		bit_set(LEDCOL_2);
+		break;
+	case 3:
+		bit_set(LEDCOL_3);
+		break;
+
+	}
+
 	currentRow=(currentRow+1)%leds_rows;
 	if (currentRow == 0) blinkCounter = (blinkCounter+1)%blinkCompare[1];
 }
@@ -192,44 +211,49 @@ void sekvojHW::isr_updateNextLEDRow() {
 
 void sekvojHW::isr_updateButtons() {
 
+	bit_clear(LEDCOL_0);
+	bit_clear(LEDCOL_1);
+	bit_clear(LEDCOL_2);
+	bit_clear(LEDCOL_3);
 
-	for (int8_t row=buttons_rows-1; row>=0; row--) {
 
-		shiftRegFast::write_16bit((0xFFF & ~(1<<row)));
+	for (int8_t row=7; row>=0; row--) {
+		shiftRegFast::write_8bit(~(1<<row));
+		shiftRegFast::write_8bit(trigState);
 		shiftRegFast::enableOutput();
 
-		bool newButtonState;
+
 		uint8_t col = 0;
 
-		newButtonState = bit_read_in(BUTTONCOL_0);
-		if (newButtonState != bitRead(buttonStates[col],row)) {
-			bitWrite(buttonStates[col],row, newButtonState);
-			buttonChangeCallback(col*buttons_rows + row);
-		}
+		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_0));
 		col++;
-
-
-		newButtonState = bit_read_in(BUTTONCOL_1);
-		if (newButtonState != bitRead(buttonStates[col],row)) {
-			bitWrite(buttonStates[col],row, newButtonState);
-			buttonChangeCallback(col*buttons_rows + row);
-		}
+		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_1));
 		col++;
-
-		newButtonState = bit_read_in(BUTTONCOL_2);
-		if (newButtonState != bitRead(buttonStates[col],row)) {
-			bitWrite(buttonStates[col],row, newButtonState);
-			buttonChangeCallback(col*buttons_rows + row);
-		}
+		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_2));
 		col++;
+		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_3));
 
-		newButtonState = bit_read_in(BUTTONCOL_3);
-		if (newButtonState != bitRead(buttonStates[col],row)) {
-			bitWrite(buttonStates[col],row, newButtonState);
-			buttonChangeCallback(col*buttons_rows + row);
-		}
+
 		//col++;
 	}
+
+	compareButtonStates();
+
+}
+
+void sekvojHW::compareButtonStates(){
+	if(buttonChangeCallback!=0){
+		for(int col=0;col<4;col++){
+			if(uint8_t xored=newButtonStates[col]^buttonStates[col]){
+				for(int row=0;row<8;row++){
+					if(bitRead(xored,row)) buttonChangeCallback(col*buttons_rows + row);
+				}
+			}
+			buttonStates[col]=newButtonStates[col];
+		}
+	}
+	for(int col=0;col<4;col++) buttonStates[col]=newButtonStates[col];
+
 
 }
 
@@ -237,7 +261,7 @@ void sekvojHW::isr_updateButtons() {
 void sekvojHW::printButtonStates() {
 	for (uint8_t row=0; row<4; row++) {
 		Serial.print("col "); Serial.print(row,DEC);Serial.print(": ");
-		for (int8_t col=15; col>=0;col--) {
+		for (int8_t col=7; col>=0;col--) {
 			if (bitRead(buttonStates[row],col)) {
 				Serial.print("1");
 			} else {
@@ -259,72 +283,32 @@ IHWLayer::ButtonState sekvojHW::getButtonState(uint8_t number) {
 }
 
 
-
-/**** RAM ****/
-
-void sekvojHW::writeSRAM(long address, uint8_t data) {
-
-	bit_clear(SS_RAM);
-
-	spiWrite(0x02);           // mode = write
-	spiWrite(address >> 16);  // address
-	spiWrite(address >> 8);
-	spiWrite(address);
-	spiWrite(data);
-
-	bit_set(SS_RAM);
+/**** TRIGGER ****/
+void sekvojHW::setTrigger(uint8_t number, sekvojHW::TriggerState state, uint8_t pulseWidth){
+	triggerCountdown[number]=pulseWidth;
+		if(state==ON) bitWrite(trigState,number,1);
+		if(state==OFF) bitWrite(trigState,number,0);
 }
 
-void sekvojHW::writeSRAM(long address, uint8_t* buf, uint16_t len) {
+void sekvojHW::isr_updateTriggerStates(){
 
-	bit_clear(SS_RAM);
 
-  spiWrite(0x02);           // mode = write
-  spiWrite(address >> 16);  // address
-  spiWrite(address >> 8);
-  spiWrite(address);
-  for(uint16_t i=0;i<len;i++) {
-    spiWrite(*buf);
-    buf++;
-  }
-
-  bit_set(SS_RAM);
-}
-
-uint8_t sekvojHW::readSRAM(long address) {
-  uint8_t data;
-
-  bit_clear(SS_RAM);
-
-  spiWrite(0x03);           // mode = read
-  spiWrite(address >> 16);  // address
-  spiWrite(address >> 8);
-  spiWrite(address);
-  data = spiRead();
-
-  bit_set(SS_RAM);
-
-  return data;
-}
-
-void sekvojHW::readSRAM(long address, uint8_t* buf, uint16_t len) {
-
-	bit_clear(SS_RAM);
-
-  spiWrite(0x03);           // mode = read
-  spiWrite(address >> 16);  // address
-  spiWrite(address >> 8);
-  spiWrite(address);
-  for(uint16_t i=0;i<len;i++) {
-    *buf = spiRead();
-    buf++;
-  }
-
-  bit_set(SS_RAM);
+	for(int i=0;i<8;i++){
+		if(triggerCountdown[i]>0){
+			if(triggerCountdown[i]==1) setTrigger(i,OFF,0);
+			triggerCountdown[i]--;
+		}
+	}
 
 }
-
-
+void sekvojHW::isr_updateClockIn(){
+	if(clockInCallback!=0){
+		static bool clockInState;
+		bool newState=!bit_read_in(CLOCK_IN_PIN);
+		if(newState && !clockInState) clockInCallback();
+		clockInState=newState;
+	}
+}
 
 /**** TIMING ****/
 
@@ -344,9 +328,12 @@ ISR(TIMER2_COMPA_vect) {
 
 	//bit_set(PIN);
 	hardware.incrementBastlCycles();
-	hardware.isr_sendDisplayBuffer();  // ~156us
+	//hardware.isr_sendDisplayBuffer();  // ~156us
+	hardware.isr_updateClockIn();
+	hardware.isr_updateTriggerStates();
 	hardware.isr_updateButtons();      // ~1ms
 	hardware.isr_updateNextLEDRow();   // ~84us
+
 	//bit_clear(PIN);
 
 

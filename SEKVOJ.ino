@@ -17,26 +17,26 @@ int main(void) {
 
 #include <portManipulations.h>
 #include "sekvojHW.h"
-#include <Player.h>
-#include <StepGenerator.h>
-#include <BPMConverter.h>
-#include <ArduinoMIDICommandProcessor.h>
-#include <PlayerSettings.h>
-#include <FlashStepMemory.h>
-#include <MIDI.h>
+//#include <Player.h>
+//#include <StepGenerator.h>
+//#include <BPMConverter.h>
+//#include <ArduinoMIDICommandProcessor.h>
+//#include <PlayerSettings.h>
+//#include <FlashStepMemory.h>
+//#include <MIDI.h>
 #include <SdFat.h>
-#include "MainMenuView.h"
-#include "InstrumentBar.h"
-#include <StepRecorder.h>
-#include <StepSynchronizer.h>
+//#include "MainMenuView.h"
+//#include "InstrumentBar.h"
+//#include <StepRecorder.h>
+//#include <StepSynchronizer.h>
 
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
+//MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
-Player * player;
+//Player * player;
 
-ArduinoMIDICommandProcessor * processor;
-FlashStepMemory * memory;
-PlayerSettings * settings;
+//ArduinoMIDICommandProcessor * processor;
+//FlashStepMemory * memory;
+//PlayerSettings * settings;
 
 //------------------------------------------------------------------------------
 // global variables
@@ -45,21 +45,22 @@ SdVolume vol; // FAT16 or FAT32 volume
 //SdFile root; // volume's root directory
 //SdFile file; // current file
 
-MainMenuView mainMenu;
-StepGenerator stepper;
-StepRecorder recorder;
-InstrumentBar instrumentBar;
-SekvojButtonMap buttonMap;
-StepSynchronizer synchronizer;
+//MainMenuView mainMenu;
+//StepGenerator stepper;
+//StepRecorder recorder;
+//InstrumentBar instrumentBar;
+//SekvojButtonMap buttonMap;
+//StepSynchronizer synchronizer;
 
 extern sekvojHW hardware;
-
+/*
 void stepperStep() {
 	player->stepFourth();
 	synchronizer.doStep();
 }
-
+*/
 void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
+	/*
 	 MIDI.sendNoteOn(35 + note, 127 ,channel);
 	 unsigned char instrumentIndex;
 	 if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
@@ -67,9 +68,12 @@ void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
 	 }
 	 //hardware.clearDisplay();
 	 //hardware.writeDisplayNumber(note * 10);
+	  *
+	  */
 }
 
 void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) {
+	/*
 	MIDI.sendNoteOff(35 + note, velocity ,channel);
 	//hardware.clearDisplay();
 	//hardware.writeDisplayNumber(note * 10 + 1);
@@ -77,12 +81,15 @@ void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) 
 	if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
 		instrumentBar.setInstrumentPlaying(instrumentIndex, false);
 	}
+	*/
 }
 
 void midiNoteOnIn(unsigned char channel, unsigned char note, unsigned char velocity) {
-	recorder.recordMIDINote(channel, note/*, velocity << 3*/);
-	hardware.setLED(15 - channel, IHWLayer::ON);
-	hardware.setLED(35 - note, IHWLayer::ON);
+
+	//recorder.recordMIDINote(channel, note/*, velocity << 3*/);
+	//hardware.setLED(15 - channel, IHWLayer::ON);
+	//hardware.setLED(35 - note, IHWLayer::ON);
+
 }
 
 void midiNoteOffIn() {
@@ -90,9 +97,24 @@ void midiNoteOffIn() {
 }
 
 void test(uint8_t v) {
+	//if(hardware.getButtonState(v) == IHWLayer::UP)
+
+		if(hardware.getButtonState(v)==IHWLayer::DOWN) hardware.setLED(v,IHWLayer::ON);
+		else hardware.setLED(v,IHWLayer::OFF);
 }
 
+void buttonCall(uint8_t v) {
+	//if(hardware.getButtonState(v) == IHWLayer::UP)
 
+		if(hardware.getButtonState(v)==IHWLayer::DOWN) hardware.setLED(v,IHWLayer::ON);
+		else hardware.setLED(v,IHWLayer::OFF);
+}
+
+void clockCall() {
+
+}
+
+/*
 void initFlashMemory(FlashStepMemory * memory) {
 	DrumStep::DrumVelocityType inactiveSteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
 	DrumStep::DrumVelocityType activeSteps[4] = {DrumStep::NORMAL, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
@@ -116,14 +138,15 @@ void initFlashMemory(FlashStepMemory * memory) {
 		memory->setDrumStep(0, 0, i, emptyDrumStep);
 	}
 }
-
+*/
 void setup() {
 
-	hardware.init(&test);
-	instrumentBar.init(&hardware, &buttonMap);
-	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(100, hardware.getBastlCyclesPerSecond()));
-	stepper.setStepCallback(&stepperStep);
+	hardware.init(&buttonCall,&clockCall);
 
+//	instrumentBar.init(&hardware, &buttonMap);
+//	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(100, hardware.getBastlCyclesPerSecond()));
+//	stepper.setStepCallback(&stepperStep);
+/*
 	settings = new PlayerSettings();
 	settings->setCurrentPattern(0);
 
@@ -146,14 +169,24 @@ void setup() {
 
 	recorder.init(player, memory, settings);
 	mainMenu.init(&hardware, player, & recorder, memory, settings, processor, &instrumentBar, &buttonMap);
+	*/
+	Serial.begin(9600);
 }
 
 
 
 void loop() {
-	MIDI.read();
-	stepper.update(hardware.getElapsedBastlCycles());
-	mainMenu.update();
+
+	/*
+	for(int i=0;i<32;i++) {
+		if(hardware.getButtonState(i)==IHWLayer::UP) hardware.setLED(i,IHWLayer::ON);
+		else hardware.setLED(i,IHWLayer::OFF);
+	}
+	hardware.printButtonStates();
+	*/
+	//MIDI.read();
+	//stepper.update(hardware.getElapsedBastlCycles());
+	//mainMenu.update();
 }
 
 

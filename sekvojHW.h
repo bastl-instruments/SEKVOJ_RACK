@@ -10,13 +10,13 @@
 
 class sekvojHW : public IHWLayer {
 
-enum DisplayDataType {COMMAND,DATA};
+enum TriggerState{ON,OFF};
 
 public:
 
 	// sets up all the pins, timers and SPI interface
 	// call this before using any other method from this class
-	void init(void(*buttonChangeCallback)(uint8_t number));
+	void init(void(*buttonChangeCallback)(uint8_t number), void(*clockInCallback)());
 
 	/***KNOBS***/
 
@@ -42,46 +42,24 @@ public:
 
 	// print the read button states to serial terminal
 	void printButtonStates();
+	/***TRIGGER***/
+	void setTrigger(uint8_t number, TriggerState state, uint8_t pulseWidth=0);
 
 
 	/***RAM***/
 
 	// write a byte to the given address
-	virtual void writeSRAM(long address, uint8_t data);
+	virtual void writeSRAM(long address, uint8_t data){}
 
 	// write a number of bytes starting at the given address
-	virtual void writeSRAM(long address, uint8_t* buf, uint16_t len);
+	virtual void writeSRAM(long address, uint8_t* buf, uint16_t len){}
 
 	// read the byte stored at the given address
-	virtual uint8_t readSRAM(long address);
+	virtual uint8_t readSRAM(long address){return 0;}
 
 	// read a number of bytes starting from the given address
-	virtual void readSRAM(long address, uint8_t* buf, uint16_t len);
+	virtual void readSRAM(long address, uint8_t* buf, uint16_t len){}
 
-
-
-	/***DISPLAY***/
-
-	// deletes all text on the display
-	void clearDisplay();
-
-	// sets the cursor to a given positon
-	// after this, you can start writing text from that position
-	void setDisplayCursor(uint8_t col, uint8_t row);
-
-	// write a string to display
-	// you can write an infitinte number of characters but only some of them are being dislayed at a time
-	// this display can show two lines of 16 characters
-	void writeDisplayText(char text[]);
-
-	void writeDisplayNumber(uint8_t n);
-
-	// convenient operator to write strings to display
-	void operator <<(char text[]);
-
-	// this operator lets you display special characters by their id
-	// you can find the ids in the data sheet of HD44780 on page 17 (or 18 depending on the model you are using)
-	void operator <<(uint8_t data);
 
 
 
@@ -105,7 +83,9 @@ public:
 	// there are workarounds for this but as they come at a cost I just left it like this
 	void isr_updateNextLEDRow();
 	void isr_updateButtons();
-	void isr_sendDisplayBuffer();
+	void isr_updateTriggerStates();
+	void isr_updateClockIn();
+
 	inline void incrementBastlCycles() {bastlCycles++;}
 
 	/**EEPROM**/
@@ -120,56 +100,26 @@ private:
 	uint16_t bastlCycles;
 
 	/**LEDS**/
-	uint16_t ledStatesBeg[4];
-	uint16_t ledStatesEnd[4];
+	uint8_t ledStatesBeg[4];
+	uint8_t ledStatesEnd[4];
+
 
 	/**BUTTONS**/
-	uint16_t buttonStates[4];
+	uint8_t newButtonStates[4];
+	uint8_t buttonStates[4];
+	void compareButtonStates();
 	void (*buttonChangeCallback)(uint8_t number);
+	void (*clockInCallback)();
 
-	/**DISPLAY**/
+	/**TRIGGERS**/
+	uint8_t trigState;
+	uint8_t triggerCountdown[8];
 
-	// Sets up used pins and directly sends commands to set basic display mode
-	// automatically called during sekvojHW::setup()
-	void initDisplay();
-
-	// Send a command or data byte directly (bypassing the display buffer) to the display
-	// this needs to be used as long as the buffer is not read because the interrupt is not running
-	void sendDisplayDirect(DisplayDataType dataType, uint8_t byte);
-
-	// send a command or data byte to the display buffer
-	// it will be read during the next interrupt
-	void sendDisplay(DisplayDataType dataType, uint8_t byte);
-
-	// writes a given byte to the display
-	void sendByteToDisplay(uint8_t byte);
-
-	volatile uint8_t displayBuffer;
-	volatile bool    isDisplayBufferLoaded;
-
-	uint8_t _displayfunction;
-	uint8_t _displaycontrol;
-	uint8_t _displaymode;
 
 
 
 
 };
-
-static inline __attribute__((always_inline)) byte spiRead() {
-  SPDR = 0xFF; // start SPI clock
-  while (!(SPSR & _BV(SPIF)));
-  return SPDR;
-}
-
-static inline __attribute__((always_inline)) byte spiWrite(byte data) {
-
-  SPDR = data;
-  while (!(SPSR & _BV(SPIF)));
-
-  return SPDR;
-}
-
 
 
 

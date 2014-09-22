@@ -13,13 +13,31 @@
 #define SHIFTREGISTER_RCK B,1
 #define SHIFTREGISTER_SRCK B,0
 
-#define BUTTONCOL_0 C,1
-#define BUTTONCOL_1 C,0
-#define BUTTONCOL_2 D,7
-#define BUTTONCOL_3 D,6
+#define BUTTONCOL_0 C,3
+#define BUTTONCOL_1 D,4
+#define BUTTONCOL_2 D,2
+#define BUTTONCOL_3 D,7
 
-#define SS_SDCARD B,2
-#define SS_RAM    D,2
+#define LEDCOL_0 C,4
+#define LEDCOL_1 D,5
+#define LEDCOL_2 D,3
+#define LEDCOL_3 D,6
+
+#define CLOCK_IN_PIN C,0
+
+/*
+#define BUTTON_PIN 	17
+#define BUTTON_2_PIN 4
+#define BUTTON_3_PIN 2
+#define BUTTON_4_PIN 7
+
+
+#define LED_PIN 18 //2
+#define LED_2_PIN 5
+#define LED_3_PIN 3
+#define LED_4_PIN 6
+*/
+
 
 
 // the frequency at which the leds are updated.
