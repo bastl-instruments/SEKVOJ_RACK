@@ -1,23 +1,24 @@
 /*
- * SekvojButtonMap.h
+ * SekvojRackButtonMap.h
  *
  *  Created on: Sep 3, 2014
  *      Author: bastl
  */
 
-#ifndef SEKVOJBUTTONMAP_H_
-#define SEKVOJBUTTONMAP_H_
+#ifndef SEKVOJRACKBUTTONMAP_H_
+#define SEKVOJRACKBUTTONMAP_H_
 
+#include <IButtonMap.h>
 
 #define FIRST_STEP_BUTTON_INDEX 0
 #define FIRST_INSTRUMENT_BUTTON_INDEX FIRST_STEP_BUTTON_INDEX + 16
-#define FIRST_MAIN_MENU_BUTTON_INDEX FIRST_INSTRUMENT_BUTTON_INDEX + 10
-#define FIRST_VELOCITY_BUTTON_INDEX FIRST_MAIN_MENU_BUTTON_INDEX + 4
-#define FIRST_SUBSTEP_BUTTON_INDEX FIRST_VELOCITY_BUTTON_INDEX + 2
+#define FIRST_MAIN_MENU_BUTTON_INDEX FIRST_INSTRUMENT_BUTTON_INDEX + 6
+#define FIRST_VELOCITY_BUTTON_INDEX FIRST_MAIN_MENU_BUTTON_INDEX + 6
+#define FIRST_SUBSTEP_BUTTON_INDEX FIRST_VELOCITY_BUTTON_INDEX + 0
 
-class SekvojButtonMap {
+class SekvojRackButtonMap : public IButtonMap {
 public:
-	SekvojButtonMap();
+	SekvojRackButtonMap();
 	unsigned char getButtonIndex(unsigned char index);
 	unsigned char getMainMenuButtonIndex(unsigned char index);
 	unsigned char getInstrumentButtonIndex(unsigned char index);
@@ -30,52 +31,52 @@ public:
 	unsigned char * getSubStepButtonArray();
 	unsigned char * getVelocityButtonArray();
 private:
-	unsigned char buttonIndexes_[36];
+	unsigned char buttonIndexes_[32];
 };
 
-inline unsigned char SekvojButtonMap::getButtonIndex(unsigned char index) {
+inline unsigned char SekvojRackButtonMap::getButtonIndex(unsigned char index) {
 	return buttonIndexes_[index];
 }
 
-inline unsigned char SekvojButtonMap::getMainMenuButtonIndex(unsigned char index) {
+inline unsigned char SekvojRackButtonMap::getMainMenuButtonIndex(unsigned char index) {
 	return buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + index];
 }
 
-inline unsigned char SekvojButtonMap::getInstrumentButtonIndex(unsigned char index) {
+inline unsigned char SekvojRackButtonMap::getInstrumentButtonIndex(unsigned char index) {
 	return buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + index];
 }
 
-inline unsigned char SekvojButtonMap::getStepButtonIndex(unsigned char index) {
+inline unsigned char SekvojRackButtonMap::getStepButtonIndex(unsigned char index) {
 	return buttonIndexes_[FIRST_STEP_BUTTON_INDEX + index];
 }
 
-inline unsigned char SekvojButtonMap::getSubStepButtonIndex(unsigned char index) {
+inline unsigned char SekvojRackButtonMap::getSubStepButtonIndex(unsigned char index) {
 	return buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + index];
 }
 
-inline unsigned char SekvojButtonMap::getVelocityButtonIndex(unsigned char index) {
+inline unsigned char SekvojRackButtonMap::getVelocityButtonIndex(unsigned char index) {
 	return buttonIndexes_[FIRST_VELOCITY_BUTTON_INDEX + index];
 }
 
-inline unsigned char* SekvojButtonMap::getMainMenuButtonArray() {
+inline unsigned char* SekvojRackButtonMap::getMainMenuButtonArray() {
 	return &buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX];
 }
 
-inline unsigned char* SekvojButtonMap::getInstrumentButtonArray() {
+inline unsigned char* SekvojRackButtonMap::getInstrumentButtonArray() {
 	return &buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX];
 }
 
-inline unsigned char* SekvojButtonMap::getStepButtonArray() {
+inline unsigned char* SekvojRackButtonMap::getStepButtonArray() {
 	return &buttonIndexes_[FIRST_STEP_BUTTON_INDEX];
 }
 
-inline unsigned char* SekvojButtonMap::getSubStepButtonArray() {
+inline unsigned char* SekvojRackButtonMap::getSubStepButtonArray() {
 	return &buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX];
 }
 
-inline unsigned char* SekvojButtonMap::getVelocityButtonArray() {
+inline unsigned char* SekvojRackButtonMap::getVelocityButtonArray() {
 	return &buttonIndexes_[FIRST_VELOCITY_BUTTON_INDEX];
 }
 
-#endif /* SEKVOJBUTTONMAP_H_ */
+#endif /* SEKVOJRACKBUTTONMAP_H_ */
 

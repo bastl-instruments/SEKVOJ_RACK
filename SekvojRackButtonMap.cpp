@@ -1,52 +1,47 @@
 /*
- * SekvojButtonMap.cpp
+ * SekvojRackButtonMap.cpp
  *
  *  Created on: Sep 3, 2014
  *      Author: bastl
  */
 
-#include <SekvojButtonMap.h>
+#include <SekvojRackButtonMap.h>
 
-SekvojButtonMap::SekvojButtonMap() {
+SekvojRackButtonMap::SekvojRackButtonMap() {
 
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX] = 43;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 1] = 42;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 2] = 41;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 3] = 40;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 4] = 39;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 5] = 38;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 6] = 37;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 7] = 36;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 8] = 44;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 9] = 45;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 10] = 46;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 11] = 47;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 12] = 20;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 13] = 21;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 14] = 22;
-	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 15] = 23;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX] = 3;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 1] = 11;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 2] = 19;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 3] = 27;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 4] = 2;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 5] = 10;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 6] = 18;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 7] = 26;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 8] = 1;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 9] = 9;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 10] = 17;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 11] = 25;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 12] = 0;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 13] = 8;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 14] = 16;
+	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 15] = 24;
 
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX] = 31;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 1] = 30;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 2] = 29;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 3] = 28;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 4] = 27;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 5] = 26;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 6] = 25;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 7] = 24;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 8] = 32;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 9] = 33;
+	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX] = 22;
+	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 1] = 23;
+	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 2] = 21;
+	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 4] = 30;
+	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 5] = 31;
+	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 6] = 29;
 
-	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX] = 19;
-	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 1] = 18;
-	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 2] = 17;
-	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 3] = 16;
+	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX] = 6;
+	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 1] = 14;
+	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 2] = 7;
+	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 3] = 15;
+	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 4] = 5;
+	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 5] = 13;
 
-	buttonIndexes_[FIRST_VELOCITY_BUTTON_INDEX] = 34;
-	buttonIndexes_[FIRST_VELOCITY_BUTTON_INDEX + 1] = 35;
-
-	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX] = 15;
-	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + 1] = 14;
-	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + 2] = 13;
-	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + 3] = 12;
+	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX] = 4;
+	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + 1] = 12;
+	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + 2] = 20;
+	buttonIndexes_[FIRST_SUBSTEP_BUTTON_INDEX + 3] = 28;
 }
