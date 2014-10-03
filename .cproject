@@ -5,15 +5,15 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.1402962607" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="elf" artifactName="${ProjName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="" id="de.innot.avreclipse.configuration.app.release.1402962607" name="Release" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactExtension="elf" artifactName="${ProjName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app" description="" id="de.innot.avreclipse.configuration.app.release.1402962607" name="Release" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.1402962607." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.249270541" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.1225609419" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release" value="true" valueType="boolean"/>
@@ -59,6 +59,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-external/Mozzi/config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-external/Mozzi/tables}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/sequencing_ui}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlSamples}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlTables}&quot;"/>
 								</option>
@@ -69,6 +70,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1558045505" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.151101413" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/sequencing_ui}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs}&quot;"/>
@@ -101,6 +103,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlSamples}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlTables}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastlMicroGranny}&quot;"/>
+									<listOptionValue builtIn="false" value="/arduino-base/libs-bastl/bastl-sequencing"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.def.1906350293" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ARDUINO=100"/>
@@ -118,6 +121,7 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.2104631232" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.incpath.1141310172" name="Include Paths (-I)" superClass="de.innot.avreclipse.cppcompiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/sequencing_ui}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs}&quot;"/>
