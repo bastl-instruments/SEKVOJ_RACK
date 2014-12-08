@@ -106,8 +106,8 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 
 	// Initialize memory to empty
 	DrumStep inactiveDrumStep(false, false, inactiveSteps);
-	for (unsigned char instrument = 0; instrument < 1; instrument++) {
-		for (unsigned char step = 0; step < 17; step++) {
+	for (unsigned char instrument = 0; instrument < 6; instrument++) {
+		for (unsigned char step = 0; step < 64; step++) {
 			memory->setDrumStep(instrument, 0, step, activeDrumStep);
 		}
 	}
@@ -160,11 +160,14 @@ void loop() {
 		hardware.setLED(10, lastOn ? IHWLayer::ON : IHWLayer::OFF);
 		localStep = (localStep + 1) % 256;
 		lastBastlCycles = hardware.getElapsedBastlCycles();
-		/*for (unsigned char instrument = 0; instrument < DRUM_INSTRUMENTS; instrument++) {
-			DrumStep step = memory.getDrumStep(instrument, 0, localStep / 4);
+		unsigned char readInstruments = 0;
+		for (unsigned char instrument = 0; instrument < 6; instrument++) {
+			DrumStep step = memory.getDrumStep(instrument, 0, 63 - localStep);
+			readInstruments = readInstruments + step.isActive() ? 1 : 0;
 			bool isOn = step.getSubStep(localStep % 4) == DrumStep::NORMAL;
 			hardware.setLED(instrument, isOn ? IHWLayer::ON : IHWLayer::OFF);
-		}*/
+		}
+		hardware.setLED(readInstruments, lastOn ? IHWLayer::ON : IHWLayer::OFF);
 	}
 	/*
 	for(int i=0;i<32;i++) {
