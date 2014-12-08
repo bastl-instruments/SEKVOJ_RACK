@@ -8,7 +8,7 @@
 #include <Arduino.h>
 
 
-class sekvojHW : public IHWLayer {
+class sekvojHW  {
 
 enum TriggerState{ON,OFF};
 
