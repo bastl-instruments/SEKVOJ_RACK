@@ -18,7 +18,7 @@ int main(void) {
 #include <portManipulations.h>
 #include "sekvojHW.h"
 //#include <Player.h>
-//#include <StepGenerator.h>
+#include <StepGenerator.h>
 //#include <BPMConverter.h>
 //#include <ArduinoMIDICommandProcessor.h>
 //#include <PlayerSettings.h>
@@ -48,7 +48,7 @@ NoVelocityStepMemory memory;
 //SdFile file; // current file
 
 //MainMenuView mainMenu;
-//StepGenerator stepper;
+StepGenerator stepper;
 //StepRecorder recorder;
 //InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
@@ -62,6 +62,16 @@ bool lastOn = false;
 
 
 void stepperStep() {
+	lastOn = !lastOn;
+	hardware.setLED(10, lastOn ? IHWLayer::ON : IHWLayer::OFF);
+	localStep = (localStep + 1) % 64;
+	unsigned char readInstruments = 0;
+	for (unsigned char instrument = 0; instrument < 6; instrument++) {
+		DrumStep step = memory.getDrumStep(instrument, 0, 63 - localStep);
+		readInstruments = readInstruments + step.isActive() ? 1 : 0;
+		bool isOn = step.getSubStep(localStep % 4) == DrumStep::NORMAL;
+	}
+	hardware.setLED(readInstruments, lastOn ? IHWLayer::ON : IHWLayer::OFF);
 	//player->stepFourth();
 	//synchronizer.doStep();
 }
@@ -117,13 +127,9 @@ void setup() {
 
 	hardware.init(0, 0);
 
-	lastBastlCycles = hardware.getElapsedBastlCycles();
-
-
-
 	//instrumentBar.init(&hardware, &buttonMap, 1);
-	//stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(140, hardware.getBastlCyclesPerSecond()));
-	//stepper.setStepCallback(&stepperStep);
+	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(140, hardware.getBastlCyclesPerSecond()));
+	stepper.setStepCallback(&stepperStep);
 
 	//settings = new PlayerSettings();
 	//settings->setCurrentPattern(0);
@@ -154,21 +160,6 @@ void setup() {
 
 
 void loop() {
-
-	if (hardware.getElapsedBastlCycles() - lastBastlCycles > 100) {
-		lastOn = !lastOn;
-		hardware.setLED(10, lastOn ? IHWLayer::ON : IHWLayer::OFF);
-		localStep = (localStep + 1) % 256;
-		lastBastlCycles = hardware.getElapsedBastlCycles();
-		unsigned char readInstruments = 0;
-		for (unsigned char instrument = 0; instrument < 6; instrument++) {
-			DrumStep step = memory.getDrumStep(instrument, 0, 63 - localStep);
-			readInstruments = readInstruments + step.isActive() ? 1 : 0;
-			bool isOn = step.getSubStep(localStep % 4) == DrumStep::NORMAL;
-			hardware.setLED(instrument, isOn ? IHWLayer::ON : IHWLayer::OFF);
-		}
-		hardware.setLED(readInstruments, lastOn ? IHWLayer::ON : IHWLayer::OFF);
-	}
 	/*
 	for(int i=0;i<32;i++) {
 		if(hardware.getButtonState(i)==IHWLayer::UP) hardware.setLED(i,IHWLayer::ON);
@@ -177,7 +168,7 @@ void loop() {
 	hardware.printButtonStates();
 	*/
 	//MIDI.read();
-	//stepper.update(hardware.getElapsedBastlCycles());
+	stepper.update(hardware.getElapsedBastlCycles());
 	//mainMenu.update();
 }
 
