@@ -12,6 +12,7 @@
 //#include <SdFat.h>
 
 // Declaration of instance (for use in interrupt service routine)
+
 sekvojHW hardware;
 
 
@@ -136,7 +137,7 @@ void sekvojHW::printLEDStates() {
 }*/
 
 
-void sekvojHW::setLED(uint8_t number, IHWLayer::LedState state) {
+void sekvojHW::setLED(uint8_t number, ILEDHW::LedState state) {
 
 	if ((state == IHWLayer::ON) | (state==IHWLayer::BLINK) | (state==IHWLayer::DULLON)) {
 		ledStatesBeg[number/leds_cols] &= ~(1<<(number%leds_cols));

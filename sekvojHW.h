@@ -8,7 +8,7 @@
 #include <Arduino.h>
 
 
-class sekvojHW  {
+class sekvojHW : public ILEDHW {
 
 enum TriggerState{ON,OFF};
 
@@ -26,10 +26,7 @@ public:
 	/***LEDS***/
 
 	// set the state of a led
-	virtual void setLED(uint8_t number, IHWLayer::LedState state);
-
-	// set the state of a led
-	virtual void setLED(uint8_t number, uint8_t number2, uint8_t number3 = 0) {}
+	virtual void setLED(uint8_t number, ILEDHW::LedState state);
 
 	// print the state arrays to the Serial terminal
 	void printLEDStates();
