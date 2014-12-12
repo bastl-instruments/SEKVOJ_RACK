@@ -5,10 +5,12 @@
 #define SEKVOJHW_H_
 
 #include <IHWLayer.h>
+#include <ILEDsAndButtonsHW.h>
+
 #include <Arduino.h>
 
 
-class sekvojHW : public ILEDHW {
+class sekvojHW : public ILEDsAndButtonsHW {
 
 enum TriggerState{ON,OFF};
 
@@ -35,7 +37,7 @@ public:
 	/***BUTTONS***/
 
 	// the the state of a button identified by its id
-	virtual IHWLayer::ButtonState getButtonState(uint8_t number);
+	virtual IButtonHW::ButtonState getButtonState(uint8_t number);
 
 	// print the read button states to serial terminal
 	void printButtonStates();

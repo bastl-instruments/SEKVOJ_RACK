@@ -26,10 +26,10 @@ int main(void) {
 #include <RackInstrumentDefinitions.h>
 //#include <MIDI.h>
 //#include <SdFat.h>
-//#include "MainMenuView.h"
+#include "SekvojRackMainMenuView.h"
 #include "SekvojRackButtonMap.h"
 #include <InstrumentBar.h>
-//#include <StepRecorder.h>
+#include <StepRecorder.h>
 #include <StepSynchronizer.h>
 
 //MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
@@ -47,9 +47,9 @@ PlayerSettings * settings;
 //SdFile root; // volume's root directory
 //SdFile file; // current file
 
-//MainMenuView mainMenu;
+SekvojRackMainMenuView mainMenu;
 StepGenerator stepper;
-//StepRecorder recorder;
+StepRecorder recorder;
 InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
@@ -146,8 +146,8 @@ void setup() {
 
 	//hardware.clearDisplay();
 
-	//recorder.init(player, memory, settings);
-	//mainMenu.init(&hardware, player, & recorder, memory, settings, processor, &instrumentBar, &buttonMap);
+	recorder.init(player, &memory, settings);
+	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap);
 
 	//Serial.begin(9600);
 }
@@ -164,7 +164,14 @@ void loop() {
 	*/
 	//MIDI.read();
 	stepper.update(hardware.getElapsedBastlCycles());
-	//mainMenu.update();
+	mainMenu.update();
+	/*for (int i = 0; i < 16; i++) {
+		if (hardware.getButtonState(i) == IButtonHW::DOWN) {
+			hardware.setLED(i, ILEDHW::ON);
+		} else {
+			hardware.setLED(i, ILEDHW::OFF);
+		}
+	}*/
 }
 
 
