@@ -59,6 +59,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-external/Mozzi/config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-external/Mozzi/tables}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl-sequencing}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/sequencing_ui}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlSamples}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlTables}&quot;"/>
@@ -70,6 +71,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1558045505" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.151101413" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl-sequencing}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/sequencing_ui}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/core}&quot;"/>
@@ -151,6 +153,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-external/Mozzi/config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-external/Mozzi/tables}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl-sequencing}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlSamples}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastl/bastlTables}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/arduino-base/libs-bastl/bastlMicroGranny}&quot;"/>
@@ -204,8 +207,8 @@
 		<project id="microGranny2.de.innot.avreclipse.project.winavr.elf_2.1.0.280146290" name="AVR Cross Target Application" projectType="de.innot.avreclipse.project.winavr.elf_2.1.0"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release"/>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/SEKVOJ_RACK"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
