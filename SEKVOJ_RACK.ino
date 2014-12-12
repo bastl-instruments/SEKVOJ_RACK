@@ -17,11 +17,11 @@ int main(void) {
 
 #include <portManipulations.h>
 #include "sekvojHW.h"
-//#include <Player.h>
+#include <Player.h>
 #include <StepGenerator.h>
-//#include <BPMConverter.h>
-//#include <ArduinoMIDICommandProcessor.h>
-//#include <PlayerSettings.h>
+#include <BPMConverter.h>
+#include <ArduinoMIDICommandProcessor.h>
+#include <PlayerSettings.h>
 #include <NoVelocityStepMemory.h>
 #include <RackInstrumentDefinitions.h>
 //#include <MIDI.h>
@@ -30,15 +30,15 @@ int main(void) {
 #include "SekvojRackButtonMap.h"
 #include <InstrumentBar.h>
 //#include <StepRecorder.h>
-//#include <StepSynchronizer.h>
+#include <StepSynchronizer.h>
 
 //MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
-//Player * player;
+Player * player;
 
-//ArduinoMIDICommandProcessor * processor;
+ArduinoMIDICommandProcessor * processor;
 NoVelocityStepMemory memory;
-//PlayerSettings * settings;
+PlayerSettings * settings;
 
 //------------------------------------------------------------------------------
 // global variables
@@ -50,37 +50,35 @@ NoVelocityStepMemory memory;
 //MainMenuView mainMenu;
 StepGenerator stepper;
 //StepRecorder recorder;
-//InstrumentBar instrumentBar;
+InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
-//StepSynchronizer synchronizer;
+StepSynchronizer synchronizer;
 
 unsigned long lastBastlCycles = 0;
-unsigned int localStep = 0;
+unsigned char localStep = 0;
 
 extern sekvojHW hardware;
-bool lastOn = false;
 
 
 void stepperStep() {
-	lastOn = !lastOn;
-	hardware.setLED(10, lastOn ? IHWLayer::ON : IHWLayer::OFF);
-	localStep = (localStep + 1) % 64;
-	unsigned char readInstruments = 0;
+	/*localStep = (localStep + 1) % 64;
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
-		DrumStep step = memory.getDrumStep(instrument, 0, 63 - localStep);
-		readInstruments = readInstruments + step.isActive() ? 1 : 0;
-		bool isOn = step.getSubStep(localStep % 4) == DrumStep::NORMAL;
-	}
-	hardware.setLED(readInstruments, lastOn ? IHWLayer::ON : IHWLayer::OFF);
-	//player->stepFourth();
-	//synchronizer.doStep();
+		//if (instrument == 1) {
+		DrumStep step = memory.getDrumStep(instrument, 0, localStep);
+		//hardware.setLED(instrument, !step.isMuted() ? ILEDHW::ON : ILEDHW::OFF);
+		instrumentBar.setInstrumentPlaying(instrument, !step.isMuted());
+		//}
+	}*/
+
+	player->stepFourth();
+	synchronizer.doStep();
 }
 
 void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
 	 //MIDI.sendNoteOn(35 + note, 127 ,channel);
 	 //unsigned char instrumentIndex;
 	 //if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
-	 //	instrumentBar.setInstrumentPlaying(instrumentIndex, true);
+	 	instrumentBar.setInstrumentPlaying(channel, true);
 	 //}
 	//if (channel == 0)
 	 //instrumentBar.setInstrumentPlaying(channel, true);
@@ -94,31 +92,28 @@ void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) 
 	//MIDI.sendNoteOff(35 + note, velocity ,channel);
 	//hardware.clearDisplay();
 	//hardware.writeDisplayNumber(note * 10 + 1);
-	/*unsigned char instrumentIndex;
-	if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
-		instrumentBar.setInstrumentPlaying(instrumentIndex, false);
-	}*/
+	//unsigned char instrumentIndex;
+	//if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
+		instrumentBar.setInstrumentPlaying(channel, false);
+	//}
 	//if (channel == 0)
 		//instrumentBar.setInstrumentPlaying(channel, false);
 }
 
 
 void initFlashMemory(NoVelocityStepMemory * memory) {
-	DrumStep::DrumVelocityType inactiveSteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
-	DrumStep::DrumVelocityType activeSteps[4] = {DrumStep::NORMAL, DrumStep::OFF, DrumStep::NORMAL, DrumStep::OFF};
-	DrumStep::DrumVelocityType activeSteps2[4] = {DrumStep::OFF, DrumStep::NORMAL, DrumStep::OFF, DrumStep::OFF};
-	DrumStep::DrumVelocityType activeSteps3[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::NORMAL, DrumStep::OFF};
-	DrumStep activeDrumStep(true, true, activeSteps);
-	DrumStep emptyDrumStep(true, false , activeSteps);
-	DrumStep emptyDrumStep2(true, false , activeSteps2);
-	DrumStep emptyDrumStep3(true, false , activeSteps3);
-	DrumStep muteDrumStep(true, true, inactiveSteps);
+	DrumStep::DrumVelocityType emptySteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
+	DrumStep::DrumVelocityType oneSteps[4] = {DrumStep::NORMAL, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
+	DrumStep emptyDrumStep(true, true, emptySteps);
+	DrumStep oneDrumStep(true, false , oneSteps);
 
-	// Initialize memory to empty
-	DrumStep inactiveDrumStep(false, false, inactiveSteps);
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
 		for (unsigned char step = 0; step < 64; step++) {
-			memory->setDrumStep(instrument, 0, step, activeDrumStep);
+			if (step % 6 == instrument) {
+				memory->setDrumStep(instrument, 0, step, oneDrumStep);
+			} else {
+				memory->setDrumStep(instrument, 0, step, emptyDrumStep);
+			}
 		}
 	}
 }
@@ -127,24 +122,24 @@ void setup() {
 
 	hardware.init(0, 0);
 
-	//instrumentBar.init(&hardware, &buttonMap, 1);
+	instrumentBar.init(&hardware, &buttonMap, 6);
 	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(140, hardware.getBastlCyclesPerSecond()));
 	stepper.setStepCallback(&stepperStep);
 
-	//settings = new PlayerSettings();
-	//settings->setCurrentPattern(0);
+	settings = new PlayerSettings();
+	settings->setCurrentPattern(0);
 
-	/*for (unsigned char i = 0; i < 1; i++) {
+	for (unsigned char i = 0; i < 6; i++) {
 		settings->setInstrumentOn(Step::DRUM, i, true);
 		settings->setInstrumentChannel(Step::DRUM, i, i);
 		settings->setDrumInstrumentNote(i, i);
-	}*/
+	}
 
 
 	initFlashMemory(&memory);
 
-	//processor = new ArduinoMIDICommandProcessor(&noteOn, &noteOff);
-	//player = new Player(&memory, processor, settings, &synchronizer);
+	processor = new ArduinoMIDICommandProcessor(&noteOn, &noteOff);
+	player = new Player(&memory, processor, settings, &synchronizer);
 	//Serial.end();
 	//MIDI.begin(0);
 	//MIDI.setHandleNoteOn(&midiNoteOnIn);

@@ -11,7 +11,7 @@
 #include <IButtonMap.h>
 
 #define FIRST_STEP_BUTTON_INDEX 0
-#define FIRST_INSTRUMENT_BUTTON_INDEX FIRST_STEP_BUTTON_INDEX + 16
+#define FIRST_INSTRUMENT_BUTTON_INDEX 16
 #define FIRST_MAIN_MENU_BUTTON_INDEX FIRST_INSTRUMENT_BUTTON_INDEX + 6
 #define FIRST_VELOCITY_BUTTON_INDEX FIRST_MAIN_MENU_BUTTON_INDEX + 6
 #define FIRST_SUBSTEP_BUTTON_INDEX FIRST_VELOCITY_BUTTON_INDEX + 0
@@ -43,7 +43,7 @@ inline unsigned char SekvojRackButtonMap::getMainMenuButtonIndex(unsigned char i
 }
 
 inline unsigned char SekvojRackButtonMap::getInstrumentButtonIndex(unsigned char index) {
-	return buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + index];
+	return buttonIndexes_[16 + index];
 }
 
 inline unsigned char SekvojRackButtonMap::getStepButtonIndex(unsigned char index) {

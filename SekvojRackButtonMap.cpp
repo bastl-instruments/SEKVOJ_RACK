@@ -26,12 +26,12 @@ SekvojRackButtonMap::SekvojRackButtonMap() {
 	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 14] = 16;
 	buttonIndexes_[FIRST_STEP_BUTTON_INDEX + 15] = 24;
 
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX] = 22;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 1] = 23;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 2] = 21;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 4] = 30;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 5] = 31;
-	buttonIndexes_[FIRST_INSTRUMENT_BUTTON_INDEX + 6] = 29;
+	buttonIndexes_[16] = 17;
+	buttonIndexes_[17] = 16;
+	buttonIndexes_[18] = 18;
+	buttonIndexes_[19] = 25;
+	buttonIndexes_[20] = 24;
+	buttonIndexes_[21] = 26;
 
 	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX] = 6;
 	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 1] = 14;
