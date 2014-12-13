@@ -6,10 +6,10 @@
  */
 
 #include "SekvojRackMainMenuView.h"
-//#include "SetActiveView.h"
-//#include "PatternView.h"
+#include <SetActiveView.h>
+#include <PatternView.h>
 #include <SetStepView.h>
-//#include "PlayRecordView.h"
+#include <PlayRecordView.h>
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
 							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
@@ -42,16 +42,16 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 
 void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 	switch (viewIndex) {
-	case 2: {
-		/*SetActiveView * activeView = new SetActiveView();
+	case 3: {
+		SetActiveView * activeView = new SetActiveView();
 		activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern());
-		currentView_ = (IView*)activeView;*/
+		currentView_ = (IView*)activeView;
 		break;
 	}
-	case 1: {
-		/*PatternView * patternView = new PatternView();
+	case 2: {
+		PatternView * patternView = new PatternView();
 		patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
-		currentView_ = (IView*)patternView;*/
+		currentView_ = (IView*)patternView;
 		break;
 	}
 	case 0: {
@@ -60,10 +60,10 @@ void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 		currentView_ = (IView*)setStepView;
 		break;
 	}
-	case 3:
-		/*PlayRecordView * playRecordView = new PlayRecordView();
+	case 1:
+		PlayRecordView * playRecordView = new PlayRecordView();
 		playRecordView->init(hw_, recorder_, buttonMap_);
-		currentView_ = (IView*)playRecordView;*/
+		currentView_ = (IView*)playRecordView;
 		break;
 	}
 }
@@ -73,7 +73,7 @@ void SekvojRackMainMenuView::update() {
 	unsigned char newIndex = 0;
 	bool buttonSelected = modeButtons_->getSelectedButton(newIndex);
 	if (buttonSelected && newIndex != currentViewIndex_) {
-		for (int i = 0; i < 36; i++) {
+		for (int i = 0; i < 32; i++) {
 			hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
 		}
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(currentViewIndex_), ILEDHW::OFF);
