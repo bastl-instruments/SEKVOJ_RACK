@@ -79,6 +79,7 @@ void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
 	 //unsigned char instrumentIndex;
 	 //if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
 	 	instrumentBar.setInstrumentPlaying(channel, true);
+	 	hardware.setTrigger(channel,sekvojHW::ON,20);
 	 //}
 	//if (channel == 0)
 	 //instrumentBar.setInstrumentPlaying(channel, true);
@@ -125,7 +126,7 @@ void setup() {
 	hardware.init(0, 0);
 
 	instrumentBar.init(&hardware, &buttonMap, 6);
-	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(140, hardware.getBastlCyclesPerSecond()));
+	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120, hardware.getBastlCyclesPerSecond()));
 	stepper.setStepCallback(&stepperStep);
 
 	settings = new PlayerSettings();
@@ -150,8 +151,10 @@ void setup() {
 
 	recorder.init(player, &memory, settings);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap);
-
-	//Serial.begin(9600);
+	//stepper.setTimeUnitsPerStep();
+	Serial.begin(9600);
+	Serial.println(hardware.getBastlCyclesPerSecond());
+	Serial.println(BPMConverter::bpmToTimeUnits(120, hardware.getBastlCyclesPerSecond()));
 }
 
 

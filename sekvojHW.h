@@ -12,9 +12,10 @@
 
 class sekvojHW : public ILEDsAndButtonsHW {
 
-enum TriggerState{ON,OFF};
+
 
 public:
+	enum TriggerState{ON,OFF};
 
 	// sets up all the pins, timers and SPI interface
 	// call this before using any other method from this class
