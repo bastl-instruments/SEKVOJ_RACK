@@ -55,9 +55,9 @@ void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 		break;
 	}
 	case 0: {
-		/*SetStepView * setStepView = new SetStepView();
+		SetStepView * setStepView = new SetStepView();
 		setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern(), 6, false);
-		currentView_ = (IView*)setStepView;*/
+		currentView_ = (IView*)setStepView;
 		break;
 	}
 	case 3:
