@@ -33,7 +33,7 @@ static const uint8_t buttons_rows = 8;
 
 static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
-
+const uint8_t trigMap[6]={7,6,5,2,3,4};
 
 
 
@@ -287,8 +287,8 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 /**** TRIGGER ****/
 void sekvojHW::setTrigger(uint8_t number, sekvojHW::TriggerState state, uint8_t pulseWidth){
 	triggerCountdown[number]=pulseWidth;
-		if(state==ON) bitWrite(trigState,number,1);
-		if(state==OFF) bitWrite(trigState,number,0);
+		if(state==ON) bitWrite(trigState,trigMap[number],1);
+		if(state==OFF) bitWrite(trigState,trigMap[number],0);
 }
 
 void sekvojHW::isr_updateTriggerStates(){
