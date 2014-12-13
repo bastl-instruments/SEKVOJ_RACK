@@ -116,6 +116,8 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 			}
 		}
 	}
+	unsigned char patternSettings = 255;
+	memory->setPatternSettings(0, &patternSettings);
 }
 
 void setup() {
