@@ -6,18 +6,17 @@
  */
 
 #include "SekvojRackMainMenuView.h"
-#include <SetActiveView.h>
+#include <SetActiveAndPlayingView.h>
 #include <PatternView.h>
 #include <SetStepView.h>
 #include <PlayRecordView.h>
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
 							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
-							   modeButtons_(0) {
+							   currentStatus_(INIT), shift_(false), selectedInstrument_(0) {
 }
 
 SekvojRackMainMenuView::~SekvojRackMainMenuView() {
-	delete modeButtons_;
 }
 
 void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder * recorder,
@@ -32,20 +31,24 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
 
-	modeButtons_ = new RadioButtons(hw_, buttonMap_->getMainMenuButtonArray(), 4);
-	createView(currentViewIndex_);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(0), ILEDHW::ON);
+	createSetStepView();
+	hw_->setLED(buttonMap_->getMainMenuButtonIndex(0), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(1), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(2), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(3), ILEDHW::OFF);
+	hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), ILEDHW::OFF);
+	hw_->setLED(buttonMap_->getMainMenuButtonIndex(5), ILEDHW::OFF);
+}
+
+void SekvojRackMainMenuView::createSetStepView() {
+	SetStepView * setStepView = new SetStepView();
+	setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern(), 6, selectedInstrument_, false);
+	currentView_ = (IView*)setStepView;
 }
 
 void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 	switch (viewIndex) {
 	case 3: {
-		SetActiveView * activeView = new SetActiveView();
-		activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern());
-		currentView_ = (IView*)activeView;
 		break;
 	}
 	case 2: {
@@ -55,9 +58,7 @@ void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 		break;
 	}
 	case 0: {
-		SetStepView * setStepView = new SetStepView();
-		setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern(), 6, false);
-		currentView_ = (IView*)setStepView;
+		createSetStepView();
 		break;
 	}
 	case 1:
@@ -68,10 +69,42 @@ void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 	}
 }
 
+void SekvojRackMainMenuView::updateInInit() {
+	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX)) == IButtonHW::DOWN) {
+		currentStatus_ = ACTIVE;
+		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
+		delete currentView_;
+		SetActiveAndPlayingView * activeView = new SetActiveAndPlayingView();
+		activeView->init(hw_, memory_, player_, settings_, instrumentBar_, buttonMap_, selectedInstrument_);
+		currentView_ = (IView*)activeView;
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::ON);
+	}
+}
+
+void SekvojRackMainMenuView::updateInActive() {
+	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX)) == IButtonHW::UP) {
+		currentStatus_ = INIT;
+		delete currentView_;
+		createSetStepView();
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::OFF);
+	}
+}
+
+
 void SekvojRackMainMenuView::update() {
-	modeButtons_->update();
-	unsigned char newIndex = 0;
-	bool buttonSelected = modeButtons_->getSelectedButton(newIndex);
+
+	shift_ = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_SHIFT_INDEX)) == IButtonHW::DOWN;
+
+	switch (currentStatus_) {
+		case INIT:
+			updateInInit();
+			break;
+		case ACTIVE:
+			updateInActive();
+			break;
+	}
+
+	/*unsigned char newIndex = 0;
 	if (buttonSelected && newIndex != currentViewIndex_) {
 		for (int i = 0; i < 32; i++) {
 			hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
@@ -86,7 +119,7 @@ void SekvojRackMainMenuView::update() {
 		instrumentBar_->resetSelected();
 		createView(currentViewIndex_);
 		return;
-	}
+	}*/
 	if (currentView_) {
 		currentView_->update();
 	}

@@ -19,6 +19,13 @@
 #include "InstrumentBar.h"
 #include <IButtonMap.h>
 
+#define MENU_PLAY_INDEX 4
+#define MENU_RECORD_INDEX 5
+#define MENU_TAP_INDEX 0
+#define MENU_ERASE_INDEX 1
+#define MENU_SHIFT_INDEX 2
+#define MENU_ACTIVE_INDEX 3
+
 class SekvojRackMainMenuView : public IView {
 public:
 	SekvojRackMainMenuView();
@@ -28,6 +35,8 @@ public:
 			  InstrumentBar * instrumentBar, IButtonMap * buttonMap);
 	void update();
 private:
+
+	enum UIStatus{INIT, ACTIVE};
 
 	sekvojHW * hw_;
 	Player * player_;
@@ -42,9 +51,14 @@ private:
 	unsigned char currentViewIndex_;
 	unsigned char currentPattern_;
 
-	RadioButtons * modeButtons_;
+	UIStatus currentStatus_;
+	bool shift_;
+	unsigned char selectedInstrument_;
 
 	void createView(unsigned char viewIndex);
+	void updateInInit();
+	void updateInActive();
+	void createSetStepView();
 
 };
 
