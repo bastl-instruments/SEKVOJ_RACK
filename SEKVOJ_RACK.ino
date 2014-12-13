@@ -166,7 +166,7 @@ void loop() {
 	hardware.printButtonStates();
 	*/
 	//MIDI.read();
-	stepper.update(hardware.getElapsedBastlCycles()/2);
+	stepper.update(hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {
 		if (hardware.getButtonState(i) == IButtonHW::DOWN) {
