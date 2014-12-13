@@ -10,12 +10,6 @@
 
 #include <IButtonMap.h>
 
-#define FIRST_STEP_BUTTON_INDEX 0
-#define FIRST_INSTRUMENT_BUTTON_INDEX 16
-#define FIRST_MAIN_MENU_BUTTON_INDEX FIRST_INSTRUMENT_BUTTON_INDEX + 6
-#define FIRST_VELOCITY_BUTTON_INDEX FIRST_MAIN_MENU_BUTTON_INDEX + 6
-#define FIRST_SUBSTEP_BUTTON_INDEX FIRST_VELOCITY_BUTTON_INDEX + 0
-
 class SekvojRackButtonMap : public IButtonMap {
 public:
 	SekvojRackButtonMap();
@@ -55,7 +49,7 @@ inline unsigned char SekvojRackButtonMap::getSubStepButtonIndex(unsigned char in
 }
 
 inline unsigned char SekvojRackButtonMap::getVelocityButtonIndex(unsigned char index) {
-	return buttonIndexes_[FIRST_VELOCITY_BUTTON_INDEX + index];
+	return buttonIndexes_[28 + index];
 }
 
 inline unsigned char* SekvojRackButtonMap::getMainMenuButtonArray() {
@@ -75,7 +69,7 @@ inline unsigned char* SekvojRackButtonMap::getSubStepButtonArray() {
 }
 
 inline unsigned char* SekvojRackButtonMap::getVelocityButtonArray() {
-	return &buttonIndexes_[FIRST_VELOCITY_BUTTON_INDEX];
+	return &buttonIndexes_[28];
 }
 
 #endif /* SEKVOJRACKBUTTONMAP_H_ */

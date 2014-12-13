@@ -37,8 +37,8 @@ SekvojRackButtonMap::SekvojRackButtonMap() {
 	buttonIndexes_[23] = 8;
 	buttonIndexes_[24] = 2;
 	buttonIndexes_[25] = 10;
-	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 4] = 5;
-	buttonIndexes_[FIRST_MAIN_MENU_BUTTON_INDEX + 5] = 13;
+	buttonIndexes_[26] = 1;
+	buttonIndexes_[27] = 9;
 
 	buttonIndexes_[28] = 3;
 	buttonIndexes_[29] = 11;
