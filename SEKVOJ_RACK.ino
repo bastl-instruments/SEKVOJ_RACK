@@ -31,6 +31,7 @@ int main(void) {
 #include <InstrumentBar.h>
 #include <StepRecorder.h>
 #include <StepSynchronizer.h>
+#include <StepMultiplier.h>
 
 //MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
@@ -53,12 +54,13 @@ StepRecorder recorder;
 InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
+StepMultiplier multiplier;
 
 unsigned long lastBastlCycles = 0;
 unsigned char localStep = 0;
 
 extern sekvojHW hardware;
-
+bool slave=false;
 
 void stepperStep() {
 	/*localStep = (localStep + 1) % 64;
@@ -121,12 +123,17 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 	memory->setPatternSettings(0, &patternSettings);
 }
 
+void clockInCall(){
+	multiplier.doStep(millis());
+	slave=true;
+}
+
 void setup() {
 
-	hardware.init(0, 0);
+	hardware.init(0, &clockInCall);
 
 	instrumentBar.init(&hardware, &buttonMap, 6);
-	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120, hardware.getBastlCyclesPerSecond()));
+	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120,1000));// hardware.getBastlCyclesPerSecond()));
 	stepper.setStepCallback(&stepperStep);
 
 	settings = new PlayerSettings();
@@ -153,8 +160,10 @@ void setup() {
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap);
 	//stepper.setTimeUnitsPerStep();
 	Serial.begin(9600);
-	Serial.println(hardware.getBastlCyclesPerSecond());
-	Serial.println(BPMConverter::bpmToTimeUnits(120, hardware.getBastlCyclesPerSecond()));
+	multiplier.init(1000);//&stepperStep);
+	multiplier.setMultiplication(4);
+	multiplier.setMinTriggerTime(1);
+	multiplier.setStepCallback(&stepperStep);
 }
 
 
@@ -168,7 +177,8 @@ void loop() {
 	hardware.printButtonStates();
 	*/
 	//MIDI.read();
-	stepper.update(hardware.getElapsedBastlCycles());
+	if(slave) multiplier.update(millis());
+	else stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {
 		if (hardware.getButtonState(i) == IButtonHW::DOWN) {
