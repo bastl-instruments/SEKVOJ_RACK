@@ -19,6 +19,7 @@
 #include "InstrumentBar.h"
 #include <IButtonMap.h>
 #include <Switches.h>
+#include <StepSynchronizer.h>
 
 #define MENU_PLAY_INDEX 4
 #define MENU_RECORD_INDEX 5
@@ -33,7 +34,7 @@ public:
 	~SekvojRackMainMenuView();
 	void init(sekvojHW * hw, Player * player, StepRecorder * recorder,
 			  IStepMemory * memory, PlayerSettings * settings, IMIDICommandProcessor * midiProcessor,
-			  InstrumentBar * instrumentBar, IButtonMap * buttonMap);
+			  InstrumentBar * instrumentBar, IButtonMap * buttonMap, StepSynchronizer * synchronizer);
 	void update();
 private:
 
@@ -56,6 +57,8 @@ private:
 
 	UIStatus currentStatus_;
 	unsigned char selectedInstrument_;
+
+	StepSynchronizer * synchronizer_;
 
 	void createView(unsigned char viewIndex);
 	void updateInInit();

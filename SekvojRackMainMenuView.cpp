@@ -15,7 +15,7 @@
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
 							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
-							   currentStatus_(INIT), selectedInstrument_(0) {
+							   currentStatus_(INIT), selectedInstrument_(0), synchronizer_(0) {
 }
 
 SekvojRackMainMenuView::~SekvojRackMainMenuView() {
@@ -23,7 +23,7 @@ SekvojRackMainMenuView::~SekvojRackMainMenuView() {
 
 void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder * recorder,
 						IStepMemory * memory, PlayerSettings * settings, IMIDICommandProcessor * midiProcessor,
-						InstrumentBar * instrumentBar, IButtonMap * buttonMap) {
+						InstrumentBar * instrumentBar, IButtonMap * buttonMap, StepSynchronizer * synchronizer) {
 	hw_ = hw;
 	player_ = player;
 	recorder_ = recorder;
@@ -32,6 +32,7 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 	midiProcessor_ = midiProcessor;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
+	synchronizer_ = synchronizer;
 
 	createSetStepView();
 
@@ -73,7 +74,7 @@ void SekvojRackMainMenuView::updateInInit() {
 		currentStatus_ = RECORDING;
 		destroyInitView();
 		PlayRecordView * playRecordView = new PlayRecordView();
-		playRecordView->init(hw_, recorder_, buttonMap_);
+		playRecordView->init(hw_, recorder_, buttonMap_, synchronizer_);
 		currentView_ = (IView*)playRecordView;
 		instrumentBar_->resetSelected();
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::ON);

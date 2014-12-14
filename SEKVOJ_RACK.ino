@@ -173,7 +173,7 @@ void setup() {
 	//hardware.clearDisplay();
 
 	recorder.init(player, &memory, settings);
-	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap);
+	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
 	//stepper.setTimeUnitsPerStep();
 	Serial.begin(9600);
 	multiplier.init(1000);//&stepperStep);
