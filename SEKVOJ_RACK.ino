@@ -116,7 +116,7 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
 		for (unsigned char step = 0; step < 64; step++) {
-			memory->setDrumStep(instrument, 0, step, emptyDrumStep);
+			memory->setDrumStep(instrument, step, emptyDrumStep);
 			/*
 			if (step % 6 == instrument) {
 				memory->setDrumStep(instrument, 0, step, oneDrumStep);
@@ -126,8 +126,6 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 			*/
 		}
 	}
-	unsigned char patternSettings = 255;
-	memory->setPatternSettings(0, &patternSettings);
 }
 
 void clockInCall(){
@@ -152,6 +150,7 @@ void setup() {
 		settings->setInstrumentOn(Step::DRUM, i, true);
 		settings->setInstrumentChannel(Step::DRUM, i, i);
 		settings->setDrumInstrumentNote(i, i);
+		settings->setDrumInstrumentEventType(i, PlayerSettings::TRIGGER);
 	}
 
 
