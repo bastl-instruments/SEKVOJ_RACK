@@ -138,56 +138,61 @@ void clockInCall(){
 	multiplier.doStep(millis());
 	slave=true;
 }
-
+uint8_t currentPattern=0;
 void getPatternData(unsigned char patternIndex, unsigned char * data) {
 	//timing needs optimisation ?
 		// cca 60 ms opening file
 			// cca 19 ms writing
 		//cca 2 ms closing file
-	Serial.println("load");
+	currentPattern=patternIndex;
+	Serial.println("load:");
 	uint32_t positionInFile=patternIndex*512;
 	uint32_t time=millis();
-
-	if (!file.open(&root, "PAT.txt", O_READ )) {
+	file.seekSet(positionInFile);
+			file.read(&data[0],290);
+			/*
+	if (!file.open(&root, "PT.txt", O_READ )) {
 
 	}
 	else{Serial.println(file.curPosition());
 		file.seekSet(positionInFile);
-		Serial.println(file.curPosition());
-		Serial.println(file.read(&data[0],290));
-		Serial.println(file.curPosition());
+		file.read(&data[0],290);
 	}
 	file.close();
-
+*/
     Serial.println(millis()-time);
-    for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
-    Serial.println();
+    //for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
+   // Serial.println();
 }
 
 void setPatternData(unsigned char patternIndex, unsigned char * data) {
-	Serial.println("store");
+Serial.println("store:");
 	uint32_t positionInFile=patternIndex*512;
 	uint32_t time=millis();
-	if (!file.open(&root, "PAT.txt", O_RDWR | O_CREAT )) {
+	file.seekSet(positionInFile);
+
+				file.write(&data[0],290);
+				/*
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
 
 	}
 	else{
 		//Serial.println(file.getFileSize());
-		Serial.println(file.curPosition());
+
 			file.seekSet(positionInFile);
-			Serial.println(file.curPosition());
-			Serial.println(file.write(&data[0],290));
-			Serial.println(file.curPosition());
+
+			file.write(&data[0],290);
+
 	}
 	file.close();
-
+*/
     Serial.println(millis()-time);
-    for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
-    Serial.println();
+   // for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
+
 }
 //<<<<<<< Updated upstream
 void patternChanged(unsigned char patternIndex) {
-	setPatternData(patternIndex,memoryData);
+	setPatternData(currentPattern,memoryData);
 	getPatternData(patternIndex,memoryData);
 	hardware.setLED(buttonMap.getMainMenuButtonIndex(4), ILEDHW::ON);
 }
@@ -247,12 +252,23 @@ void setup() {
 	// file.createContiguous(&root, "PAT.txt", (64*512));
 	// file.close();
 /*
-	if (!file.open(&root, "PAT.txt", O_RDWR | O_CREAT )) {
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT | O_AT_END)) {
 			//sd.errorHalt("opening test.txt for read failed");
 			 Serial.println("er-write");
 	}
-	for(int i=0;i<(64*512);i++) file.write(255);
-*/
+	//uint32_t fls=64*512;
+	for(uint16_t i=0;i<64;i++){
+		for(uint16_t j=0;j<512;j++){
+		file.print(255);
+		}
+		Serial.print(".");
+	}
+	file.close();
+	*/
+//	for(int i=0;i<64;i++) setPatternData(i,memoryData);
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
+
+		}
 	getPatternData(0,memoryData);
 
 
