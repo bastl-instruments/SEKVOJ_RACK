@@ -48,6 +48,7 @@ private:
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
 	Switches recordSwitch_;
+	Switches activeSwitch_;
 
 	IView * currentView_;
 	unsigned char currentViewIndex_;

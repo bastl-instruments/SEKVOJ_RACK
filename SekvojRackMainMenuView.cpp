@@ -42,8 +42,10 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(5), ILEDHW::OFF);
 
 	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + MENU_RECORD_INDEX;
+	unsigned char * activeButton = buttonMap_->getMainMenuButtonArray() + MENU_ACTIVE_INDEX;
 
 	recordSwitch_.init(hw_, recordButton, 1, IButtonHW::DOWN);
+	activeSwitch_.init(hw_, activeButton, 1, IButtonHW::DOWN);
 }
 
 void SekvojRackMainMenuView::createSetStepView() {
@@ -65,6 +67,7 @@ void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 
 void SekvojRackMainMenuView::updateInInit() {
 	recordSwitch_.update();
+	activeSwitch_.update();
 	if (recordSwitch_.getStatus(0)) {
 		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
 		delete currentView_;
@@ -80,7 +83,7 @@ void SekvojRackMainMenuView::updateInInit() {
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::ON);
 		return;
 	}
-	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX)) == IButtonHW::DOWN) {
+	if (activeSwitch_.getStatus(0)) {
 		currentStatus_ = ACTIVE;
 		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
 		delete currentView_;
@@ -115,7 +118,8 @@ void SekvojRackMainMenuView::updateInPattern() {
 }
 
 void SekvojRackMainMenuView::updateInActive() {
-	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX)) == IButtonHW::UP) {
+	activeSwitch_.update();
+	if (!activeSwitch_.getStatus(0)) {
 		currentStatus_ = INIT;
 		delete currentView_;
 		createSetStepView();
