@@ -139,10 +139,11 @@ void clockInCall(){
 	slave=true;
 }
 
-<<<<<<< Updated upstream
+//<<<<<<< Updated upstream
 void patternChanged(unsigned char patternIndex) {
 	hardware.setLED(buttonMap.getMainMenuButtonIndex(4), ILEDHW::ON);
-=======
+}
+//=======
 uint32_t fileIndex[5];
 
 void indexPatternFiles(){
@@ -171,7 +172,7 @@ void indexPatternFiles(){
 			Serial.println(patternName);
 			Serial.println("indexed");
 	}
->>>>>>> Stashed changes
+//>>>>>>> Stashed changes
 }
 
 void setup() {
