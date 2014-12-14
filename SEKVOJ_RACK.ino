@@ -25,7 +25,7 @@ int main(void) {
 #include <NoVelocityStepMemory.h>
 #include <RackInstrumentDefinitions.h>
 //#include <MIDI.h>
-//#include <SdFat.h>
+#include <SdFat.h>
 #include "SekvojRackMainMenuView.h"
 #include "SekvojRackButtonMap.h"
 #include <InstrumentBar.h>
@@ -47,6 +47,10 @@ PlayerSettings * settings;
 //SdVolume vol; // FAT16 or FAT32 volume
 //SdFile root; // volume's root directory
 //SdFile file; // current file
+
+SdFat sd;
+SdFile myFile;
+
 
 SekvojRackMainMenuView mainMenu;
 StepGenerator stepper;
@@ -112,11 +116,14 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
 		for (unsigned char step = 0; step < 64; step++) {
+			memory->setDrumStep(instrument, 0, step, emptyDrumStep);
+			/*
 			if (step % 6 == instrument) {
 				memory->setDrumStep(instrument, 0, step, oneDrumStep);
 			} else {
-				memory->setDrumStep(instrument, 0, step, emptyDrumStep);
+
 			}
+			*/
 		}
 	}
 	unsigned char patternSettings = 255;
@@ -163,9 +170,11 @@ void setup() {
 	//stepper.setTimeUnitsPerStep();
 	Serial.begin(9600);
 	multiplier.init(1000);//&stepperStep);
-	multiplier.setMultiplication(4);
+	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
+	if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
+
 }
 
 
