@@ -175,8 +175,52 @@ void setup() {
 	multiplier.setStepCallback(&stepperStep);
 	if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
 
+
+
 }
 
+
+void getPatternData(unsigned char patternIndex, unsigned char * data) {
+	//timing needs optimisation ?
+		// cca 60 ms opening file
+			// cca 19 ms writing
+		//cca 2 ms closing file
+	char patternName[8]="P00.txt";
+	unsigned char bank= patternIndex/16;
+	patternName[1]=bank+48;
+	unsigned char preset = patternIndex%16;
+
+	if(preset>9) patternName[2]=preset-10+65;
+	else patternName[2]=preset+48;
+
+	if (!myFile.open(patternName, O_READ)) {
+		//sd.errorHalt("opening test.txt for read failed");
+	 }
+    for (unsigned int dataIndex= 0; dataIndex < 290; dataIndex++) {
+        data[dataIndex] =  myFile.read();
+    }
+    myFile.close();
+}
+
+void setPatternData(unsigned char patternIndex, unsigned char * data) {
+
+	char patternName[8]="P00.txt";
+	unsigned char bank= patternIndex/16;
+	patternName[1]=bank+48;
+	unsigned char preset = patternIndex%16;
+
+	if(preset>9) patternName[2]=preset-10+65;
+	else patternName[2]=preset+48;
+
+
+	 if (!myFile.open(patternName, O_RDWR | O_CREAT )) {
+		//sd.errorHalt("opening test.txt for read failed");
+	 }
+    for (unsigned int dataIndex= 0; dataIndex < 290; dataIndex++) {
+          myFile.write(data[dataIndex]);
+    }
+    myFile.close();
+}
 
 
 void loop() {
@@ -188,6 +232,7 @@ void loop() {
 	hardware.printButtonStates();
 	*/
 	//MIDI.read();
+	if(hardware.getButtonState(0)==IHWLayer::DOWN) save(),load();
 	if(slave) multiplier.update(millis());
 	else stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
