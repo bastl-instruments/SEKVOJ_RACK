@@ -66,6 +66,8 @@ unsigned char localStep = 0;
 extern sekvojHW hardware;
 bool slave=false;
 
+unsigned char memoryData[288];
+
 void stepperStep() {
 	/*localStep = (localStep + 1) % 64;
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
@@ -133,6 +135,10 @@ void clockInCall(){
 	slave=true;
 }
 
+void patternChanged(unsigned char patternIndex) {
+	hardware.setLED(buttonMap.getMainMenuButtonIndex(4), ILEDHW::ON);
+}
+
 void setup() {
 
 	hardware.init(0, &clockInCall);
@@ -145,6 +151,7 @@ void setup() {
 
 	settings = new PlayerSettings();
 	settings->setCurrentPattern(0);
+	settings->setPatternChangedCallback(&patternChanged);
 
 	for (unsigned char i = 0; i < 6; i++) {
 		settings->setInstrumentOn(Step::DRUM, i, true);
@@ -153,7 +160,8 @@ void setup() {
 		settings->setDrumInstrumentEventType(i, PlayerSettings::TRIGGER);
 	}
 
-
+	//Here the pointer to the SD Card memory shall be set.
+	memory.setDataReference(memoryData);
 	initFlashMemory(&memory);
 
 	processor = new ArduinoMIDICommandProcessor(&noteOn, &noteOff);
