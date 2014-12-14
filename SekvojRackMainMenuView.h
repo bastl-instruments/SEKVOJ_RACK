@@ -23,7 +23,7 @@
 #define MENU_PLAY_INDEX 4
 #define MENU_RECORD_INDEX 5
 #define MENU_TAP_INDEX 0
-#define MENU_ERASE_INDEX 1
+#define MENU_FUNCTION_INDEX 1
 #define MENU_PATTERN_INDEX 2
 #define MENU_ACTIVE_INDEX 3
 
@@ -37,7 +37,7 @@ public:
 	void update();
 private:
 
-	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN};
+	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, FUNCTION};
 
 	sekvojHW * hw_;
 	Player * player_;
@@ -62,7 +62,9 @@ private:
 	void updateInActive();
 	void updateInRecording();
 	void updateInPattern();
+	void updateInFunction();
 	void createSetStepView();
+	void destroyInitView();
 
 };
 

@@ -10,6 +10,7 @@
 #include <PatternView.h>
 #include <SetStepView.h>
 #include <PlayRecordView.h>
+#include <SettingsAndFunctionsView.h>
 #include <IButtonHW.h>
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
@@ -69,24 +70,18 @@ void SekvojRackMainMenuView::updateInInit() {
 	recordSwitch_.update();
 	activeSwitch_.update();
 	if (recordSwitch_.getStatus(0)) {
-		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
-		delete currentView_;
 		currentStatus_ = RECORDING;
+		destroyInitView();
 		PlayRecordView * playRecordView = new PlayRecordView();
 		playRecordView->init(hw_, recorder_, buttonMap_);
 		currentView_ = (IView*)playRecordView;
-		//clear UI diods
-		for (int i = 0; i < 32; i++) {
-			hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
-		}
 		instrumentBar_->resetSelected();
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::ON);
 		return;
 	}
 	if (activeSwitch_.getStatus(0)) {
 		currentStatus_ = ACTIVE;
-		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
-		delete currentView_;
+		destroyInitView();
 		SetActiveView * activeView = new SetActiveView();
 		activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_);
 		currentView_ = (IView*)activeView;
@@ -95,16 +90,29 @@ void SekvojRackMainMenuView::updateInInit() {
 	}
 	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX)) == IButtonHW::DOWN) {
 		currentStatus_ = PATTERN;
-		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
-		delete currentView_;
-		for (int i = 0; i < 32; i++) {
-			hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
-		}
+		destroyInitView();
 		PatternView * patternView = new PatternView();
 		patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
 		currentView_ = (IView*)patternView;
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX), ILEDHW::ON);
 		return;
+	}
+	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX)) == IButtonHW::DOWN) {
+		currentStatus_ = FUNCTION;
+		destroyInitView();
+		SettingsAndFunctionsView * functionView = new SettingsAndFunctionsView();
+		functionView->init(hw_, settings_,instrumentBar_, buttonMap_);
+		currentView_ = (IView*)functionView;
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX), ILEDHW::ON);
+		return;
+	}
+}
+
+void SekvojRackMainMenuView::destroyInitView() {
+	selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
+	delete currentView_;
+	for (int i = 0; i < 32; i++) {
+		hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
 	}
 }
 
@@ -114,6 +122,15 @@ void SekvojRackMainMenuView::updateInPattern() {
 		delete currentView_;
 		createSetStepView();
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX), ILEDHW::OFF);
+	}
+}
+
+void SekvojRackMainMenuView::updateInFunction() {
+	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX)) == IButtonHW::UP) {
+		currentStatus_ = INIT;
+		delete currentView_;
+		createSetStepView();
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX), ILEDHW::OFF);
 	}
 }
 
@@ -154,6 +171,9 @@ void SekvojRackMainMenuView::update() {
 			break;
 		case PATTERN:
 			updateInPattern();
+			break;
+		case FUNCTION:
+			updateInFunction();
 			break;
 	}
 
