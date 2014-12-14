@@ -18,6 +18,7 @@
 #include <StepRecorder.h>
 #include "InstrumentBar.h"
 #include <IButtonMap.h>
+#include <Switches.h>
 
 #define MENU_PLAY_INDEX 4
 #define MENU_RECORD_INDEX 5
@@ -36,7 +37,7 @@ public:
 	void update();
 private:
 
-	enum UIStatus{INIT, ACTIVE};
+	enum UIStatus{INIT, ACTIVE, RECORDING};
 
 	sekvojHW * hw_;
 	Player * player_;
@@ -46,6 +47,7 @@ private:
 	IMIDICommandProcessor * midiProcessor_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
+	Switches recordSwitch_;
 
 	IView * currentView_;
 	unsigned char currentViewIndex_;
@@ -58,6 +60,7 @@ private:
 	void createView(unsigned char viewIndex);
 	void updateInInit();
 	void updateInActive();
+	void updateInRecording();
 	void createSetStepView();
 
 };

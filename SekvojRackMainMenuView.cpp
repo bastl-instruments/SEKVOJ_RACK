@@ -10,6 +10,7 @@
 #include <PatternView.h>
 #include <SetStepView.h>
 #include <PlayRecordView.h>
+#include <IButtonHW.h>
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
 							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
@@ -32,12 +33,17 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 	buttonMap_ = buttonMap;
 
 	createSetStepView();
+
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(0), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(1), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(2), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(3), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(5), ILEDHW::OFF);
+
+	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + MENU_RECORD_INDEX;
+
+	recordSwitch_.init(hw_, recordButton, 1, IButtonHW::DOWN);
 }
 
 void SekvojRackMainMenuView::createSetStepView() {
@@ -48,28 +54,32 @@ void SekvojRackMainMenuView::createSetStepView() {
 
 void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 	switch (viewIndex) {
-	case 3: {
-		break;
-	}
-	case 2: {
-		PatternView * patternView = new PatternView();
-		patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
-		currentView_ = (IView*)patternView;
-		break;
-	}
-	case 0: {
-		createSetStepView();
-		break;
-	}
-	case 1:
-		PlayRecordView * playRecordView = new PlayRecordView();
-		playRecordView->init(hw_, recorder_, buttonMap_);
-		currentView_ = (IView*)playRecordView;
-		break;
+		case 2: {
+			PatternView * patternView = new PatternView();
+			patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
+			currentView_ = (IView*)patternView;
+			break;
+		}
 	}
 }
 
 void SekvojRackMainMenuView::updateInInit() {
+	recordSwitch_.update();
+	if (recordSwitch_.getStatus(0)) {
+		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
+		delete currentView_;
+		currentStatus_ = RECORDING;
+		PlayRecordView * playRecordView = new PlayRecordView();
+		playRecordView->init(hw_, recorder_, buttonMap_);
+		currentView_ = (IView*)playRecordView;
+		//clear UI diods
+		for (int i = 0; i < 32; i++) {
+			hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
+		}
+		instrumentBar_->resetSelected();
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::ON);
+		return;
+	}
 	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX)) == IButtonHW::DOWN) {
 		currentStatus_ = ACTIVE;
 		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
@@ -90,6 +100,18 @@ void SekvojRackMainMenuView::updateInActive() {
 	}
 }
 
+void SekvojRackMainMenuView::updateInRecording() {
+	recordSwitch_.update();
+	if (!recordSwitch_.getStatus(0)) {
+		currentStatus_ = INIT;
+		delete currentView_;
+		createSetStepView();
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::OFF);
+	}
+}
+
+
+
 
 void SekvojRackMainMenuView::update() {
 
@@ -101,6 +123,9 @@ void SekvojRackMainMenuView::update() {
 			break;
 		case ACTIVE:
 			updateInActive();
+			break;
+		case RECORDING:
+			updateInRecording();
 			break;
 	}
 
