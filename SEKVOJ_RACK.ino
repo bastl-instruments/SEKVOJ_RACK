@@ -26,12 +26,15 @@ int main(void) {
 #include <RackInstrumentDefinitions.h>
 //#include <MIDI.h>
 #include <SdFat.h>
+#include <SdFatUtil.h>
+
 #include "SekvojRackMainMenuView.h"
 #include "SekvojRackButtonMap.h"
 #include <InstrumentBar.h>
 #include <StepRecorder.h>
 #include <StepSynchronizer.h>
 #include <StepMultiplier.h>
+#include <EEPROM.h>
 
 //MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
@@ -48,9 +51,10 @@ PlayerSettings * settings;
 //SdFile root; // volume's root directory
 //SdFile file; // current file
 
-SdFat sd;
-SdFile myFile;
-
+Sd2Card card;           // SD/SDHC card with support for version 2.00 features
+SdVolume vol;           // FAT16 or FAT32 volume
+SdFile root;            // volume's root directory
+SdFile file;
 
 SekvojRackMainMenuView mainMenu;
 StepGenerator stepper;
@@ -135,8 +139,39 @@ void clockInCall(){
 	slave=true;
 }
 
+<<<<<<< Updated upstream
 void patternChanged(unsigned char patternIndex) {
 	hardware.setLED(buttonMap.getMainMenuButtonIndex(4), ILEDHW::ON);
+=======
+uint32_t fileIndex[5];
+
+void indexPatternFiles(){
+
+	//read something from EEPROM and index only when necessary
+	for(int i=0;i<2;i++){
+			char patternName[8]="P00.txt";
+			unsigned char bank= i/16;
+			patternName[1]=bank+48;
+			unsigned char preset = i%16;
+			if(preset>9) patternName[2]=preset-10+65;
+			else patternName[2]=preset+48;
+
+			if (!file.open(&root,patternName, O_READ)) {
+					Serial.println("opening test.txt for read failed");
+			}
+			/*
+			if (!file.open(&root, patternName, O_RDWR | O_CREAT )) {
+					//sd.errorHalt("opening test.txt for read failed");
+				 }
+*/
+			else{
+				fileIndex[i]=root.curPosition()/32-1; // save to EEPROM instead - chop into 4 bytes and than re-assemble
+			}
+			file.close();
+			Serial.println(patternName);
+			Serial.println("indexed");
+	}
+>>>>>>> Stashed changes
 }
 
 void setup() {
@@ -180,8 +215,15 @@ void setup() {
 	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
-	if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
+	Serial.println("strt");
+	//if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
 
+	if (!card.init()){Serial.println("int");};//error("card");
+	if (!vol.init(&card)){Serial.println("crd");};// error("vol ");
+	if (!root.openRoot(&vol)){Serial.println("vol");};// error("root");
+	Serial.println("redy");
+	//suspicious semicolon - a good name for a band !
+	indexPatternFiles();
 
 
 }
@@ -192,41 +234,25 @@ void getPatternData(unsigned char patternIndex, unsigned char * data) {
 		// cca 60 ms opening file
 			// cca 19 ms writing
 		//cca 2 ms closing file
-	char patternName[8]="P00.txt";
-	unsigned char bank= patternIndex/16;
-	patternName[1]=bank+48;
-	unsigned char preset = patternIndex%16;
 
-	if(preset>9) patternName[2]=preset-10+65;
-	else patternName[2]=preset+48;
-
-	if (!myFile.open(patternName, O_READ)) {
+	if (!file.open(&root, fileIndex[patternIndex], O_READ)) {
 		//sd.errorHalt("opening test.txt for read failed");
 	 }
     for (unsigned int dataIndex= 0; dataIndex < 290; dataIndex++) {
-        data[dataIndex] =  myFile.read();
+        data[dataIndex] =  file.read();
     }
-    myFile.close();
+    file.close();
 }
 
 void setPatternData(unsigned char patternIndex, unsigned char * data) {
 
-	char patternName[8]="P00.txt";
-	unsigned char bank= patternIndex/16;
-	patternName[1]=bank+48;
-	unsigned char preset = patternIndex%16;
-
-	if(preset>9) patternName[2]=preset-10+65;
-	else patternName[2]=preset+48;
-
-
-	 if (!myFile.open(patternName, O_RDWR | O_CREAT )) {
+	 if (!file.open(&root, fileIndex[patternIndex], O_RDWR | O_CREAT )) {
 		//sd.errorHalt("opening test.txt for read failed");
 	 }
     for (unsigned int dataIndex= 0; dataIndex < 290; dataIndex++) {
-          myFile.write(data[dataIndex]);
+          file.write(data[dataIndex]);
     }
-    myFile.close();
+    file.close();
 }
 
 
@@ -239,7 +265,9 @@ void loop() {
 	hardware.printButtonStates();
 	*/
 	//MIDI.read();
-	//if(hardware.getButtonState(0)==IHWLayer::DOWN) save(),load();
+//	unsigned char someData[290];
+	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
+
 	if(slave) multiplier.update(millis());
 	else stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
