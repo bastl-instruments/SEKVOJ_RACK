@@ -232,7 +232,7 @@ void loop() {
 	hardware.printButtonStates();
 	*/
 	//MIDI.read();
-	if(hardware.getButtonState(0)==IHWLayer::DOWN) save(),load();
+	//if(hardware.getButtonState(0)==IHWLayer::DOWN) save(),load();
 	if(slave) multiplier.update(millis());
 	else stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
