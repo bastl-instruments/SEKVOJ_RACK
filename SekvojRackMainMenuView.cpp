@@ -14,7 +14,7 @@
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
 							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
-							   currentStatus_(INIT), shift_(false), selectedInstrument_(0) {
+							   currentStatus_(INIT), selectedInstrument_(0) {
 }
 
 SekvojRackMainMenuView::~SekvojRackMainMenuView() {
@@ -88,6 +88,29 @@ void SekvojRackMainMenuView::updateInInit() {
 		activeView->init(hw_, memory_, player_, settings_, instrumentBar_, buttonMap_, selectedInstrument_);
 		currentView_ = (IView*)activeView;
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::ON);
+		return;
+	}
+	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX)) == IButtonHW::DOWN) {
+		currentStatus_ = PATTERN;
+		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
+		delete currentView_;
+		for (int i = 0; i < 32; i++) {
+			hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
+		}
+		PatternView * patternView = new PatternView();
+		patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
+		currentView_ = (IView*)patternView;
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX), ILEDHW::ON);
+		return;
+	}
+}
+
+void SekvojRackMainMenuView::updateInPattern() {
+	if (hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX)) == IButtonHW::UP) {
+		currentStatus_ = INIT;
+		delete currentView_;
+		createSetStepView();
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX), ILEDHW::OFF);
 	}
 }
 
@@ -115,8 +138,6 @@ void SekvojRackMainMenuView::updateInRecording() {
 
 void SekvojRackMainMenuView::update() {
 
-	shift_ = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_SHIFT_INDEX)) == IButtonHW::DOWN;
-
 	switch (currentStatus_) {
 		case INIT:
 			updateInInit();
@@ -126,6 +147,9 @@ void SekvojRackMainMenuView::update() {
 			break;
 		case RECORDING:
 			updateInRecording();
+			break;
+		case PATTERN:
+			updateInPattern();
 			break;
 	}
 

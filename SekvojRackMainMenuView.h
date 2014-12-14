@@ -24,7 +24,7 @@
 #define MENU_RECORD_INDEX 5
 #define MENU_TAP_INDEX 0
 #define MENU_ERASE_INDEX 1
-#define MENU_SHIFT_INDEX 2
+#define MENU_PATTERN_INDEX 2
 #define MENU_ACTIVE_INDEX 3
 
 class SekvojRackMainMenuView : public IView {
@@ -37,7 +37,7 @@ public:
 	void update();
 private:
 
-	enum UIStatus{INIT, ACTIVE, RECORDING};
+	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN};
 
 	sekvojHW * hw_;
 	Player * player_;
@@ -54,13 +54,13 @@ private:
 	unsigned char currentPattern_;
 
 	UIStatus currentStatus_;
-	bool shift_;
 	unsigned char selectedInstrument_;
 
 	void createView(unsigned char viewIndex);
 	void updateInInit();
 	void updateInActive();
 	void updateInRecording();
+	void updateInPattern();
 	void createSetStepView();
 
 };
