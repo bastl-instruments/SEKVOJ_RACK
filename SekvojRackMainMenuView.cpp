@@ -6,7 +6,7 @@
  */
 
 #include "SekvojRackMainMenuView.h"
-#include <SetActiveAndPlayingView.h>
+#include <SetActiveView.h>
 #include <PatternView.h>
 #include <SetStepView.h>
 #include <PlayRecordView.h>
@@ -87,8 +87,8 @@ void SekvojRackMainMenuView::updateInInit() {
 		currentStatus_ = ACTIVE;
 		selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
 		delete currentView_;
-		SetActiveAndPlayingView * activeView = new SetActiveAndPlayingView();
-		activeView->init(hw_, memory_, player_, settings_, instrumentBar_, buttonMap_, selectedInstrument_);
+		SetActiveView * activeView = new SetActiveView();
+		activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_);
 		currentView_ = (IView*)activeView;
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::ON);
 		return;
