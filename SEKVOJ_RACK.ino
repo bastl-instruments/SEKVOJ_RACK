@@ -125,6 +125,8 @@ void setup() {
 
 	hardware.init(0, 0);
 
+	synchronizer.setCycleLength(256);
+
 	instrumentBar.init(&hardware, &buttonMap, 6);
 	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120, hardware.getBastlCyclesPerSecond()));
 	stepper.setStepCallback(&stepperStep);
