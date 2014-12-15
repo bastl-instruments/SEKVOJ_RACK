@@ -70,7 +70,7 @@ unsigned char localStep = 0;
 extern sekvojHW hardware;
 bool slave=false;
 
-unsigned char memoryData[288];
+unsigned char memoryData[292];
 
 void stepperStep() {
 	/*localStep = (localStep + 1) % 64;
@@ -138,42 +138,66 @@ void clockInCall(){
 	multiplier.doStep(millis());
 	slave=true;
 }
+uint8_t currentPattern=0;
+void getPatternData(unsigned char patternIndex, unsigned char * data) {
+	//timing needs optimisation ?
+		// cca 60 ms opening file
+			// cca 19 ms writing
+		//cca 2 ms closing file
+	currentPattern=patternIndex;
+	Serial.println("load:");
+	uint32_t positionInFile=patternIndex*512;
+	uint32_t time=millis();
+	file.seekSet(positionInFile);
+			file.read(&data[0],290);
+			/*
+	if (!file.open(&root, "PT.txt", O_READ )) {
 
+	}
+	else{Serial.println(file.curPosition());
+		file.seekSet(positionInFile);
+		file.read(&data[0],290);
+	}
+	file.close();
+*/
+    Serial.println(millis()-time);
+    //for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
+   // Serial.println();
+}
+
+void setPatternData(unsigned char patternIndex, unsigned char * data) {
+Serial.println("store:");
+	uint32_t positionInFile=patternIndex*512;
+	uint32_t time=millis();
+	file.seekSet(positionInFile);
+
+				file.write(&data[0],290);
+				/*
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
+
+	}
+	else{
+		//Serial.println(file.getFileSize());
+
+			file.seekSet(positionInFile);
+
+			file.write(&data[0],290);
+
+	}
+	file.close();
+*/
+    Serial.println(millis()-time);
+   // for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
+
+}
 //<<<<<<< Updated upstream
 void patternChanged(unsigned char patternIndex) {
+	setPatternData(currentPattern,memoryData);
+	getPatternData(patternIndex,memoryData);
 	hardware.setLED(buttonMap.getMainMenuButtonIndex(4), ILEDHW::ON);
 }
 //=======
-uint32_t fileIndex[5];
 
-void indexPatternFiles(){
-
-	//read something from EEPROM and index only when necessary
-	for(int i=0;i<2;i++){
-			char patternName[8]="P00.txt";
-			unsigned char bank= i/16;
-			patternName[1]=bank+48;
-			unsigned char preset = i%16;
-			if(preset>9) patternName[2]=preset-10+65;
-			else patternName[2]=preset+48;
-
-			if (!file.open(&root,patternName, O_READ)) {
-					Serial.println("opening test.txt for read failed");
-			}
-			/*
-			if (!file.open(&root, patternName, O_RDWR | O_CREAT )) {
-					//sd.errorHalt("opening test.txt for read failed");
-				 }
-*/
-			else{
-				fileIndex[i]=root.curPosition()/32-1; // save to EEPROM instead - chop into 4 bytes and than re-assemble
-			}
-			file.close();
-			Serial.println(patternName);
-			Serial.println("indexed");
-	}
-//>>>>>>> Stashed changes
-}
 
 void setup() {
 
@@ -224,37 +248,34 @@ void setup() {
 	if (!root.openRoot(&vol)){Serial.println("vol");};// error("root");
 	Serial.println("redy");
 	//suspicious semicolon - a good name for a band !
-	indexPatternFiles();
+
+	// file.createContiguous(&root, "PAT.txt", (64*512));
+	// file.close();
+/*
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT | O_AT_END)) {
+			//sd.errorHalt("opening test.txt for read failed");
+			 Serial.println("er-write");
+	}
+	//uint32_t fls=64*512;
+	for(uint16_t i=0;i<64;i++){
+		for(uint16_t j=0;j<512;j++){
+		file.print(255);
+		}
+		Serial.print(".");
+	}
+	file.close();
+	*/
+//	for(int i=0;i<64;i++) setPatternData(i,memoryData);
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
+
+		}
+	getPatternData(0,memoryData);
 
 
 }
 
 
-void getPatternData(unsigned char patternIndex, unsigned char * data) {
-	//timing needs optimisation ?
-		// cca 60 ms opening file
-			// cca 19 ms writing
-		//cca 2 ms closing file
 
-	if (!file.open(&root, fileIndex[patternIndex], O_READ)) {
-		//sd.errorHalt("opening test.txt for read failed");
-	 }
-    for (unsigned int dataIndex= 0; dataIndex < 290; dataIndex++) {
-        data[dataIndex] =  file.read();
-    }
-    file.close();
-}
-
-void setPatternData(unsigned char patternIndex, unsigned char * data) {
-
-	 if (!file.open(&root, fileIndex[patternIndex], O_RDWR | O_CREAT )) {
-		//sd.errorHalt("opening test.txt for read failed");
-	 }
-    for (unsigned int dataIndex= 0; dataIndex < 290; dataIndex++) {
-          file.write(data[dataIndex]);
-    }
-    file.close();
-}
 
 
 void loop() {
