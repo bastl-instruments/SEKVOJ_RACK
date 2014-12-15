@@ -84,7 +84,7 @@ void SekvojRackMainMenuView::updateInInit() {
 		currentStatus_ = ACTIVE;
 		destroyInitView();
 		SetActiveView * activeView = new SetActiveView();
-		activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_);
+		activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, selectedInstrument_);
 		currentView_ = (IView*)activeView;
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::ON);
 		return;
@@ -139,6 +139,7 @@ void SekvojRackMainMenuView::updateInActive() {
 	activeSwitch_.update();
 	if (!activeSwitch_.getStatus(0)) {
 		currentStatus_ = INIT;
+		selectedInstrument_ = ((SetActiveView *) currentView_)->getSelectedInstrumentIndex();
 		delete currentView_;
 		createSetStepView();
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::OFF);
