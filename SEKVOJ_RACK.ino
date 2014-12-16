@@ -25,11 +25,11 @@ int main(void) {
 #include <NoVelocityStepMemory.h>
 #include <RackInstrumentDefinitions.h>
 //#include <MIDI.h>
-#include <SdFat.h>
-#include <SdFatUtil.h>
+
 
 #include "SekvojRackMainMenuView.h"
 #include "SekvojRackButtonMap.h"
+#include "SekvojRackSDPreset.h"
 #include <InstrumentBar.h>
 #include <StepRecorder.h>
 #include <StepSynchronizer.h>
@@ -51,10 +51,7 @@ PlayerSettings * settings;
 //SdFile root; // volume's root directory
 //SdFile file; // current file
 
-Sd2Card card;           // SD/SDHC card with support for version 2.00 features
-SdVolume vol;           // FAT16 or FAT32 volume
-SdFile root;            // volume's root directory
-SdFile file;
+
 
 SekvojRackMainMenuView mainMenu;
 StepGenerator stepper;
@@ -63,6 +60,8 @@ InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
 StepMultiplier multiplier;
+
+SekvojRackSDPreset sdpreset;
 
 unsigned long lastBastlCycles = 0;
 unsigned char localStep = 0;
@@ -91,7 +90,10 @@ void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
 	 //unsigned char instrumentIndex;
 	 //if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
 	 	instrumentBar.setInstrumentPlaying(channel, true);
-	 	hardware.setTrigger(channel,sekvojHW::ON,20);
+	 	if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::GATE){
+	 		hardware.setTrigger(channel,sekvojHW::ON);
+	 	}
+	 	else if(settings->getDrumInstrumentEventType(channel)==PlayerSettings::TRIGGER) hardware.setTrigger(channel,sekvojHW::ON,20);
 	 //}
 	//if (channel == 0)
 	 //instrumentBar.setInstrumentPlaying(channel, true);
@@ -108,6 +110,9 @@ void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) 
 	//unsigned char instrumentIndex;
 	//if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
 		instrumentBar.setInstrumentPlaying(channel, false);
+		if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::GATE){
+			hardware.setTrigger(channel,sekvojHW::OFF);
+		}
 	//}
 	//if (channel == 0)
 		//instrumentBar.setInstrumentPlaying(channel, false);
@@ -118,11 +123,14 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 	DrumStep::DrumVelocityType emptySteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
 	DrumStep::DrumVelocityType oneSteps[4] = {DrumStep::NORMAL, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
 	DrumStep emptyDrumStep(true, true, emptySteps);
+	DrumStep emptyNonActiveDrumStep(false, true, emptySteps);
 	DrumStep oneDrumStep(true, false , oneSteps);
+	//step.setActive(newState);
 
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
 		for (unsigned char step = 0; step < 64; step++) {
-			memory->setDrumStep(instrument, step, emptyDrumStep);
+			if(step<16) memory->setDrumStep(instrument, step, emptyDrumStep);
+			else memory->setDrumStep(instrument, step, emptyNonActiveDrumStep);
 			/*
 			if (step % 6 == instrument) {
 				memory->setDrumStep(instrument, 0, step, oneDrumStep);
@@ -138,63 +146,13 @@ void clockInCall(){
 	multiplier.doStep(millis());
 	slave=true;
 }
-uint8_t currentPattern=0;
-void getPatternData(unsigned char patternIndex, unsigned char * data) {
-	//timing needs optimisation ?
-		// cca 60 ms opening file
-			// cca 19 ms writing
-		//cca 2 ms closing file
-	currentPattern=patternIndex;
-	Serial.println("load:");
-	uint32_t positionInFile=patternIndex*512;
-	uint32_t time=millis();
-	file.seekSet(positionInFile);
-			file.read(&data[0],290);
-			/*
-	if (!file.open(&root, "PT.txt", O_READ )) {
 
-	}
-	else{Serial.println(file.curPosition());
-		file.seekSet(positionInFile);
-		file.read(&data[0],290);
-	}
-	file.close();
-*/
-    Serial.println(millis()-time);
-    //for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
-   // Serial.println();
-}
 
-void setPatternData(unsigned char patternIndex, unsigned char * data) {
-Serial.println("store:");
-	uint32_t positionInFile=patternIndex*512;
-	uint32_t time=millis();
-	file.seekSet(positionInFile);
-
-				file.write(&data[0],290);
-				/*
-	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
-
-	}
-	else{
-		//Serial.println(file.getFileSize());
-
-			file.seekSet(positionInFile);
-
-			file.write(&data[0],290);
-
-	}
-	file.close();
-*/
-    Serial.println(millis()-time);
-   // for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
-
-}
 //<<<<<<< Updated upstream
 void patternChanged(unsigned char patternIndex) {
-	setPatternData(currentPattern,memoryData);
-	getPatternData(patternIndex,memoryData);
-	hardware.setLED(buttonMap.getMainMenuButtonIndex(4), ILEDHW::ON);
+	sdpreset.setPatternData(sdpreset.getCurrentPattern(),memoryData);
+	sdpreset.getPatternData(patternIndex,memoryData);
+
 }
 //=======
 
@@ -217,7 +175,7 @@ void setup() {
 		settings->setInstrumentOn(Step::DRUM, i, true);
 		settings->setInstrumentChannel(Step::DRUM, i, i);
 		settings->setDrumInstrumentNote(i, i);
-		settings->setDrumInstrumentEventType(i, PlayerSettings::TRIGGER);
+		settings->setDrumInstrumentEventType(i, PlayerSettings::TRIGGER); // TODO: load from some memory
 	}
 
 	//Here the pointer to the SD Card memory shall be set.
@@ -243,10 +201,7 @@ void setup() {
 	Serial.println("strt");
 	//if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
 
-	if (!card.init()){Serial.println("int");};//error("card");
-	if (!vol.init(&card)){Serial.println("crd");};// error("vol ");
-	if (!root.openRoot(&vol)){Serial.println("vol");};// error("root");
-	Serial.println("redy");
+	sdpreset.initCard();
 	//suspicious semicolon - a good name for a band !
 
 	// file.createContiguous(&root, "PAT.txt", (64*512));
@@ -266,10 +221,18 @@ void setup() {
 	file.close();
 	*/
 //	for(int i=0;i<64;i++) setPatternData(i,memoryData);
-	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
+	/*
+	for(uint16_t i=0;i<64;i++){
+			for(uint16_t j=0;j<290;j++){
+			file.write(memoryData[i]);
+			}
 
+			Serial.print(".");
 		}
-	getPatternData(0,memoryData);
+*/
+
+
+	sdpreset.getPatternData(0,memoryData);
 
 
 }
@@ -289,9 +252,13 @@ void loop() {
 	//MIDI.read();
 //	unsigned char someData[290];
 	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
-
+	if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IHWLayer::DOWN){
+		//playbutton logic
+			slave=false;
+		}
 	if(slave) multiplier.update(millis());
-	else stepper.update(millis());//hardware.getElapsedBastlCycles());
+	else stepper.update(millis());
+	//stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {
 		if (hardware.getButtonState(i) == IButtonHW::DOWN) {
