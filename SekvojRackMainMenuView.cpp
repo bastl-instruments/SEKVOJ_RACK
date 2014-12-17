@@ -43,10 +43,11 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getMainMenuButtonIndex(5), ILEDHW::OFF);
 
-	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + MENU_RECORD_INDEX;
+	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + MENU_PLAY_INDEX;
 	unsigned char * activeButton = buttonMap_->getMainMenuButtonArray() + MENU_ACTIVE_INDEX;
 
-	recordSwitch_.init(hw_, recordButton, 1, IButtonHW::DOWN);
+	playRecordSwitch_.init(hw_, recordButton, 2, IButtonHW::DOWN);
+	playRecordSwitch_.setStatus(0, true);
 	activeSwitch_.init(hw_, activeButton, 1, IButtonHW::DOWN);
 }
 
@@ -68,9 +69,9 @@ void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
 }
 
 void SekvojRackMainMenuView::updateInInit() {
-	recordSwitch_.update();
 	activeSwitch_.update();
-	if (recordSwitch_.getStatus(0)) {
+	((SetStepView*)currentView_)->setPlaying(playRecordSwitch_.getStatus(0));
+	if (playRecordSwitch_.getStatus(1)) {
 		currentStatus_ = RECORDING;
 		destroyInitView();
 		PlayRecordView * playRecordView = new PlayRecordView();
@@ -147,8 +148,7 @@ void SekvojRackMainMenuView::updateInActive() {
 }
 
 void SekvojRackMainMenuView::updateInRecording() {
-	recordSwitch_.update();
-	if (!recordSwitch_.getStatus(0)) {
+	if (!playRecordSwitch_.getStatus(1)) {
 		currentStatus_ = INIT;
 		delete currentView_;
 		createSetStepView();
@@ -161,20 +161,31 @@ void SekvojRackMainMenuView::updateInRecording() {
 
 void SekvojRackMainMenuView::update() {
 
+	//Reset all counters in case play has been just pressed
+	bool originalPlayValue = playRecordSwitch_.getStatus(0);
+	playRecordSwitch_.update();
+	bool newPlayValue = playRecordSwitch_.getStatus(0);
+	if (originalPlayValue && !newPlayValue) {
+		synchronizer_->reset();
+		player_->resetAllInstruments();
+	}
 	switch (currentStatus_) {
 		case INIT:
 			updateInInit();
 			break;
 		case ACTIVE:
+			playRecordSwitch_.setStatus(1, false);
 			updateInActive();
 			break;
 		case RECORDING:
 			updateInRecording();
 			break;
 		case PATTERN:
+			playRecordSwitch_.setStatus(1, false);
 			updateInPattern();
 			break;
 		case FUNCTION:
+			playRecordSwitch_.setStatus(1, false);
 			updateInFunction();
 			break;
 	}

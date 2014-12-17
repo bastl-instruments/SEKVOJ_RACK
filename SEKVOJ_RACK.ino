@@ -81,8 +81,10 @@ void stepperStep() {
 		//}
 	}*/
 
-	player->stepFourth();
-	synchronizer.doStep();
+	if (mainMenu.isPlaying()) {
+		player->stepFourth();
+		synchronizer.doStep();
+	}
 }
 
 void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {

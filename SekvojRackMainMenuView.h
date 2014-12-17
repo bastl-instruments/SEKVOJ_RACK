@@ -36,6 +36,7 @@ public:
 			  IStepMemory * memory, PlayerSettings * settings, IMIDICommandProcessor * midiProcessor,
 			  InstrumentBar * instrumentBar, IButtonMap * buttonMap, StepSynchronizer * synchronizer);
 	void update();
+	bool isPlaying();
 private:
 
 	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, FUNCTION};
@@ -48,7 +49,7 @@ private:
 	IMIDICommandProcessor * midiProcessor_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
-	Switches recordSwitch_;
+	Switches playRecordSwitch_;
 	Switches activeSwitch_;
 
 	IView * currentView_;
@@ -70,5 +71,9 @@ private:
 	void destroyInitView();
 
 };
+
+inline bool SekvojRackMainMenuView::isPlaying() {
+	return playRecordSwitch_.getStatus(0);
+}
 
 #endif /* SEKVOJRACKMAINMENUVIEW_H_ */
