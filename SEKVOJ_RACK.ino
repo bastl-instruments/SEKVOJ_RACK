@@ -67,7 +67,7 @@ unsigned long lastBastlCycles = 0;
 unsigned char localStep = 0;
 
 extern sekvojHW hardware;
-bool slave=false;
+bool slave = false;
 
 unsigned char memoryData[292];
 
@@ -126,7 +126,6 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 	DrumStep::DrumVelocityType oneSteps[4] = {DrumStep::NORMAL, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
 	DrumStep emptyDrumStep(true, true, emptySteps);
 	DrumStep emptyNonActiveDrumStep(false, true, emptySteps);
-	DrumStep oneDrumStep(true, false , oneSteps);
 	//step.setActive(newState);
 
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
@@ -146,7 +145,8 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 
 void clockInCall(){
 	multiplier.doStep(millis());
-	slave=true;
+	slave = true;
+	recorder.setCurrentStepper(&multiplier);
 }
 
 
@@ -192,15 +192,15 @@ void setup() {
 
 	//hardware.clearDisplay();
 
-	recorder.init(player, &memory, settings);
+	recorder.init(player, &memory, settings, &stepper);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
 	//stepper.setTimeUnitsPerStep();
-	Serial.begin(9600);
+	//Serial.begin(9600);
 	multiplier.init(1000);//&stepperStep);
 	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
-	Serial.println("strt");
+	//Serial.println("strt");
 	//if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
 
 	sdpreset.initCard();
@@ -236,7 +236,6 @@ void setup() {
 
 	sdpreset.getPatternData(0,memoryData);
 
-
 }
 
 
@@ -244,6 +243,7 @@ void setup() {
 
 
 void loop() {
+
 	/*
 	for(int i=0;i<32;i++) {
 		if(hardware.getButtonState(i)==IHWLayer::UP) hardware.setLED(i,IHWLayer::ON);
@@ -256,7 +256,8 @@ void loop() {
 	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
 	if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IHWLayer::DOWN){
 		//playbutton logic
-			slave=false;
+			slave = false;
+			recorder.setCurrentStepper(&stepper);
 		}
 	if(slave) multiplier.update(millis());
 	else stepper.update(millis());
