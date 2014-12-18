@@ -61,7 +61,6 @@ private:
 
 	StepSynchronizer * synchronizer_;
 
-	void createView(unsigned char viewIndex);
 	void updateInInit();
 	void updateInActive();
 	void updateInRecording();

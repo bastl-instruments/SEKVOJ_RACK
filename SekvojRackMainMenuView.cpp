@@ -36,12 +36,9 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 
 	createSetStepView();
 
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(0), ILEDHW::OFF);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(1), ILEDHW::OFF);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(2), ILEDHW::OFF);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(3), ILEDHW::OFF);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), ILEDHW::OFF);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(5), ILEDHW::OFF);
+	for (unsigned char index = 0; index < 6; index ++) {
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(index), ILEDHW::OFF);
+	}
 
 	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + MENU_PLAY_INDEX;
 	unsigned char * activeButton = buttonMap_->getMainMenuButtonArray() + MENU_ACTIVE_INDEX;
@@ -55,17 +52,6 @@ void SekvojRackMainMenuView::createSetStepView() {
 	SetStepView * setStepView = new SetStepView();
 	setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern(), 6, selectedInstrument_, false);
 	currentView_ = (IView*)setStepView;
-}
-
-void SekvojRackMainMenuView::createView(unsigned char viewIndex) {
-	switch (viewIndex) {
-		case 2: {
-			PatternView * patternView = new PatternView();
-			patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
-			currentView_ = (IView*)patternView;
-			break;
-		}
-	}
 }
 
 void SekvojRackMainMenuView::updateInInit() {
