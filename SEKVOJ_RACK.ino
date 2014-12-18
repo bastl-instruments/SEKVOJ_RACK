@@ -240,8 +240,27 @@ void setup() {
 }
 
 
+bool playPressed;
+bool play=true;
+void resetSequencer(){
+	for(int i=0;i<6;i++) player->setCurrentInstrumentStep(i,0);
+}
+void playButtonAction(){
 
+		bool newState=false;
+		if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IHWLayer::DOWN){
+			newState=true;
+			//playbutton logic
 
+			}
+		else newState=false;
+		if(!playPressed && newState){
+			slave=false;
+			resetSequencer();
+			play=!play;
+		}
+		playPressed=newState;
+}
 
 void loop() {
 	/*
@@ -254,12 +273,9 @@ void loop() {
 	//MIDI.read();
 //	unsigned char someData[290];
 	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
-	if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IHWLayer::DOWN){
-		//playbutton logic
-			slave=false;
-		}
+	playButtonAction();
 	if(slave) multiplier.update(millis());
-	else stepper.update(millis());
+	else if(play) stepper.update(millis());
 	//stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {
