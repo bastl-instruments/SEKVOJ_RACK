@@ -275,9 +275,10 @@ void loop() {
 //	unsigned char someData[290];
 	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
 
-	playButtonAction();
+	//playButtonAction();
 	if(slave) multiplier.update(millis());
-	else if(play) stepper.update(millis());
+	//else if(play)
+	stepper.update(millis());
 	//stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {
