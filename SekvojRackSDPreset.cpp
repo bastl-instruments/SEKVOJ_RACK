@@ -16,66 +16,46 @@ SdFile file;
 SekvojRackSDPreset::SekvojRackSDPreset(){
 
 }
-
-void SekvojRackSDPreset::initCard(){
+char presetFileName[7]="PQ.txt";
+void SekvojRackSDPreset::initCard(unsigned char * data){
 
 	if (!card.init()){Serial.println("int");};//error("card");
-		if (!vol.init(&card)){Serial.println("crd");};// error("vol ");
-		if (!root.openRoot(&vol)){Serial.println("vol");};// error("root");
-		Serial.println("redy");
-	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
+	if (!vol.init(&card)){Serial.println("crd");};// error("vol ");
+	if (!root.openRoot(&vol)){Serial.println("vol");};// error("root");
+		if (!file.open(&root, presetFileName, O_READ )) {
+			Serial.println("noFile");
+			if (!file.open(&root, presetFileName, O_RDWR | O_CREAT )) {
+				Serial.println("errMake");
+			}
+			else{
+				Serial.println("makingNewFile");
+				for(int j=0;j<64;j++){
+								for(int i=0;i<290;i++) file.print(data[i]);
+								for(int i=0;i<222;i++) file.print(255);
+								Serial.print(".");
+								//Serial.println(file.getC());
+				}
+			}
+
+		}
+
+		else if (!file.open(&root, presetFileName, O_RDWR | O_CREAT )) {
 		}
 
 }
 
 void SekvojRackSDPreset::getPatternData(unsigned char patternIndex, unsigned char * data) {
-	//timing needs optimisation ?
-		// cca 60 ms opening file
-			// cca 19 ms writing
-		//cca 2 ms closing file
 	currentPattern=patternIndex;
-	Serial.println("load:");
 	uint32_t positionInFile=patternIndex*512;
 	uint32_t time=millis();
 	file.seekSet(positionInFile);
-			file.read(&data[0],290);
-			/*
-	if (!file.open(&root, "PT.txt", O_READ )) {
-
-	}
-	else{Serial.println(file.curPosition());
-		file.seekSet(positionInFile);
-		file.read(&data[0],290);
-	}
-	file.close();
-*/
-    Serial.println(millis()-time);
-    //for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
-   // Serial.println();
+	file.read(&data[0],290);
 }
 
 void SekvojRackSDPreset::setPatternData(unsigned char patternIndex, unsigned char * data) {
-Serial.println("store:");
 	uint32_t positionInFile=patternIndex*512;
 	uint32_t time=millis();
 	file.seekSet(positionInFile);
-
-				file.write(&data[0],290);
-				/*
-	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
-
-	}
-	else{
-		//Serial.println(file.getFileSize());
-
-			file.seekSet(positionInFile);
-
-			file.write(&data[0],290);
-
-	}
-	file.close();
-*/
-    Serial.println(millis()-time);
-   // for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
+	file.write(&data[0],290);
 
 }
