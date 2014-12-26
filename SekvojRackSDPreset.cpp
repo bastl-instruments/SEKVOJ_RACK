@@ -19,12 +19,11 @@ SekvojRackSDPreset::SekvojRackSDPreset(){
 
 void SekvojRackSDPreset::initCard(){
 
-	if (!card.init()){Serial.println("int");};//error("card");
-		if (!vol.init(&card)){Serial.println("crd");};// error("vol ");
-		if (!root.openRoot(&vol)){Serial.println("vol");};// error("root");
-		Serial.println("redy");
-	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {
-		}
+	if (!card.init()){/*Serial.println("int");*/};//error("card");
+	if (!vol.init(&card)){/*Serial.println("crd");*/};// error("vol ");
+	if (!root.openRoot(&vol)){/*Serial.println("vol");*/};// error("root");
+	//Serial.println("redy");
+	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT )) {}
 
 }
 
@@ -34,7 +33,7 @@ void SekvojRackSDPreset::getPatternData(unsigned char patternIndex, unsigned cha
 			// cca 19 ms writing
 		//cca 2 ms closing file
 	currentPattern=patternIndex;
-	Serial.println("load:");
+	//Serial.println("load:");
 	uint32_t positionInFile=patternIndex*512;
 	uint32_t time=millis();
 	file.seekSet(positionInFile);
@@ -49,13 +48,13 @@ void SekvojRackSDPreset::getPatternData(unsigned char patternIndex, unsigned cha
 	}
 	file.close();
 */
-    Serial.println(millis()-time);
+    //Serial.println(millis()-time);
     //for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
    // Serial.println();
 }
 
 void SekvojRackSDPreset::setPatternData(unsigned char patternIndex, unsigned char * data) {
-Serial.println("store:");
+//Serial.println("store:");
 	uint32_t positionInFile=patternIndex*512;
 	uint32_t time=millis();
 	file.seekSet(positionInFile);
@@ -75,7 +74,7 @@ Serial.println("store:");
 	}
 	file.close();
 */
-    Serial.println(millis()-time);
+   // Serial.println(millis()-time);
    // for (unsigned int dataIndex= 0; dataIndex < 288; dataIndex++) Serial.print(data[dataIndex]),Serial.print(" ,");
 
 }
