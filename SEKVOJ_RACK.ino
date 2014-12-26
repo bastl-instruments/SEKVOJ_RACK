@@ -196,43 +196,17 @@ void setup() {
 	recorder.init(player, &memory, settings, &stepper);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
 	//stepper.setTimeUnitsPerStep();
-	//Serial.begin(9600);
+
 	multiplier.init(1000);//&stepperStep);
 	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
+
+	//Serial.begin(9600);
 	//Serial.println("s");
 	//if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
-
-	sdpreset.initCard();
+	sdpreset.initCard(memoryData);
 	//suspicious semicolon - a good name for a band !
-
-	// file.createContiguous(&root, "PAT.txt", (64*512));
-	// file.close();
-/*
-	if (!file.open(&root, "PT.txt", O_RDWR | O_CREAT | O_AT_END)) {
-			//sd.errorHalt("opening test.txt for read failed");
-			 Serial.println("er-write");
-	}
-	//uint32_t fls=64*512;
-	for(uint16_t i=0;i<64;i++){
-		for(uint16_t j=0;j<512;j++){
-		file.print(255);
-		}
-		Serial.print(".");
-	}
-	file.close();
-	*/
-//	for(int i=0;i<64;i++) setPatternData(i,memoryData);
-	/*
-	for(uint16_t i=0;i<64;i++){
-			for(uint16_t j=0;j<290;j++){
-			file.write(memoryData[i]);
-			}
-
-			Serial.print(".");
-		}
-*/
 
 
 	sdpreset.getPatternData(0,memoryData);
