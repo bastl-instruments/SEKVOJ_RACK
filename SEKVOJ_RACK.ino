@@ -35,6 +35,7 @@ int main(void) {
 #include <StepSynchronizer.h>
 #include <StepMultiplier.h>
 #include <EEPROM.h>
+#include <SimplifiedTapper.h>
 
 //MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
@@ -51,8 +52,6 @@ PlayerSettings * settings;
 //SdFile root; // volume's root directory
 //SdFile file; // current file
 
-
-
 SekvojRackMainMenuView mainMenu;
 StepGenerator stepper;
 StepRecorder recorder;
@@ -62,13 +61,13 @@ StepSynchronizer synchronizer;
 StepMultiplier multiplier;
 
 SekvojRackSDPreset sdpreset;
+SimplifiedTapper tapper;
 
-unsigned long lastBastlCycles = 0;
 unsigned char localStep = 0;
 
 extern sekvojHW hardware;
 bool slave = false;
-
+bool tapButtonDown = false;
 unsigned char memoryData[292];
 
 void stepperStep() {
@@ -123,7 +122,6 @@ void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) 
 
 void initFlashMemory(NoVelocityStepMemory * memory) {
 	DrumStep::DrumVelocityType emptySteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
-	DrumStep::DrumVelocityType oneSteps[4] = {DrumStep::NORMAL, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
 	DrumStep emptyDrumStep(true, true, emptySteps);
 	DrumStep emptyNonActiveDrumStep(false, true, emptySteps);
 	//step.setActive(newState);
@@ -149,15 +147,18 @@ void clockInCall(){
 	recorder.setCurrentStepper(&multiplier);
 }
 
+void tapStep() {
+	if (tapper.anyStepDetected()) {
+		stepper.setTimeUnitsPerStep(tapper.getTimeUnitsPerStep());
+	}
+	stepper.doStep(hardware.getElapsedBastlCycles());
+}
 
-//<<<<<<< Updated upstream
 void patternChanged(unsigned char patternIndex) {
 	sdpreset.setPatternData(sdpreset.getCurrentPattern(),memoryData);
 	sdpreset.getPatternData(patternIndex,memoryData);
 
 }
-//=======
-
 
 void setup() {
 
@@ -200,7 +201,7 @@ void setup() {
 	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
-	//Serial.println("strt");
+	//Serial.println("s");
 	//if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
 
 	sdpreset.initCard();
@@ -236,18 +237,23 @@ void setup() {
 
 	sdpreset.getPatternData(0,memoryData);
 
+	//Initialize tapping features
+	tapper.init(5000, 100);
+	tapper.setStepsPerTap(16);
+	tapper.setStepCallBack(&tapStep);
 }
 
 
 bool playPressed;
 bool play=true;
+
 void resetSequencer(){
 	for(int i=0;i<6;i++) player->setCurrentInstrumentStep(i,0);
 }
 void playButtonAction(){
 
 		bool newState=false;
-		if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IHWLayer::DOWN){
+		if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IButtonHW::DOWN){
 			newState=true;
 			//playbutton logic
 
@@ -264,6 +270,12 @@ void playButtonAction(){
 
 void loop() {
 
+	//Tap the tapper in case tap button has been just pressed
+	bool newTapButonDown = hardware.getButtonState(buttonMap.getMainMenuButtonIndex(0)) == IButtonHW::DOWN;
+	if (!tapButtonDown && newTapButonDown) {
+		tapper.tap(hardware.getElapsedBastlCycles());
+	}
+	tapButtonDown = newTapButonDown;
 	/*
 	for(int i=0;i<32;i++) {
 		if(hardware.getButtonState(i)==IHWLayer::UP) hardware.setLED(i,IHWLayer::ON);
@@ -276,9 +288,9 @@ void loop() {
 	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
 
 	//playButtonAction();
-	if(slave) multiplier.update(millis());
+	if(slave) multiplier.update(hardware.getElapsedBastlCycles());
 	//else if(play)
-	stepper.update(millis());
+	stepper.update(hardware.getElapsedBastlCycles());
 	//stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {
@@ -288,6 +300,7 @@ void loop() {
 			hardware.setLED(i, ILEDHW::OFF);
 		}
 	}*/
+	hardware.setLED(buttonMap.getMainMenuButtonIndex(0), synchronizer.getCurrentStepNumber() % 16 == 0 ? ILEDHW::ON : ILEDHW::OFF);
 }
 
 
