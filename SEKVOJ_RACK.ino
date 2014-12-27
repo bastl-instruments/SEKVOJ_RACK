@@ -37,21 +37,10 @@ int main(void) {
 #include <EEPROM.h>
 #include <SimplifiedTapper.h>
 
-//MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
-
 Player * player;
-
 ArduinoMIDICommandProcessor * processor;
 NoVelocityStepMemory memory;
 PlayerSettings * settings;
-
-//------------------------------------------------------------------------------
-// global variables
-//Sd2Card card; // SD/SDHC card with support for version 2.00 features
-//SdVolume vol; // FAT16 or FAT32 volume
-//SdFile root; // volume's root directory
-//SdFile file; // current file
-
 SekvojRackMainMenuView mainMenu;
 StepGenerator stepper;
 StepRecorder recorder;
@@ -59,7 +48,6 @@ InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
 StepMultiplier multiplier;
-
 SekvojRackSDPreset sdpreset;
 SimplifiedTapper tapper;
 
@@ -71,15 +59,6 @@ bool tapButtonDown = false;
 unsigned char memoryData[292];
 
 void stepperStep() {
-	/*localStep = (localStep + 1) % 64;
-	for (unsigned char instrument = 0; instrument < 6; instrument++) {
-		//if (instrument == 1) {
-		DrumStep step = memory.getDrumStep(instrument, 0, localStep);
-		//hardware.setLED(instrument, !step.isMuted() ? ILEDHW::ON : ILEDHW::OFF);
-		instrumentBar.setInstrumentPlaying(instrument, !step.isMuted());
-		//}
-	}*/
-
 	if (mainMenu.isPlaying()) {
 		player->stepFourth();
 		synchronizer.doStep();
@@ -87,36 +66,19 @@ void stepperStep() {
 }
 
 void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
-	 //MIDI.sendNoteOn(35 + note, 127 ,channel);
-	 //unsigned char instrumentIndex;
-	 //if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
-	 	instrumentBar.setInstrumentPlaying(channel, true);
-	 	if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::GATE){
-	 		hardware.setTrigger(channel,sekvojHW::ON);
-	 	}
-	 	else if(settings->getDrumInstrumentEventType(channel)==PlayerSettings::TRIGGER) hardware.setTrigger(channel,sekvojHW::ON,20);
-	 //}
-	//if (channel == 0)
-	 //instrumentBar.setInstrumentPlaying(channel, true);
-	 //hardware.clearDisplay();
-	 //hardware.writeDisplayNumber(note * 10);
-
+	instrumentBar.setInstrumentPlaying(channel, true);
+	if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::GATE){
+		hardware.setTrigger(channel,sekvojHW::ON);
+	} else if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::TRIGGER) {
+		hardware.setTrigger(channel,sekvojHW::ON,20);
+	}
 }
 
 void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) {
-
-	//MIDI.sendNoteOff(35 + note, velocity ,channel);
-	//hardware.clearDisplay();
-	//hardware.writeDisplayNumber(note * 10 + 1);
-	//unsigned char instrumentIndex;
-	//if (settings->getDrumInstrumentIndexFromMIDIMessage(channel, note, instrumentIndex)) {
-		instrumentBar.setInstrumentPlaying(channel, false);
-		if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::GATE){
-			hardware.setTrigger(channel,sekvojHW::OFF);
-		}
-	//}
-	//if (channel == 0)
-		//instrumentBar.setInstrumentPlaying(channel, false);
+	instrumentBar.setInstrumentPlaying(channel, false);
+	if (settings->getDrumInstrumentEventType(channel) == PlayerSettings::GATE){
+		hardware.setTrigger(channel, sekvojHW::OFF);
+	}
 }
 
 
@@ -124,19 +86,14 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 	DrumStep::DrumVelocityType emptySteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
 	DrumStep emptyDrumStep(true, true, emptySteps);
 	DrumStep emptyNonActiveDrumStep(false, true, emptySteps);
-	//step.setActive(newState);
 
 	for (unsigned char instrument = 0; instrument < 6; instrument++) {
 		for (unsigned char step = 0; step < 64; step++) {
-			if(step<16) memory->setDrumStep(instrument, step, emptyDrumStep);
-			else memory->setDrumStep(instrument, step, emptyNonActiveDrumStep);
-			/*
-			if (step % 6 == instrument) {
-				memory->setDrumStep(instrument, 0, step, oneDrumStep);
+			if (step < 16) {
+				memory->setDrumStep(instrument, step, emptyDrumStep);
 			} else {
-
+				memory->setDrumStep(instrument, step, emptyNonActiveDrumStep);
 			}
-			*/
 		}
 	}
 }
@@ -187,27 +144,20 @@ void setup() {
 
 	processor = new ArduinoMIDICommandProcessor(&noteOn, &noteOff);
 	player = new Player(&memory, processor, settings, &synchronizer);
-	//Serial.end();
-	//MIDI.begin(0);
-	//MIDI.setHandleNoteOn(&midiNoteOnIn);
-
-	//hardware.clearDisplay();
 
 	recorder.init(player, &memory, settings, &stepper);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
-	//stepper.setTimeUnitsPerStep();
 
-	multiplier.init(1000);//&stepperStep);
+	multiplier.init(1000);
 	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
 
 	//Serial.begin(9600);
 	//Serial.println("s");
-	//if (!sd.begin(10, SPI_FULL_SPEED)) sd.initErrorHalt();
+
 	sdpreset.initCard(memoryData);
 	//suspicious semicolon - a good name for a band !
-
 
 	sdpreset.getPatternData(0,memoryData);
 
@@ -215,31 +165,6 @@ void setup() {
 	tapper.init(5000, 100);
 	tapper.setStepsPerTap(16);
 	tapper.setStepCallBack(&tapStep);
-}
-
-
-bool playPressed;
-bool play=true;
-
-void resetSequencer(){
-	for(int i=0;i<6;i++) player->setCurrentInstrumentStep(i,0);
-}
-void playButtonAction(){
-
-		bool newState=false;
-		if(hardware.getButtonState(buttonMap.getMainMenuButtonIndex(4))==IButtonHW::DOWN){
-			newState=true;
-			//playbutton logic
-
-			}
-		else newState=false;
-		if(!playPressed && newState){
-			slave=false;
-			recorder.setCurrentStepper(&stepper);
-			resetSequencer();
-			play=!play;
-		}
-		playPressed=newState;
 }
 
 void loop() {
@@ -250,31 +175,16 @@ void loop() {
 		tapper.tap(hardware.getElapsedBastlCycles());
 	}
 	tapButtonDown = newTapButonDown;
-	/*
-	for(int i=0;i<32;i++) {
-		if(hardware.getButtonState(i)==IHWLayer::UP) hardware.setLED(i,IHWLayer::ON);
-		else hardware.setLED(i,IHWLayer::OFF);
-	}
-	hardware.printButtonStates();
-	*/
-	//MIDI.read();
-//	unsigned char someData[290];
-	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
 
-	//playButtonAction();
-	if(slave) multiplier.update(hardware.getElapsedBastlCycles());
-	//else if(play)
-	stepper.update(hardware.getElapsedBastlCycles());
-	//stepper.update(millis());//hardware.getElapsedBastlCycles());
+	//Update step keepers
+	if (slave) {
+		multiplier.update(hardware.getElapsedBastlCycles());
+	} else {
+		stepper.update(hardware.getElapsedBastlCycles());
+	}
+
+	//Update user interface
 	mainMenu.update();
-	/*for (int i = 0; i < 16; i++) {
-		if (hardware.getButtonState(i) == IButtonHW::DOWN) {
-			hardware.setLED(i, ILEDHW::ON);
-		} else {
-			hardware.setLED(i, ILEDHW::OFF);
-		}
-	}*/
-	hardware.setLED(buttonMap.getMainMenuButtonIndex(0), synchronizer.getCurrentStepNumber() % 16 == 0 ? ILEDHW::ON : ILEDHW::OFF);
 }
 
 
