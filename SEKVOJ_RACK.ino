@@ -250,8 +250,7 @@ void loop() {
 
 	//playButtonAction();
 	if(slave) multiplier.update(millis());
-	//else if(play)
-	stepper.update(millis());
+	else stepper.update(millis());
 	//stepper.update(millis());//hardware.getElapsedBastlCycles());
 	mainMenu.update();
 	/*for (int i = 0; i < 16; i++) {

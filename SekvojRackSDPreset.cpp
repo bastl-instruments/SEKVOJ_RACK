@@ -16,7 +16,7 @@ SdFile file;
 SekvojRackSDPreset::SekvojRackSDPreset(){
 
 }
-char presetFileName[7]="PQ.txt";
+char presetFileName[7]="PT.txt";
 void SekvojRackSDPreset::initCard(unsigned char * data){
 
 	if (!card.init()){Serial.println("int");};//error("card");
