@@ -174,9 +174,9 @@ void loop() {
 	if (!tapButtonDown && newTapButonDown) {
 		tapper.tap(hardware.getElapsedBastlCycles());
 	}
-<<<<<<< HEAD
-	hardware.printButtonStates();
-	*/
+
+	//hardware.printButtonStates();
+
 	//MIDI.read();
 //	unsigned char someData[290];
 	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
@@ -185,7 +185,7 @@ void loop() {
 	if(slave) multiplier.update(millis());
 	else stepper.update(millis());
 	//stepper.update(millis());//hardware.getElapsedBastlCycles());
-=======
+
 	tapButtonDown = newTapButonDown;
 
 	//Update step keepers
@@ -196,7 +196,7 @@ void loop() {
 	}
 
 	//Update user interface
->>>>>>> FETCH_HEAD
+
 	mainMenu.update();
 }
 
