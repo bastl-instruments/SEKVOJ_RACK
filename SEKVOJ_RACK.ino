@@ -124,7 +124,7 @@ void setup() {
 	synchronizer.setCycleLength(256);
 
 	instrumentBar.init(&hardware, &buttonMap, 6);
-	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120,1000));// hardware.getBastlCyclesPerSecond()));
+	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120,hardware.getBastlCyclesPerSecond()));// hardware.getBastlCyclesPerSecond()));
 	stepper.setStepCallback(&stepperStep);
 
 	settings = new PlayerSettings();
@@ -148,7 +148,7 @@ void setup() {
 	recorder.init(player, &memory, settings, &stepper);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
 
-	multiplier.init(1000);
+	multiplier.init(hardware.getBastlCyclesPerSecond());
 	multiplier.setMultiplication(16);
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
@@ -174,17 +174,6 @@ void loop() {
 	if (!tapButtonDown && newTapButonDown) {
 		tapper.tap(hardware.getElapsedBastlCycles());
 	}
-
-	//hardware.printButtonStates();
-
-	//MIDI.read();
-//	unsigned char someData[290];
-	//if(hardware.getButtonState(0)==IHWLayer::DOWN) getPatternData(0,someData), setPatternData(0,someData);
-
-	//playButtonAction();
-	if(slave) multiplier.update(millis());
-	else stepper.update(millis());
-	//stepper.update(millis());//hardware.getElapsedBastlCycles());
 
 	tapButtonDown = newTapButonDown;
 
