@@ -42,12 +42,11 @@ ArduinoMIDICommandProcessor * processor;
 NoVelocityStepMemory memory;
 PlayerSettings * settings;
 SekvojRackMainMenuView mainMenu;
-StepGenerator stepper;
+BastlStepper * stepper;
 StepRecorder recorder;
 InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
-StepMultiplier multiplier;
 //SekvojRackSDPreset sdpreset;
 SimplifiedTapper tapper;
 
@@ -83,33 +82,24 @@ void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) 
 
 
 void initFlashMemory(NoVelocityStepMemory * memory) {
-	DrumStep::DrumVelocityType emptySteps[4] = {DrumStep::OFF, DrumStep::OFF, DrumStep::OFF, DrumStep::OFF};
-	DrumStep emptyDrumStep(true, true, emptySteps);
-	DrumStep emptyNonActiveDrumStep(false, true, emptySteps);
-
-	for (unsigned char instrument = 0; instrument < 6; instrument++) {
-		for (unsigned char step = 0; step < 64; step++) {
-			if (step < 16) {
-				memory->setDrumStep(instrument, step, emptyDrumStep);
-			} else {
-				memory->setDrumStep(instrument, step, emptyNonActiveDrumStep);
-			}
-		}
-	}
+	memory->makeAllInstrumentsActiveUpTo(15);
+	memory->clearStepsForAllInstruments();
 }
 
-void clockInCall(){
-	multiplier.doStep(hardware.getBastlCyclesPerSecond());
-	slave = true;
-	recorder.setCurrentStepper(&multiplier);
+void clockInCall() {
+	if (settings->getPlayerMode() == PlayerSettings::SLAVE && mainMenu.isPlaying()) {
+		stepper->doStep(hardware.getBastlCyclesPerSecond());
+	}
 }
 
 void tapStep() {
-	if (tapper.anyStepDetected()) {
-		stepper.setTimeUnitsPerStep(tapper.getTimeUnitsPerStep());
-		settings->setBPM(BPMConverter::timeUnitsToBPM(tapper.getTimeUnitsPerStep(), hardware.getBastlCyclesPerSecond()), false);
+	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
+		if (tapper.anyStepDetected()) {
+			((StepGenerator *)stepper)->setTimeUnitsPerStep(tapper.getTimeUnitsPerStep());
+			settings->setBPM(BPMConverter::timeUnitsToBPM(tapper.getTimeUnitsPerStep(), hardware.getBastlCyclesPerSecond()), false);
+		}
+		stepper->doStep(hardware.getElapsedBastlCycles());
 	}
-	stepper.doStep(hardware.getElapsedBastlCycles());
 }
 
 void patternChanged(unsigned char patternIndex) {
@@ -127,11 +117,40 @@ unsigned char getMultiplicationFromEnum(PlayerSettings::MultiplicationType type)
 }
 
 void multiplicationChanged(PlayerSettings::MultiplicationType type) {
-	multiplier.setMultiplication(getMultiplicationFromEnum(type));
+	if (settings->getPlayerMode() == PlayerSettings::SLAVE) {
+		((StepMultiplier *)stepper)->setMultiplication(getMultiplicationFromEnum(type));
+	}
 }
 
 void bpmChanged(unsigned int bpm) {
-	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(bpm, hardware.getBastlCyclesPerSecond()));
+	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
+		((StepGenerator *)stepper)->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(bpm, hardware.getBastlCyclesPerSecond()));
+	}
+}
+
+BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
+
+	if (mode == PlayerSettings::MASTER) {
+		StepGenerator * generator = new StepGenerator();
+		generator->setStepCallback(&stepperStep);
+		generator->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(settings->getBPM(), hardware.getBastlCyclesPerSecond()));
+		return generator;
+	} else {
+		StepMultiplier * multiplier = new StepMultiplier();
+		multiplier->init(hardware.getBastlCyclesPerSecond());
+		multiplier->setMultiplication(getMultiplicationFromEnum(settings->getMultiplication()));
+		multiplier->setMinTriggerTime(1);
+		multiplier->setStepCallback(&stepperStep);
+		return multiplier;
+	}
+}
+
+void playerModeChanged(PlayerSettings::PlayerMode mode) {
+	player->resetAllInstruments();
+	if (stepper) {
+		delete stepper;
+	}
+	stepper = createBastlStepper(mode);
 }
 
 void setup() {
@@ -139,9 +158,9 @@ void setup() {
 	hardware.init(0, &clockInCall);
 
 	synchronizer.setCycleLength(256);
+	stepper = createBastlStepper(settings->getPlayerMode());
 
 	instrumentBar.init(&hardware, &buttonMap, 6);
-	stepper.setStepCallback(&stepperStep);
 
 	settings = new PlayerSettings();
 	settings->setCurrentPattern(0);
@@ -149,6 +168,7 @@ void setup() {
 	settings->setMultiplicationChangedCallback(&multiplicationChanged);
 	settings->setBPMChangedCallback(&bpmChanged);
 	settings->setBPM(120);
+	settings->setPlayerModeChangedCallback(&playerModeChanged);
 
 	for (unsigned char i = 0; i < 6; i++) {
 		settings->setInstrumentOn(Step::DRUM, i, true);
@@ -164,13 +184,8 @@ void setup() {
 	processor = new ArduinoMIDICommandProcessor(&noteOn, &noteOff);
 	player = new Player(&memory, processor, settings, &synchronizer);
 
-	recorder.init(player, &memory, settings, &stepper);
+	recorder.init(player, &memory, settings, stepper);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
-
-	multiplier.init(hardware.getBastlCyclesPerSecond());
-	multiplier.setMultiplication(getMultiplicationFromEnum(settings->getMultiplication()));
-	multiplier.setMinTriggerTime(1);
-	multiplier.setStepCallback(&stepperStep);
 
 	//Serial.begin(9600);
 	//Serial.println("s");
@@ -197,15 +212,12 @@ void loop() {
 	tapButtonDown = newTapButonDown;
 
 	//Update step keepers
-	if (slave) {
-		multiplier.update(hardware.getElapsedBastlCycles());
-	} else {
-		stepper.update(hardware.getElapsedBastlCycles());
-	}
+	stepper->update(hardware.getElapsedBastlCycles());
 
 	//Update user interface
-
 	mainMenu.update();
+
+	hardware.setLED(buttonMap.getMainMenuButtonIndex(0), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
 }
 
 

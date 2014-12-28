@@ -148,12 +148,15 @@ void SekvojRackMainMenuView::updateInRecording() {
 void SekvojRackMainMenuView::update() {
 
 	//Reset all counters in case play has been just pressed
-	bool originalPlayValue = playRecordSwitch_.getStatus(0);
-	playRecordSwitch_.update();
-	bool newPlayValue = playRecordSwitch_.getStatus(0);
-	if (originalPlayValue && !newPlayValue) {
-		synchronizer_->reset();
-		player_->resetAllInstruments();
+	if (currentStatus_ != FUNCTION) {
+		bool originalPlayValue = playRecordSwitch_.getStatus(0);
+		playRecordSwitch_.update();
+		bool newPlayValue = playRecordSwitch_.getStatus(0);
+		if (originalPlayValue && !newPlayValue) {
+			synchronizer_->reset();
+			player_->resetAllInstruments();
+		}
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
 	}
 	switch (currentStatus_) {
 		case INIT:
