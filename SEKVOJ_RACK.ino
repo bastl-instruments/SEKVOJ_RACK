@@ -99,7 +99,7 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 }
 
 void clockInCall(){
-	multiplier.doStep(millis());
+	multiplier.doStep(hardware.getBastlCyclesPerSecond());
 	slave = true;
 	recorder.setCurrentStepper(&multiplier);
 }
@@ -107,6 +107,7 @@ void clockInCall(){
 void tapStep() {
 	if (tapper.anyStepDetected()) {
 		stepper.setTimeUnitsPerStep(tapper.getTimeUnitsPerStep());
+		settings->setBPM(BPMConverter::timeUnitsToBPM(tapper.getTimeUnitsPerStep(), hardware.getBastlCyclesPerSecond()), false);
 	}
 	stepper.doStep(hardware.getElapsedBastlCycles());
 }
@@ -129,6 +130,10 @@ void multiplicationChanged(PlayerSettings::MultiplicationType type) {
 	multiplier.setMultiplication(getMultiplicationFromEnum(type));
 }
 
+void bpmChanged(unsigned int bpm) {
+	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(bpm, hardware.getBastlCyclesPerSecond()));
+}
+
 void setup() {
 
 	hardware.init(0, &clockInCall);
@@ -136,13 +141,14 @@ void setup() {
 	synchronizer.setCycleLength(256);
 
 	instrumentBar.init(&hardware, &buttonMap, 6);
-	stepper.setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(120,hardware.getBastlCyclesPerSecond()));// hardware.getBastlCyclesPerSecond()));
 	stepper.setStepCallback(&stepperStep);
 
 	settings = new PlayerSettings();
 	settings->setCurrentPattern(0);
 	settings->setPatternChangedCallback(&patternChanged);
 	settings->setMultiplicationChangedCallback(&multiplicationChanged);
+	settings->setBPMChangedCallback(&bpmChanged);
+	settings->setBPM(120);
 
 	for (unsigned char i = 0; i < 6; i++) {
 		settings->setInstrumentOn(Step::DRUM, i, true);
