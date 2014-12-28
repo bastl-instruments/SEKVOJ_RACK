@@ -89,7 +89,7 @@ void SekvojRackMainMenuView::updateInInit() {
 		currentStatus_ = FUNCTION;
 		destroyInitView();
 		SettingsAndFunctionsView * functionView = new SettingsAndFunctionsView();
-		functionView->init(hw_, settings_,instrumentBar_, buttonMap_);
+		functionView->init(hw_, settings_,instrumentBar_, buttonMap_, memory_, selectedInstrument_, player_);
 		currentView_ = (IView*)functionView;
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX), ILEDHW::ON);
 		return;
