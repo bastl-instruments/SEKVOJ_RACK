@@ -117,6 +117,18 @@ void patternChanged(unsigned char patternIndex) {
 
 }
 
+unsigned char getMultiplicationFromEnum(PlayerSettings::MultiplicationType type) {
+	unsigned char multiplication = 1;
+	for (unsigned char i = 0; i < (char)type; i++) {
+		multiplication *= 2;
+	}
+	return multiplication;
+}
+
+void multiplicationChanged(PlayerSettings::MultiplicationType type) {
+	multiplier.setMultiplication(getMultiplicationFromEnum(type));
+}
+
 void setup() {
 
 	hardware.init(0, &clockInCall);
@@ -130,6 +142,7 @@ void setup() {
 	settings = new PlayerSettings();
 	settings->setCurrentPattern(0);
 	settings->setPatternChangedCallback(&patternChanged);
+	settings->setMultiplicationChangedCallback(&multiplicationChanged);
 
 	for (unsigned char i = 0; i < 6; i++) {
 		settings->setInstrumentOn(Step::DRUM, i, true);
@@ -149,7 +162,7 @@ void setup() {
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
 
 	multiplier.init(hardware.getBastlCyclesPerSecond());
-	multiplier.setMultiplication(16);
+	multiplier.setMultiplication(getMultiplicationFromEnum(settings->getMultiplication()));
 	multiplier.setMinTriggerTime(1);
 	multiplier.setStepCallback(&stepperStep);
 
