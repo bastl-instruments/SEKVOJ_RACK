@@ -29,7 +29,7 @@ int main(void) {
 
 #include "SekvojRackMainMenuView.h"
 #include "SekvojRackButtonMap.h"
-#include "SekvojRackSDPreset.h"
+//#include "SekvojRackSDPreset.h"
 #include <InstrumentBar.h>
 #include <StepRecorder.h>
 #include <StepSynchronizer.h>
@@ -48,7 +48,7 @@ InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
 StepMultiplier multiplier;
-SekvojRackSDPreset sdpreset;
+//SekvojRackSDPreset sdpreset;
 SimplifiedTapper tapper;
 
 unsigned char localStep = 0;
@@ -113,8 +113,8 @@ void tapStep() {
 }
 
 void patternChanged(unsigned char patternIndex) {
-	sdpreset.setPatternData(sdpreset.getCurrentPattern(),memoryData);
-	sdpreset.getPatternData(patternIndex,memoryData);
+	//sdpreset.setPatternData(sdpreset.getCurrentPattern(),memoryData);
+	//sdpreset.getPatternData(patternIndex,memoryData);
 
 }
 
@@ -175,10 +175,10 @@ void setup() {
 	//Serial.begin(9600);
 	//Serial.println("s");
 
-	sdpreset.initCard(memoryData);
+	//sdpreset.initCard(memoryData);
 	//suspicious semicolon - a good name for a band !
 
-	sdpreset.getPatternData(0,memoryData);
+//	sdpreset.getPatternData(0,memoryData);
 
 	//Initialize tapping features
 	tapper.init(5000, 100);
