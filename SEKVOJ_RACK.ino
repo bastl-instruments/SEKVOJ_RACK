@@ -193,7 +193,7 @@ void setup() {
 	//sdpreset.initCard(memoryData);
 	//suspicious semicolon - a good name for a band !
 
-//	sdpreset.getPatternData(0,memoryData);
+	//	sdpreset.getPatternData(0,memoryData);
 
 	//Initialize tapping features
 	tapper.init(5000, 100);
