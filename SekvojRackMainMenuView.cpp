@@ -50,7 +50,8 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 
 void SekvojRackMainMenuView::createSetStepView() {
 	SetStepView * setStepView = new SetStepView();
-	setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, settings_->getCurrentPattern(), 6, selectedInstrument_);
+	setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_,
+					  settings_->getCurrentPattern(), 6, selectedInstrument_, settings_);
 	currentView_ = (IView*)setStepView;
 }
 
