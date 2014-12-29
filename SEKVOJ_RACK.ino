@@ -88,7 +88,7 @@ void initFlashMemory(NoVelocityStepMemory * memory) {
 
 void clockInCall() {
 	if (settings->getPlayerMode() == PlayerSettings::SLAVE && mainMenu.isPlaying()) {
-		stepper->doStep(hardware.getBastlCyclesPerSecond());
+		stepper->doStep(hardware.getElapsedBastlCycles());
 	}
 }
 
