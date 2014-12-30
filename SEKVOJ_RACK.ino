@@ -61,6 +61,7 @@ void stepperStep() {
 	if (mainMenu.isPlaying()) {
 		player->stepFourth();
 		synchronizer.doStep();
+		recorder.update();
 	}
 }
 
