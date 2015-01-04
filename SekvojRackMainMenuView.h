@@ -33,8 +33,8 @@ public:
 	SekvojRackMainMenuView();
 	~SekvojRackMainMenuView();
 	void init(sekvojHW * hw, Player * player, StepRecorder * recorder,
-			  IStepMemory * memory, PlayerSettings * settings, IMIDICommandProcessor * midiProcessor,
-			  InstrumentBar * instrumentBar, IButtonMap * buttonMap, StepSynchronizer * synchronizer);
+			  IStepMemory * memory, PlayerSettings * settings, InstrumentBar * instrumentBar,
+			  IButtonMap * buttonMap, StepSynchronizer * synchronizer);
 	void update();
 	bool isPlaying();
 private:
@@ -46,7 +46,6 @@ private:
 	StepRecorder * recorder_;
 	IStepMemory * memory_;
 	PlayerSettings * settings_;
-	IMIDICommandProcessor * midiProcessor_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
 	Switches playRecordSwitch_;

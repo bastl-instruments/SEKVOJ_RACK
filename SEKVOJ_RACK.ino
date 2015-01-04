@@ -186,7 +186,7 @@ void setup() {
 	player = new Player(&memory, processor, settings, &synchronizer);
 
 	recorder.init(player, &memory, settings, stepper);
-	mainMenu.init(&hardware, player, & recorder, &memory, settings, processor, &instrumentBar, &buttonMap,  &synchronizer);
+	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar, &buttonMap,  &synchronizer);
 
 	//Serial.begin(9600);
 	//Serial.println("s");

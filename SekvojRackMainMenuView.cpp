@@ -13,7 +13,7 @@
 #include <SettingsAndFunctionsView.h>
 #include <IButtonHW.h>
 
-SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0), midiProcessor_(0),
+SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0),
 							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
 							   currentStatus_(INIT), selectedInstrument_(0), synchronizer_(0) {
 }
@@ -22,14 +22,13 @@ SekvojRackMainMenuView::~SekvojRackMainMenuView() {
 }
 
 void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder * recorder,
-						IStepMemory * memory, PlayerSettings * settings, IMIDICommandProcessor * midiProcessor,
-						InstrumentBar * instrumentBar, IButtonMap * buttonMap, StepSynchronizer * synchronizer) {
+						IStepMemory * memory, PlayerSettings * settings, InstrumentBar * instrumentBar,
+						IButtonMap * buttonMap, StepSynchronizer * synchronizer) {
 	hw_ = hw;
 	player_ = player;
 	recorder_ = recorder;
 	memory_ = memory;
 	settings_ = settings;
-	midiProcessor_ = midiProcessor;
 	instrumentBar_ = instrumentBar;
 	buttonMap_ = buttonMap;
 	synchronizer_ = synchronizer;
