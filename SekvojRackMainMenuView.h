@@ -39,7 +39,7 @@ public:
 	bool isPlaying();
 private:
 
-	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, FUNCTION};
+	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, FUNCTION, FUNCTION_FROM_RECORD};
 
 	sekvojHW * hw_;
 	Player * player_;
@@ -68,6 +68,8 @@ private:
 	void updateInFunction();
 	void createSetStepView();
 	void destroyInitView();
+	void createFunctionView(bool fromRecord);
+	void createRecordView();
 
 };
 
