@@ -156,7 +156,7 @@ void sekvojHW::setLED(uint8_t number, ILEDHW::LedState state) {
 
 
 
-void sekvojHW::isr_updateNextLEDRow() {
+inline void sekvojHW::isr_updateNextLEDRow() {
 
 
 
@@ -210,7 +210,7 @@ void sekvojHW::isr_updateNextLEDRow() {
 /**** BUTTONS ****/
 
 
-void sekvojHW::isr_updateButtons() {
+inline void sekvojHW::isr_updateButtons() {
 
 	bit_clear(LEDCOL_0);
 	bit_clear(LEDCOL_1);
@@ -247,8 +247,8 @@ void sekvojHW::isr_updateButtons() {
 			}
 			buttonStates[col]=newButtonStates[col];
 		}
-	}*/
-	for(int col=0;col<4;col++) buttonStates[col]=newButtonStates[col];
+	}
+	for(int col=0;col<4;col++) buttonStates[col]=newButtonStates[col];*/
 }
 
 
@@ -284,7 +284,7 @@ void sekvojHW::setTrigger(uint8_t number, sekvojHW::TriggerState state, uint8_t 
 		if(state==OFF) bitWrite(trigState,trigMap[number],0);
 }
 
-void sekvojHW::isr_updateTriggerStates(){
+inline void sekvojHW::isr_updateTriggerStates(){
 
 
 	for(int i=0;i<8;i++){
@@ -295,7 +295,7 @@ void sekvojHW::isr_updateTriggerStates(){
 	}
 
 }
-void sekvojHW::isr_updateClockIn(){
+inline void sekvojHW::isr_updateClockIn(){
 	if(clockInCallback!=0){
 		static bool clockInState;
 		bool newState=!bit_read_in(CLOCK_IN_PIN);
