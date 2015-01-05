@@ -226,24 +226,19 @@ void sekvojHW::isr_updateButtons() {
 
 		uint8_t col = 0;
 
-		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_0));
+		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_0));
 		col++;
-		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_1));
+		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_1));
 		col++;
-		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_2));
+		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_2));
 		col++;
-		bitWrite(newButtonStates[col], row, !bit_read_in(BUTTONCOL_3));
+		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_3));
 
 
 		//col++;
 	}
 
-	compareButtonStates();
-
-}
-
-void sekvojHW::compareButtonStates(){
-	if(buttonChangeCallback!=0){
+	/*if(buttonChangeCallback!=0){
 		for(int col=0;col<4;col++){
 			if(uint8_t xored=newButtonStates[col]^buttonStates[col]){
 				for(int row=0;row<8;row++){
@@ -252,10 +247,8 @@ void sekvojHW::compareButtonStates(){
 			}
 			buttonStates[col]=newButtonStates[col];
 		}
-	}
+	}*/
 	for(int col=0;col<4;col++) buttonStates[col]=newButtonStates[col];
-
-
 }
 
 
