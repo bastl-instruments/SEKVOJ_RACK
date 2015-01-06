@@ -24,9 +24,9 @@
 #define MENU_PLAY_INDEX 4
 #define MENU_RECORD_INDEX 5
 #define MENU_TAP_INDEX 0
-#define MENU_FUNCTION_INDEX 1
+#define MENU_FUNCTION_INDEX 3
 #define MENU_PATTERN_INDEX 2
-#define MENU_ACTIVE_INDEX 3
+#define MENU_ACTIVE_INDEX 1
 
 class SekvojRackMainMenuView : public IView {
 public:
