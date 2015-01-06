@@ -7,46 +7,36 @@
 
 #include "SekvojRackSDPreset.h"
 
-//#include <Fat16.h>
-//#include <Fat16util.h>
-
 #include <SdFat.h>
 //#include <SdFatUtil.h>
-Sd2Card card;           // SD/SDHC card with support for version 2.00 features
-//SdVolume vol;           // FAT16 or FAT32 volume
-//SdFile root;            // volume's root directory
+
+SdFat card;
 SdFile file;
 
-//SdCard card;
-//Fat16 file;
-const uint8_t CHIP_SELECT = SS;
+const uint8_t CHIP_SELECT = 10;
 SekvojRackSDPreset::SekvojRackSDPreset(){
 
 }
 char presetFileName[7]="PT.txt";
 void SekvojRackSDPreset::initCard(unsigned char * data){
+	if (!card.begin(CHIP_SELECT, SPI_FULL_SPEED)){};
+	if (!file.open(presetFileName, O_RDWR )) { //&root,
 
-	if (!card.init()){/*Serial.println("int");*/};//error("card");
-	//if (!vol.init(&card)){/*Serial.println("crd");*/};// error("vol ");
-	//if (!root.openRoot(&vol)){/*Serial.println("vol");*/};// error("root");
+		file.close();
 
-	//if (!card.begin(CHIP_SELECT)){};
-
-	if (!file.open(presetFileName, O_READ )) { //&root,
-		//Serial.println("noFile");
-		if (!file.open( presetFileName, O_RDWR | O_CREAT )) { //&root,
-			//Serial.println("errMake");
+		if (!file.open( presetFileName, O_RDWR | O_CREAT | O_AT_END)) { //&root,
+			//add error loop
 		} else {
-			//Serial.println("makingNewFile");
-			for (int j = 0; j < 64; j++) {
-				for (int i = 0; i < 290; i++) file.print(data[i]);
-				for (int i = 0; i < 222; i++) file.print(255);
-				//Serial.print(".");
-				//Serial.println(file.getC());
+
+			for (int j = 0; j < 128; j++) {
+				file.write(&data[0],290);
+				file.write(&data[0],222);
 			}
 		}
+		file.close();
 
-	} else if (!file.open( presetFileName, O_RDWR | O_CREAT )) {} //&root,
+	}
+
 }
 
 void SekvojRackSDPreset::getPatternData(unsigned char patternIndex, unsigned char * data) {
@@ -62,3 +52,10 @@ void SekvojRackSDPreset::setPatternData(unsigned char patternIndex, unsigned cha
 	file.write(&data[0],290);
 
 }
+
+void SekvojRackSDPreset::debug(){
+
+
+}
+
+

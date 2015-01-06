@@ -12,6 +12,7 @@ class SekvojRackSDPreset
 {
 public:
 	SekvojRackSDPreset();
+	void debug();
 	void initCard(unsigned char * data);
 	void getPatternData(unsigned char patternIndex, unsigned char * data);
 	void setPatternData(unsigned char patternIndex, unsigned char * data);

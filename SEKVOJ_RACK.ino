@@ -203,6 +203,7 @@ void setup() {
 }
 
 void loop() {
+	//sdpreset.debug();
 
 	//Tap the tapper in case tap button has been just pressed
 	bool newTapButonDown = hardware.getButtonState(buttonMap.getMainMenuButtonIndex(0)) == IButtonHW::DOWN;
@@ -219,6 +220,7 @@ void loop() {
 	mainMenu.update();
 
 	hardware.setLED(buttonMap.getMainMenuButtonIndex(0), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
+
 }
 
 
