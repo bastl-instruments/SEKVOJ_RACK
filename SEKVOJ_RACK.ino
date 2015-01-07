@@ -55,7 +55,6 @@ unsigned char localStep = 0;
 extern sekvojHW hardware;
 unsigned int bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 bool slave = false;
-bool tapButtonDown = false;
 unsigned char memoryData[292];
 
 void stepperStep() {
@@ -174,7 +173,7 @@ void setup() {
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
 	recorder.init(player, &memory, settings, stepper);
-	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar, &buttonMap,  &synchronizer);
+	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar, &buttonMap,  &synchronizer, &tapper);
 
 	//Serial.begin(9600);
 	//Serial.println("s");
@@ -195,13 +194,6 @@ void loop() {
 	//sdpreset.debug();
 
 	unsigned int bastlCycles = hardware.getElapsedBastlCycles();
-	//Tap the tapper in case tap button has been just pressed
-	bool newTapButonDown = hardware.getButtonState(buttonMap.getMainMenuButtonIndex(0)) == IButtonHW::DOWN;
-	if (!tapButtonDown && newTapButonDown) {
-		tapper.tap(bastlCycles);
-	}
-
-	tapButtonDown = newTapButonDown;
 
 	//Update step keepers
 	stepper->update(bastlCycles);

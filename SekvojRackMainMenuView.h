@@ -20,6 +20,7 @@
 #include <IButtonMap.h>
 #include <Switches.h>
 #include <StepSynchronizer.h>
+#include <ITapper.h>
 
 #define MENU_PLAY_INDEX 4
 #define MENU_RECORD_INDEX 5
@@ -34,7 +35,7 @@ public:
 	~SekvojRackMainMenuView();
 	void init(sekvojHW * hw, Player * player, StepRecorder * recorder,
 			  IStepMemory * memory, PlayerSettings * settings, InstrumentBar * instrumentBar,
-			  IButtonMap * buttonMap, StepSynchronizer * synchronizer);
+			  IButtonMap * buttonMap, StepSynchronizer * synchronizer, ITapper * tapper);
 	void update();
 	bool isPlaying();
 private:
@@ -62,6 +63,7 @@ private:
 	unsigned char selectedInstrument_;
 
 	StepSynchronizer * synchronizer_;
+	ITapper * tapper_;
 
 	void updateInInit();
 	void updateInActive();
