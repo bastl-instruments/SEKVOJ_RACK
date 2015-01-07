@@ -39,7 +39,7 @@ public:
 	bool isPlaying();
 private:
 
-	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, FUNCTION, FUNCTION_FROM_RECORD};
+	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, PATTERN_FROM_ACTIVE, PATTERN_FROM_RECORD, FUNCTION, FUNCTION_FROM_RECORD};
 
 	sekvojHW * hw_;
 	Player * player_;
@@ -55,6 +55,9 @@ private:
 	unsigned char currentViewIndex_;
 	unsigned char currentPattern_;
 
+	bool functionButtonDown_;
+	bool patternButtonDown_;
+
 	UIStatus currentStatus_;
 	unsigned char selectedInstrument_;
 
@@ -69,6 +72,9 @@ private:
 	void destroyInitView();
 	void createFunctionView(bool fromRecord);
 	void createRecordView();
+	void createPatternView(bool fromRecord, bool fromActive);
+	void createActiveView();
+	void clearAllDiods();
 
 };
 
