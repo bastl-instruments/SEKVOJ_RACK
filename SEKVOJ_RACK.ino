@@ -201,7 +201,7 @@ void loop() {
 	//Update user interface
 	mainMenu.update();
 
-	hardware.setLED(buttonMap.getMainMenuButtonIndex(0), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
+	hardware.setLED(buttonMap.getMainMenuButtonIndex(MENU_JUMP_INDEX), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
 
 }
 

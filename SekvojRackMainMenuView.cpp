@@ -205,7 +205,7 @@ void SekvojRackMainMenuView::update() {
 			synchronizer_->reset();
 			player_->resetAllInstruments();
 		}
-		hw_->setLED(buttonMap_->getMainMenuButtonIndex(4), isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PLAY_INDEX), isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
 	}
 	switch (currentStatus_) {
 		case INIT:

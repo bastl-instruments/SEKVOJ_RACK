@@ -26,19 +26,19 @@ SekvojRackButtonMap::SekvojRackButtonMap() {
 	buttonIndexes_[14] = 23;
 	buttonIndexes_[15] = 31;
 
-	buttonIndexes_[16] = 17;
-	buttonIndexes_[17] = 16;
-	buttonIndexes_[18] = 18;
-	buttonIndexes_[19] = 25;
-	buttonIndexes_[20] = 24;
-	buttonIndexes_[21] = 26;
+	buttonIndexes_[16] = 17; //fn
+	buttonIndexes_[17] = 16; //active
+	buttonIndexes_[18] = 18; //play
+	buttonIndexes_[19] = 26; //rec
+	buttonIndexes_[20] = 24; //jump
+	buttonIndexes_[21] = 25; //pattern
 
-	buttonIndexes_[22] = 0;
-	buttonIndexes_[23] = 8;
+	buttonIndexes_[22] = 1;
+	buttonIndexes_[23] = 0;
 	buttonIndexes_[24] = 2;
-	buttonIndexes_[25] = 10;
-	buttonIndexes_[26] = 1;
-	buttonIndexes_[27] = 9;
+	buttonIndexes_[25] = 9;
+	buttonIndexes_[26] = 8;
+	buttonIndexes_[27] = 10;
 
 	buttonIndexes_[28] = 3;
 	buttonIndexes_[29] = 11;
