@@ -53,6 +53,7 @@ SimplifiedTapper tapper;
 unsigned char localStep = 0;
 
 extern sekvojHW hardware;
+unsigned int bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 bool slave = false;
 bool tapButtonDown = false;
 unsigned char memoryData[292];
@@ -65,26 +66,17 @@ void stepperStep() {
 	}
 }
 
-void noteOn(unsigned char note, unsigned char velocity, unsigned char channel) {
-	instrumentBar.setInstrumentPlaying(channel, true);
-	if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::GATE){
-		hardware.setTrigger(channel,sekvojHW::ON);
-	} else if (settings->getDrumInstrumentEventType(channel)==PlayerSettings::TRIGGER) {
-		hardware.setTrigger(channel,sekvojHW::ON,20);
+void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velocity, bool isOn) {
+	instrumentBar.setInstrumentPlaying(instrumentId, isOn);
+	if (isOn) {
+		if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE) {
+			hardware.setTrigger(instrumentId, sekvojHW::ON);
+		} else {
+			hardware.setTrigger(instrumentId, sekvojHW::ON, 20);
+		}
+	} else if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE){
+		hardware.setTrigger(instrumentId, sekvojHW::OFF);
 	}
-}
-
-void noteOff(unsigned char note, unsigned char velocity, unsigned char channel) {
-	instrumentBar.setInstrumentPlaying(channel, false);
-	if (settings->getDrumInstrumentEventType(channel) == PlayerSettings::GATE){
-		hardware.setTrigger(channel, sekvojHW::OFF);
-	}
-}
-
-
-void initFlashMemory(NoVelocityStepMemory * memory) {
-	memory->makeAllInstrumentsActiveUpTo(15);
-	memory->clearStepsForAllInstruments();
 }
 
 void clockInCall() {
@@ -96,8 +88,9 @@ void clockInCall() {
 void tapStep() {
 	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
 		if (tapper.anyStepDetected()) {
-			((StepGenerator *)stepper)->setTimeUnitsPerStep(tapper.getTimeUnitsPerStep());
-			settings->setBPM(BPMConverter::timeUnitsToBPM(tapper.getTimeUnitsPerStep(), hardware.getBastlCyclesPerSecond()), false);
+			unsigned char timeUnitsPerStep = tapper.getTimeUnitsPerStep();
+			((StepGenerator *)stepper)->setTimeUnitsPerStep(timeUnitsPerStep);
+			settings->setBPM(BPMConverter::timeUnitsToBPM(timeUnitsPerStep, bastlCyclesPerSecond), false);
 		}
 		stepper->doStep(hardware.getElapsedBastlCycles());
 	}
@@ -125,7 +118,7 @@ void multiplicationChanged(PlayerSettings::MultiplicationType type) {
 
 void bpmChanged(unsigned int bpm) {
 	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
-		((StepGenerator *)stepper)->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(bpm, hardware.getBastlCyclesPerSecond()));
+		((StepGenerator *)stepper)->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(bpm, bastlCyclesPerSecond));
 	}
 }
 
@@ -133,14 +126,13 @@ BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 
 	if (mode == PlayerSettings::MASTER) {
 		StepGenerator * generator = new StepGenerator();
+		//generator->init(&stepperStep, BPMConverter::bpmToTimeUnits(settings->getBPM(), hardware.getBastlCyclesPerSecond()));
 		generator->setStepCallback(&stepperStep);
-		generator->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(settings->getBPM(), hardware.getBastlCyclesPerSecond()));
+		generator->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(settings->getBPM(), bastlCyclesPerSecond));
 		return generator;
 	} else {
 		StepMultiplier * multiplier = new StepMultiplier();
-		multiplier->init(hardware.getBastlCyclesPerSecond());
-		multiplier->setMultiplication(getMultiplicationFromEnum(settings->getMultiplication()));
-		multiplier->setMinTriggerTime(1);
+		multiplier->init(getMultiplicationFromEnum(settings->getMultiplication()), bastlCyclesPerSecond, 1);
 		multiplier->setStepCallback(&stepperStep);
 		return multiplier;
 	}
@@ -158,13 +150,12 @@ void setup() {
 
 	hardware.init(0, &clockInCall);
 
-	synchronizer.setCycleLength(256);
+	//synchronizer.setCycleLength(256); rather made as default to save some memory
 	stepper = createBastlStepper(settings->getPlayerMode());
 
 	instrumentBar.init(&hardware, &buttonMap, 6);
 
 	settings = new PlayerSettings();
-	settings->setCurrentPattern(0);
 	settings->setPatternChangedCallback(&patternChanged);
 	settings->setMultiplicationChangedCallback(&multiplicationChanged);
 	settings->setBPMChangedCallback(&bpmChanged);
@@ -173,17 +164,14 @@ void setup() {
 
 	for (unsigned char i = 0; i < 6; i++) {
 		settings->setInstrumentOn(Step::DRUM, i, true);
-		settings->setInstrumentChannel(Step::DRUM, i, i);
-		settings->setDrumInstrumentNote(i, i);
 		settings->setDrumInstrumentEventType(i, PlayerSettings::TRIGGER); // TODO: load from some memory
 	}
 
 	//Here the pointer to the SD Card memory shall be set.
 	memory.setDataReference(memoryData);
-	initFlashMemory(&memory);
-
-	processor = new ArduinoMIDICommandProcessor(&noteOn, &noteOff);
-	player = new Player(&memory, processor, settings, &synchronizer);
+	memory.makeAllInstrumentsActiveUpTo(15);
+	memory.clearStepsForAllInstruments();
+	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
 	recorder.init(player, &memory, settings, stepper);
 	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar, &buttonMap,  &synchronizer);
@@ -197,24 +185,26 @@ void setup() {
 	sdpreset.getPatternData(0,memoryData);
 
 	//Initialize tapping features
-	tapper.init(5000, 100);
-	tapper.setStepsPerTap(16);
+
+	//tapper.init(5000, 100); Not called rather made default to save some progeram memory
+	//tapper.setStepsPerTap(16); Not called rather made default to save some progeram memory
 	tapper.setStepCallBack(&tapStep);
 }
 
 void loop() {
 	//sdpreset.debug();
 
+	unsigned int bastlCycles = hardware.getElapsedBastlCycles();
 	//Tap the tapper in case tap button has been just pressed
 	bool newTapButonDown = hardware.getButtonState(buttonMap.getMainMenuButtonIndex(0)) == IButtonHW::DOWN;
 	if (!tapButtonDown && newTapButonDown) {
-		tapper.tap(hardware.getElapsedBastlCycles());
+		tapper.tap(bastlCycles);
 	}
 
 	tapButtonDown = newTapButonDown;
 
 	//Update step keepers
-	stepper->update(hardware.getElapsedBastlCycles());
+	stepper->update(bastlCycles);
 
 	//Update user interface
 	mainMenu.update();
