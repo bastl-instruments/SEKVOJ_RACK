@@ -56,6 +56,7 @@ extern sekvojHW hardware;
 unsigned int bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 bool slave = false;
 unsigned char memoryData[292];
+//unsigned char copyMemoryData[292];
 
 void stepperStep() {
 	if (mainMenu.isPlaying()) {
@@ -147,6 +148,13 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 
 void setup() {
 
+	/*for (unsigned int i = 0; i < 292; i++) {
+		if (i == 0) {
+			copyMemoryData[i] = 0;
+		} else {
+			copyMemoryData[i] = (copyMemoryData[i - 1] + 1) % 10;
+		}
+	}*/
 	hardware.init(0, &clockInCall);
 
 	//synchronizer.setCycleLength(256); rather made as default to save some memory
@@ -201,7 +209,7 @@ void loop() {
 	//Update user interface
 	mainMenu.update();
 
-	hardware.setLED(buttonMap.getMainMenuButtonIndex(MENU_JUMP_INDEX), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
+	hardware.setLED(buttonMap.getJumpButtonIndex(), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
 
 }
 

@@ -41,8 +41,8 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 		hw_->setLED(buttonMap_->getMainMenuButtonIndex(index), ILEDHW::OFF);
 	}
 
-	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + MENU_PLAY_INDEX;
-	unsigned char * activeButton = buttonMap_->getMainMenuButtonArray() + MENU_ACTIVE_INDEX;
+	unsigned char * recordButton = buttonMap_->getMainMenuButtonArray() + 2;
+	unsigned char * activeButton = buttonMap_->getMainMenuButtonArray() + 1;
 
 	playRecordSwitch_.init(hw_, recordButton, 2, IButtonHW::DOWN);
 	playRecordSwitch_.setStatus(0, true);
@@ -62,7 +62,7 @@ void SekvojRackMainMenuView::createFunctionView(bool fromRecord) {
 	SettingsAndFunctionsView * functionView = new SettingsAndFunctionsView();
 	functionView->init(hw_, settings_,instrumentBar_, buttonMap_, memory_, selectedInstrument_, player_, tapper_);
 	currentView_ = (IView*)functionView;
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX), ILEDHW::ON);
+	hw_->setLED(buttonMap_->getFunctionButtonIndex(), ILEDHW::ON);
 }
 
 void SekvojRackMainMenuView::createPatternView(bool fromRecord, bool fromActive) {
@@ -74,7 +74,7 @@ void SekvojRackMainMenuView::createPatternView(bool fromRecord, bool fromActive)
 	PatternView * patternView = new PatternView();
 	patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
 	currentView_ = (IView*)patternView;
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX), ILEDHW::ON);
+	hw_->setLED(buttonMap_->getPatternButtonIndex(), ILEDHW::ON);
 
 }
 
@@ -85,7 +85,7 @@ void SekvojRackMainMenuView::createRecordView() {
 	currentView_ = (IView*)playRecordView;
 	instrumentBar_->resetSelected();
 	playRecordSwitch_.setStatus(1, true);
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::ON);
+	hw_->setLED(buttonMap_->getRecordButtonIndex(), ILEDHW::ON);
 }
 
 void SekvojRackMainMenuView::createActiveView() {
@@ -93,7 +93,7 @@ void SekvojRackMainMenuView::createActiveView() {
 	SetActiveView * activeView = new SetActiveView();
 	activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, selectedInstrument_);
 	currentView_ = (IView*)activeView;
-	hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::ON);
+	hw_->setLED(buttonMap_->getActiveButtonIndex(), ILEDHW::ON);
 
 }
 
@@ -138,19 +138,20 @@ inline void SekvojRackMainMenuView::updateInPattern() {
 		} else {
 			createSetStepView();
 		}
-		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX), ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getPatternButtonIndex(), ILEDHW::OFF);
 	}
 }
 
 inline void SekvojRackMainMenuView::updateInFunction() {
 	if (!functionButtonDown_) {
 		delete currentView_;
+		clearAllDiods();
 		if (currentStatus_ == FUNCTION_FROM_RECORD) {
 			createRecordView();
 		} else {
 			createSetStepView();
 		}
-		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX), ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getFunctionButtonIndex(), ILEDHW::OFF);
 	}
 }
 
@@ -164,7 +165,7 @@ inline void SekvojRackMainMenuView::updateInActive() {
 		} else {
 			createSetStepView();
 		}
-		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_ACTIVE_INDEX), ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getActiveButtonIndex(), ILEDHW::OFF);
 	}
 }
 
@@ -178,7 +179,7 @@ inline void SekvojRackMainMenuView::updateInRecording() {
 	bool playRecordSwitchOn = playRecordSwitch_.getStatus(1);
 	if (functionButtonDown_ || patternButtonDown_ || !playRecordSwitchOn ) {
 		delete currentView_;
-		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_RECORD_INDEX), ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getRecordButtonIndex(), ILEDHW::OFF);
 		if (functionButtonDown_)  {
 			clearAllDiods();
 			createFunctionView(true);
@@ -193,8 +194,8 @@ inline void SekvojRackMainMenuView::updateInRecording() {
 
 void SekvojRackMainMenuView::update() {
 
-	functionButtonDown_ = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_FUNCTION_INDEX)) == IButtonHW::DOWN;
-	patternButtonDown_ = hw_->getButtonState(buttonMap_->getMainMenuButtonIndex(MENU_PATTERN_INDEX)) == IButtonHW::DOWN;
+	functionButtonDown_ = hw_->getButtonState(buttonMap_->getFunctionButtonIndex()) == IButtonHW::DOWN;
+	patternButtonDown_ = hw_->getButtonState(buttonMap_->getPatternButtonIndex()) == IButtonHW::DOWN;
 
 	//Reset all counters in case play has been just pressed
 	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD)) {
@@ -205,7 +206,7 @@ void SekvojRackMainMenuView::update() {
 			synchronizer_->reset();
 			player_->resetAllInstruments();
 		}
-		hw_->setLED(buttonMap_->getMainMenuButtonIndex(MENU_PLAY_INDEX), isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
+		hw_->setLED(buttonMap_->getPlayButtonIndex(), isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
 	}
 	switch (currentStatus_) {
 		case INIT:

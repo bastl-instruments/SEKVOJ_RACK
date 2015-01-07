@@ -22,13 +22,6 @@
 #include <StepSynchronizer.h>
 #include <ITapper.h>
 
-#define MENU_PLAY_INDEX 2
-#define MENU_RECORD_INDEX 3
-#define MENU_JUMP_INDEX 4
-#define MENU_FUNCTION_INDEX 0
-#define MENU_PATTERN_INDEX 5
-#define MENU_ACTIVE_INDEX 1
-
 class SekvojRackMainMenuView : public IView {
 public:
 	SekvojRackMainMenuView();
