@@ -145,35 +145,39 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 	stepper = createBastlStepper(mode);
 }
 
+void settingsChanged() {
+	unsigned char data[8];
+	settings->getInByteArray(data);
+	sdpreset.setSettingsData(data);
+}
+
 void setup() {
 
 	hardware.init(0, &clockInCall);
-
-	//synchronizer.setCycleLength(256); rather made as default to save some memory
-	stepper = createBastlStepper(settings->getPlayerMode());
-
 	instrumentBar.init(&hardware, &buttonMap, 6);
 
 	settings = new PlayerSettings();
 	settings->setPatternChangedCallback(&patternChanged);
 	settings->setMultiplicationChangedCallback(&multiplicationChanged);
 	settings->setBPMChangedCallback(&bpmChanged);
-	settings->setBPM(120);
 	settings->setPlayerModeChangedCallback(&playerModeChanged);
-
-	for (unsigned char i = 0; i < 6; i++) {
-		settings->setInstrumentOn(Step::DRUM, i, true);
-		settings->setDrumInstrumentEventType(i, PlayerSettings::TRIGGER); // TODO: load from some memory
-	}
+	settings->setSettingsChangedCallback(&settingsChanged);
 
 	//Here the pointer to the SD Card memory shall be set.
 	memory.setDataReference(memoryData);
 	memory.makeAllInstrumentsActiveUpTo(15);
 	memory.clearStepsForAllInstruments();
-	sdpreset.initCard(memoryData);
+
+	unsigned char data[8];
+	settings->getInByteArray(data);
+	sdpreset.initCard(memoryData, data);
+	sdpreset.getSettingsData(data);
+	settings->loadFromByteArray(data);
+
 	//suspicious semicolon - a good name for a band !
 
-	sdpreset.getPatternData(0, memoryData);
+	sdpreset.getPatternData(settings->getCurrentPattern(), memoryData);
+	stepper = createBastlStepper(settings->getPlayerMode());
 
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
