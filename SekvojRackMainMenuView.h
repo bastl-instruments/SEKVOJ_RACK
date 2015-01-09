@@ -21,6 +21,7 @@
 #include <Switches.h>
 #include <StepSynchronizer.h>
 #include <ITapper.h>
+#include <SekvojRackSDPreset.h>
 
 class SekvojRackMainMenuView : public IView {
 public:
@@ -28,7 +29,8 @@ public:
 	~SekvojRackMainMenuView();
 	void init(sekvojHW * hw, Player * player, StepRecorder * recorder,
 			  IStepMemory * memory, PlayerSettings * settings, InstrumentBar * instrumentBar,
-			  IButtonMap * buttonMap, StepSynchronizer * synchronizer, ITapper * tapper);
+			  IButtonMap * buttonMap, StepSynchronizer * synchronizer, ITapper * tapper,
+			  SekvojRackSDPreset * sd);
 	void update();
 	bool isPlaying();
 private:
@@ -42,12 +44,13 @@ private:
 	PlayerSettings * settings_;
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
+	SekvojRackSDPreset * sd_;
 	Switches playRecordSwitch_;
 	Switches activeSwitch_;
 
 	IView * currentView_;
 	unsigned char currentViewIndex_;
-	unsigned char currentPattern_;
+	unsigned char currentBarIndex_;
 
 	bool functionButtonDown_;
 	bool patternButtonDown_;

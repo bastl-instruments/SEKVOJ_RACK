@@ -14,9 +14,9 @@
 #include <IButtonHW.h>
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0),
-							   instrumentBar_(0), buttonMap_(0), currentView_(0), currentViewIndex_(0), currentPattern_(0),
-							   functionButtonDown_(false), patternButtonDown_(false), currentStatus_(INIT),
-							   selectedInstrument_(0), synchronizer_(0), tapper_(0) {
+							   instrumentBar_(0), buttonMap_(0), sd_(0), currentView_(0), currentViewIndex_(0),
+							   currentBarIndex_(0), functionButtonDown_(false), patternButtonDown_(false),
+							   currentStatus_(INIT), selectedInstrument_(0), synchronizer_(0), tapper_(0) {
 }
 
 SekvojRackMainMenuView::~SekvojRackMainMenuView() {
@@ -24,8 +24,10 @@ SekvojRackMainMenuView::~SekvojRackMainMenuView() {
 
 void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder * recorder,
 						IStepMemory * memory, PlayerSettings * settings, InstrumentBar * instrumentBar,
-						IButtonMap * buttonMap, StepSynchronizer * synchronizer, ITapper * tapper) {
+						IButtonMap * buttonMap, StepSynchronizer * synchronizer, ITapper * tapper,
+						SekvojRackSDPreset * sd) {
 	hw_ = hw;
+	sd_ = sd;
 	tapper_ = tapper;
 	player_ = player;
 	recorder_ = recorder;
@@ -52,7 +54,7 @@ void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder *
 void SekvojRackMainMenuView::createSetStepView() {
 	SetStepView * setStepView = new SetStepView();
 	setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_,
-					  settings_->getCurrentPattern(), 6, selectedInstrument_, settings_);
+					  settings_->getCurrentPattern(), 6, selectedInstrument_, settings_, currentBarIndex_);
 	currentView_ = (IView*)setStepView;
 	currentStatus_ = INIT;
 }
@@ -60,7 +62,8 @@ void SekvojRackMainMenuView::createSetStepView() {
 void SekvojRackMainMenuView::createFunctionView(bool fromRecord) {
 	currentStatus_ = fromRecord ?  FUNCTION_FROM_RECORD : FUNCTION;
 	SettingsAndFunctionsView * functionView = new SettingsAndFunctionsView();
-	functionView->init(hw_, settings_,instrumentBar_, buttonMap_, memory_, selectedInstrument_, player_, tapper_);
+	functionView->init(hw_, settings_,instrumentBar_, buttonMap_, memory_, selectedInstrument_,
+					   currentBarIndex_, player_, tapper_, sd_);
 	currentView_ = (IView*)functionView;
 	hw_->setLED(buttonMap_->getFunctionButtonIndex(), ILEDHW::ON);
 }
@@ -124,6 +127,7 @@ inline void SekvojRackMainMenuView::updateInInit() {
 
 void SekvojRackMainMenuView::destroyInitView() {
 	selectedInstrument_ = ((SetStepView *) currentView_)->getSelectedIndstrumentIndex();
+	currentBarIndex_ = ((SetStepView *) currentView_)->getSelectedBarIndex();
 	delete currentView_;
 	clearAllDiods();
 }

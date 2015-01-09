@@ -29,7 +29,7 @@ int main(void) {
 
 #include "SekvojRackMainMenuView.h"
 #include "SekvojRackButtonMap.h"
-#include "SekvojRackSDPreset.h"
+#include <SekvojRackSDPreset.h>
 #include <InstrumentBar.h>
 #include <StepRecorder.h>
 #include <StepSynchronizer.h>
@@ -56,7 +56,6 @@ extern sekvojHW hardware;
 unsigned int bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 bool slave = false;
 unsigned char memoryData[292];
-//unsigned char copyMemoryData[292];
 
 void stepperStep() {
 	if (mainMenu.isPlaying()) {
@@ -96,9 +95,9 @@ void tapStep() {
 	}
 }
 
-void patternChanged(unsigned char patternIndex) {
-	sdpreset.setPatternData(sdpreset.getCurrentPattern(),memoryData);
-	sdpreset.getPatternData(patternIndex,memoryData);
+void patternChanged(unsigned char originalPattenrIndex, unsigned char newPatternIndex) {
+	sdpreset.setPatternData(originalPattenrIndex, memoryData);
+	sdpreset.getPatternData(newPatternIndex, memoryData);
 
 }
 
@@ -148,13 +147,6 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 
 void setup() {
 
-	/*for (unsigned int i = 0; i < 292; i++) {
-		if (i == 0) {
-			copyMemoryData[i] = 0;
-		} else {
-			copyMemoryData[i] = (copyMemoryData[i - 1] + 1) % 10;
-		}
-	}*/
 	hardware.init(0, &clockInCall);
 
 	//synchronizer.setCycleLength(256); rather made as default to save some memory
@@ -178,21 +170,22 @@ void setup() {
 	memory.setDataReference(memoryData);
 	memory.makeAllInstrumentsActiveUpTo(15);
 	memory.clearStepsForAllInstruments();
+	sdpreset.initCard(memoryData);
+	//suspicious semicolon - a good name for a band !
+
+	sdpreset.getPatternData(0, memoryData);
+
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
 	recorder.init(player, &memory, settings, stepper);
-	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar, &buttonMap,  &synchronizer, &tapper);
+	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar,
+			      &buttonMap,  &synchronizer, &tapper, &sdpreset);
 
 	//Serial.begin(9600);
 	//Serial.println("s");
 
-	sdpreset.initCard(memoryData);
-	//suspicious semicolon - a good name for a band !
-
-	sdpreset.getPatternData(0,memoryData);
 
 	//Initialize tapping features
-
 	//tapper.init(5000, 100); Not called rather made default to save some progeram memory
 	//tapper.setStepsPerTap(16); Not called rather made default to save some progeram memory
 	tapper.setStepCallBack(&tapStep);
