@@ -60,6 +60,7 @@ private:
 
 	StepSynchronizer * synchronizer_;
 	ITapper * tapper_;
+	bool isPlaying_;
 
 	void updateInInit();
 	void updateInActive();
@@ -73,11 +74,12 @@ private:
 	void createPatternView(bool fromRecord, bool fromActive);
 	void createActiveView();
 	void clearAllDiods();
+	void clearBottomPartDiods();
 
 };
 
 inline bool SekvojRackMainMenuView::isPlaying() {
-	return playRecordSwitch_.getStatus(0);
+	return isPlaying_;
 }
 
 #endif /* SEKVOJRACKMAINMENUVIEW_H_ */
