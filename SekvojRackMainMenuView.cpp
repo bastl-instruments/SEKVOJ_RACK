@@ -74,7 +74,7 @@ void SekvojRackMainMenuView::createPatternView(bool fromRecord, bool fromActive)
 		currentStatus_ = fromRecord ? PATTERN_FROM_RECORD : PATTERN_FROM_ACTIVE;
 	}
 	PatternView * patternView = new PatternView();
-	patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_);
+	patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_, player_);
 	currentView_ = (IView*)patternView;
 }
 
