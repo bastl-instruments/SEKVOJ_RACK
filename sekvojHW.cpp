@@ -266,9 +266,13 @@ void sekvojHW::printButtonStates() {
 	}
 }
 
+bool sekvojHW::isButtonDown(uint8_t number) {
+	return (buttonStates[number/buttons_rows] & (1<<(number%buttons_rows)));
+}
+
 IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
-	if ((buttonStates[number/buttons_rows] & (1<<(number%buttons_rows)))) {
+	if (isButtonDown(number)) {
 		return IButtonHW::DOWN;
 	} else {
 		return IButtonHW::UP;

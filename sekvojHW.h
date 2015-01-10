@@ -39,6 +39,7 @@ public:
 
 	// the the state of a button identified by its id
 	virtual IButtonHW::ButtonState getButtonState(uint8_t number);
+	virtual bool isButtonDown(uint8_t number);
 
 	// print the read button states to serial terminal
 	void printButtonStates();

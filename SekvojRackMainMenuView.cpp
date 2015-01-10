@@ -143,8 +143,10 @@ inline void SekvojRackMainMenuView::updateInFunction() {
 		delete currentView_;
 		playRecordSwitch_.setStatus(0, isPlaying_);
 		if (currentStatus_ == FUNCTION_FROM_RECORD) {
+			playRecordSwitch_.setStatus(1, true);
 			createRecordView();
 		} else {
+			playRecordSwitch_.setStatus(1, false);
 			createSetStepView();
 		}
 	}
