@@ -45,8 +45,7 @@ private:
 	InstrumentBar * instrumentBar_;
 	IButtonMap * buttonMap_;
 	SekvojRackSDPreset * sd_;
-	Switches playRecordSwitch_;
-	Switches activeSwitch_;
+	Switches activePlayRecordSwitch_;
 
 	IView * currentView_;
 	unsigned char currentViewIndex_;
