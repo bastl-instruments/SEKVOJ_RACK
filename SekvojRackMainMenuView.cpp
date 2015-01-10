@@ -90,7 +90,7 @@ void SekvojRackMainMenuView::createRecordView() {
 void SekvojRackMainMenuView::createActiveView() {
 	currentStatus_ = ACTIVE;
 	SetActiveView * activeView = new SetActiveView();
-	activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, selectedInstrument_);
+	activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, selectedInstrument_, currentBarIndex_);
 	currentView_ = (IView*)activeView;
 }
 
@@ -156,6 +156,7 @@ inline void SekvojRackMainMenuView::updateInActive() {
 	activeSwitch_.update();
 	if (patternButtonDown_ || !activeSwitch_.getStatus(0)) {
 		selectedInstrument_ = ((SetActiveView *) currentView_)->getSelectedInstrumentIndex();
+		currentBarIndex_ = ((SetActiveView *) currentView_)->getSelectedBarIndex();
 		delete currentView_;
 		if (patternButtonDown_) {
 			createPatternView(false, true);
