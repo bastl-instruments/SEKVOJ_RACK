@@ -53,7 +53,7 @@ SimplifiedTapper tapper;
 unsigned char localStep = 0;
 
 extern sekvojHW hardware;
-unsigned int bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
+unsigned int bastlCyclesPerSecond = 0;
 bool slave = false;
 unsigned char memoryData[292];
 
@@ -154,6 +154,7 @@ void settingsChanged() {
 void setup() {
 
 	hardware.init(0, &clockInCall);
+	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 	instrumentBar.init(&hardware, &buttonMap, 6);
 
 	settings = new PlayerSettings();
