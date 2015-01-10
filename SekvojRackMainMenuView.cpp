@@ -195,8 +195,8 @@ inline void SekvojRackMainMenuView::updateInRecording() {
 
 void SekvojRackMainMenuView::update() {
 
-	functionButtonDown_ = hw_->getButtonState(buttonMap_->getFunctionButtonIndex()) == IButtonHW::DOWN;
-	patternButtonDown_ = hw_->getButtonState(buttonMap_->getPatternButtonIndex()) == IButtonHW::DOWN;
+	functionButtonDown_ = hw_->isButtonDown(buttonMap_->getFunctionButtonIndex());
+	patternButtonDown_ = hw_->isButtonDown(buttonMap_->getPatternButtonIndex());
 	hw_->setLED(buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 	hw_->setLED(buttonMap_->getPatternButtonIndex(), patternButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 
