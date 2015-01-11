@@ -139,18 +139,18 @@ void sekvojHW::printLEDStates() {
 
 void sekvojHW::setLED(uint8_t number, ILEDHW::LedState state) {
 
+	uint8_t buttonGroupIndex = number / leds_cols;
+	uint8_t oneAtInGroupIndex = 1 << (number % leds_cols);
 	if ((state == IHWLayer::ON) | (state==IHWLayer::BLINK) | (state==IHWLayer::DULLON)) {
-		ledStatesBeg[number/leds_cols] &= ~(1<<(number%leds_cols));
+		ledStatesBeg[buttonGroupIndex] &= ~oneAtInGroupIndex;
 	} else {
-		ledStatesBeg[number/leds_cols] |= (1<<(number%leds_cols));
-
+		ledStatesBeg[buttonGroupIndex] |= oneAtInGroupIndex;
 	}
 
 	if ((state == IHWLayer::ON) | (state== IHWLayer::BLINK_INVERT)) {
-		ledStatesEnd[number/leds_cols] &= ~(1<<(number%leds_cols));
+		ledStatesEnd[buttonGroupIndex] &= ~oneAtInGroupIndex;
 	} else {
-		ledStatesEnd[number/leds_cols] |= (1<<(number%leds_cols));
-
+		ledStatesEnd[buttonGroupIndex] |= oneAtInGroupIndex;
 	}
 }
 
@@ -170,14 +170,8 @@ inline void sekvojHW::isr_updateNextLEDRow() {
 	*/
 
 
-
-	if (blinkCounter < blinkCompare[0]) {
-
-		shiftRegFast::write_8bit(ledStatesBeg[currentRow]);
-	} else {
-		shiftRegFast::write_8bit(ledStatesEnd[currentRow]);
-	}
-
+	uint8_t * statesToWrite = (blinkCounter < blinkCompare[0]) ? ledStatesBeg : ledStatesEnd;
+	shiftRegFast::write_8bit(statesToWrite[currentRow]);
 	shiftRegFast::write_8bit(trigState);
 	shiftRegFast::enableOutput();
 
@@ -283,22 +277,19 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
 /**** TRIGGER ****/
 void sekvojHW::setTrigger(uint8_t number, sekvojHW::TriggerState state, uint8_t pulseWidth){
-	triggerCountdown[number]=pulseWidth;
-		if(state==ON) bitWrite(trigState,trigMap[number],1);
-		if(state==OFF) bitWrite(trigState,trigMap[number],0);
+	triggerCountdown[number] = pulseWidth;
+	bitWrite(trigState, trigMap[number], (state == ON) ? 1 : 0);
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
-
-
-	for(int i=0;i<8;i++){
+	for(int i = 0; i < 8; i++){
 		if(triggerCountdown[i]>0){
 			if(triggerCountdown[i]==1) setTrigger(i,OFF,0);
 			triggerCountdown[i]--;
 		}
 	}
-
 }
+
 inline void sekvojHW::isr_updateClockIn(){
 	if(clockInCallback!=0){
 		static bool clockInState;
