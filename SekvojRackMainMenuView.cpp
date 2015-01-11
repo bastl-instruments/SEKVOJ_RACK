@@ -12,45 +12,31 @@
 #include <PlayRecordView.h>
 #include <SettingsAndFunctionsView.h>
 #include <IButtonHW.h>
+#include <SekvojModulePool.h>
 
-SekvojRackMainMenuView::SekvojRackMainMenuView() : hw_(0), player_(0), recorder_(0), memory_(0), settings_(0),
-							   instrumentBar_(0), buttonMap_(0), sd_(0), currentView_(0), currentViewIndex_(0),
-							   currentBarIndex_(0), functionButtonDown_(false), patternButtonDown_(false),
-							   currentStatus_(INIT), selectedInstrument_(0), synchronizer_(0), tapper_(0) {
+SekvojRackMainMenuView::SekvojRackMainMenuView() : currentView_(0), currentViewIndex_(0), currentBarIndex_(0),
+												   functionButtonDown_(false), patternButtonDown_(false),
+												   currentStatus_(INIT), selectedInstrument_(0) {
 }
 
 SekvojRackMainMenuView::~SekvojRackMainMenuView() {
 }
 
-void SekvojRackMainMenuView::init(sekvojHW * hw, Player * player, StepRecorder * recorder,
-						IStepMemory * memory, PlayerSettings * settings, InstrumentBar * instrumentBar,
-						IButtonMap * buttonMap, StepSynchronizer * synchronizer, ITapper * tapper,
-						SekvojRackSDPreset * sd) {
-	hw_ = hw;
-	sd_ = sd;
-	tapper_ = tapper;
-	player_ = player;
-	recorder_ = recorder;
-	memory_ = memory;
-	settings_ = settings;
-	instrumentBar_ = instrumentBar;
-	buttonMap_ = buttonMap;
-	synchronizer_ = synchronizer;
+void SekvojRackMainMenuView::init() {
 
 	clearAllDiods();
-
 	createSetStepView();
 
 	isPlaying_ = true;
-	unsigned char * activeButton = buttonMap_->getMainMenuButtonArray() + 1;
-	activePlayRecordSwitch_.init(hw_, activeButton, 3, true, IButtonHW::DOWN);
+	unsigned char * activeButton = SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 1;
+	activePlayRecordSwitch_.init(SekvojModulePool::hw_, activeButton, 3, true, IButtonHW::DOWN);
 	activePlayRecordSwitch_.setStatus(1, isPlaying_);
 }
 
 void SekvojRackMainMenuView::createSetStepView() {
 	SetStepView * setStepView = new SetStepView();
-	setStepView->init(hw_, memory_, player_, instrumentBar_, buttonMap_,
-					  settings_->getCurrentPattern(), 6, selectedInstrument_, settings_, currentBarIndex_);
+	setStepView->init(SekvojModulePool::settings_->getCurrentPattern(), 6,
+					  selectedInstrument_, currentBarIndex_);
 	currentView_ = (IView*)setStepView;
 	currentStatus_ = INIT;
 }
@@ -59,8 +45,7 @@ void SekvojRackMainMenuView::createFunctionView(bool fromRecord) {
 	currentStatus_ = fromRecord ?  FUNCTION_FROM_RECORD : FUNCTION;
 	clearBottomPartDiods();
 	SettingsAndFunctionsView * functionView = new SettingsAndFunctionsView();
-	functionView->init(hw_, settings_,instrumentBar_, buttonMap_, memory_, selectedInstrument_,
-					   currentBarIndex_, player_, tapper_, sd_);
+	functionView->init(selectedInstrument_, currentBarIndex_);
 	currentView_ = (IView*)functionView;
 }
 
@@ -71,7 +56,7 @@ void SekvojRackMainMenuView::createPatternView(bool fromRecord, bool fromActive)
 		currentStatus_ = fromRecord ? PATTERN_FROM_RECORD : PATTERN_FROM_ACTIVE;
 	}
 	PatternView * patternView = new PatternView();
-	patternView->init(hw_, settings_, memory_, instrumentBar_, buttonMap_, player_);
+	patternView->init();
 	currentView_ = (IView*)patternView;
 }
 
@@ -79,15 +64,14 @@ void SekvojRackMainMenuView::createRecordView() {
 	currentStatus_ = RECORDING;
 	clearBottomPartDiods();
 	PlayRecordView * playRecordView = new PlayRecordView();
-	playRecordView->init(hw_, recorder_, buttonMap_, synchronizer_);
 	currentView_ = (IView*)playRecordView;
-	instrumentBar_->resetSelected();
+	SekvojModulePool::instrumentBar_->resetSelected();
 }
 
 void SekvojRackMainMenuView::createActiveView() {
 	currentStatus_ = ACTIVE;
 	SetActiveView * activeView = new SetActiveView();
-	activeView->init(hw_, memory_, player_, instrumentBar_, buttonMap_, selectedInstrument_, currentBarIndex_);
+	activeView->init(selectedInstrument_, currentBarIndex_);
 	currentView_ = (IView*)activeView;
 }
 
@@ -163,15 +147,15 @@ inline void SekvojRackMainMenuView::updateInActive() {
 
 void SekvojRackMainMenuView::clearAllDiods() {
 	for (int i = 0; i < 32; i++) {
-		hw_->setLED(buttonMap_->getButtonIndex(i), ILEDHW::OFF);
+		SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getButtonIndex(i), ILEDHW::OFF);
 	}
 }
 
 void SekvojRackMainMenuView::clearBottomPartDiods() {
 	for (unsigned char button = 0; button < 20; button++) {
-		unsigned char index = button < 16 ? buttonMap_->getStepButtonIndex(button) :
-										    buttonMap_->getSubStepButtonIndex(button - 16);
-		hw_->setLED(index, ILEDHW::OFF);
+		unsigned char index = button < 16 ? SekvojModulePool::buttonMap_->getStepButtonIndex(button) :
+											SekvojModulePool::buttonMap_->getSubStepButtonIndex(button - 16);
+		SekvojModulePool::hw_->setLED(index, ILEDHW::OFF);
 	}
 }
 
@@ -191,10 +175,10 @@ inline void SekvojRackMainMenuView::updateInRecording() {
 
 void SekvojRackMainMenuView::update() {
 
-	functionButtonDown_ = hw_->isButtonDown(buttonMap_->getFunctionButtonIndex());
-	patternButtonDown_ = hw_->isButtonDown(buttonMap_->getPatternButtonIndex());
-	hw_->setLED(buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
-	hw_->setLED(buttonMap_->getPatternButtonIndex(), patternButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
+	functionButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
+	patternButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getPatternButtonIndex());
+	SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
+	SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getPatternButtonIndex(), patternButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 
 	//Reset all counters in case play has been just pressed
 	bool originalPlayValue = activePlayRecordSwitch_.getStatus(1);
@@ -202,8 +186,8 @@ void SekvojRackMainMenuView::update() {
 	bool newPlayValue = activePlayRecordSwitch_.getStatus(1);
 	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD)) {
 		if (originalPlayValue && !newPlayValue) {
-			synchronizer_->reset();
-			player_->resetAllInstruments();
+			SekvojModulePool::synchronizer_->reset();
+			SekvojModulePool::player_->resetAllInstruments();
 		}
 		isPlaying_ = newPlayValue;
 	}

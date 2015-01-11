@@ -15,6 +15,7 @@ int main(void) {
 
 #endif
 
+#include <SekvojModulePool.h>
 #include <portManipulations.h>
 #include "sekvojHW.h"
 #include <Player.h>
@@ -183,8 +184,18 @@ void setup() {
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
 	recorder.init(player, &memory, settings, stepper);
-	mainMenu.init(&hardware, player, & recorder, &memory, settings, &instrumentBar,
-			      &buttonMap,  &synchronizer, &tapper, &sdpreset);
+
+	SekvojModulePool::buttonMap_ = 		&buttonMap;
+	SekvojModulePool::hw_ = 			&hardware;
+	SekvojModulePool::player_ = 		player;
+	SekvojModulePool::recorder_ = 		&recorder;
+	SekvojModulePool::memory_ =			&memory;
+	SekvojModulePool::settings_ = 		settings;
+	SekvojModulePool::instrumentBar_ = 	&instrumentBar;
+	SekvojModulePool::synchronizer_ = 	&synchronizer;
+	SekvojModulePool::tapper_ = 		&tapper;
+	SekvojModulePool::sd_ = 			&sdpreset;
+	mainMenu.init();
 
 	//Serial.begin(9600);
 	//Serial.println("s");
