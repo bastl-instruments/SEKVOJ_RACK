@@ -218,8 +218,6 @@ void loop() {
 	//Update user interface
 	mainMenu.update();
 	player->update(bastlCycles);
-	hardware.setLED(buttonMap.getPlayButtonIndex(), synchronizer.getCurrentStepNumber() % 16 == 0 && mainMenu.isPlaying() ? ILEDHW::ON : ILEDHW::OFF);
-
 }
 
 

@@ -191,6 +191,7 @@ void SekvojRackMainMenuView::update() {
 		}
 		isPlaying_ = newPlayValue;
 	}
+	ILEDHW::LedState offState = ILEDHW::OFF;
 	switch (currentStatus_) {
 		case INIT:
 			updateInInit();
@@ -209,11 +210,15 @@ void SekvojRackMainMenuView::update() {
 		case FUNCTION_FROM_RECORD:
 		case FUNCTION:
 			updateInFunction();
+			if (SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
+				offState = ILEDHW::DULLON;
+			}
 			break;
 	}
 	if (currentView_) {
 		currentView_->update();
 	}
+	SekvojModulePool::hw_->setLED(SekvojModulePool::buttonMap_->getPlayButtonIndex(), SekvojModulePool::synchronizer_->getCurrentStepNumber() % 16 == 0 && isPlaying_ ? ILEDHW::ON : offState);
 }
 
 
