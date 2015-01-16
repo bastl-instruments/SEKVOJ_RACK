@@ -278,7 +278,7 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 /**** TRIGGER ****/
 void sekvojHW::setTrigger(uint8_t number, sekvojHW::TriggerState state, uint8_t pulseWidth){
 	triggerCountdown[number] = pulseWidth;
-	bitWrite(trigState, trigMap[number], (state == ON) ? 1 : 0);
+	bitWrite(trigState, trigMap[number], !state);
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
