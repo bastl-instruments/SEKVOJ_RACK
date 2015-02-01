@@ -132,7 +132,7 @@ BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 		return generator;
 	} else {
 		StepMultiplier * multiplier = new StepMultiplier();
-		multiplier->init(getMultiplicationFromEnum(settings->getMultiplication()), bastlCyclesPerSecond, 1);
+		multiplier->init(getMultiplicationFromEnum(settings->getMultiplication()), 1, bastlCyclesPerSecond);
 		multiplier->setStepCallback(&stepperStep);
 		return multiplier;
 	}
