@@ -214,6 +214,7 @@ void loop() {
 
 	//Update step keepers
 	stepper->update(bastlCycles);
+	recorder.update();
 
 	//Update user interface
 	mainMenu.update();
