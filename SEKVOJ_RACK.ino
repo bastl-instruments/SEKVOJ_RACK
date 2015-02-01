@@ -97,8 +97,8 @@ void tapStep() {
 }
 
 void patternChanged(unsigned char originalPattenrIndex, unsigned char newPatternIndex) {
-	sdpreset.setPatternData(originalPattenrIndex, memoryData);
-	sdpreset.getPatternData(newPatternIndex, memoryData);
+	sdpreset.setPatternData(originalPattenrIndex);
+	sdpreset.getPatternData(newPatternIndex);
 
 }
 
@@ -178,7 +178,7 @@ void setup() {
 
 	//suspicious semicolon - a good name for a band !
 
-	sdpreset.getPatternData(settings->getCurrentPattern(), memoryData);
+	sdpreset.getPatternData(settings->getCurrentPattern());
 	stepper = createBastlStepper(settings->getPlayerMode());
 
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
