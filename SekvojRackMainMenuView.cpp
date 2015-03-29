@@ -133,6 +133,7 @@ inline void SekvojRackMainMenuView::updateInFunction() {
 }
 
 inline void SekvojRackMainMenuView::updateInActive() {
+	activePlayRecordSwitch_.setStatus(2, false);
 	if (patternButtonDown_ || !activePlayRecordSwitch_.getStatus(0)) {
 		selectedInstrument_ = ((SetActiveView *) currentView_)->getSelectedInstrumentIndex();
 		currentBarIndex_ = ((SetActiveView *) currentView_)->getSelectedBarIndex();
@@ -160,6 +161,7 @@ void SekvojRackMainMenuView::clearBottomPartDiods() {
 }
 
 inline void SekvojRackMainMenuView::updateInRecording() {
+	activePlayRecordSwitch_.setStatus(0, false);
 	bool playRecordSwitchOn = activePlayRecordSwitch_.getStatus(2);
 	if (functionButtonDown_ || patternButtonDown_ || !playRecordSwitchOn ) {
 		delete currentView_;
