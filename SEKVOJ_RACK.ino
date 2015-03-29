@@ -140,6 +140,7 @@ BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 
 void playerModeChanged(PlayerSettings::PlayerMode mode) {
 	player->resetAllInstruments();
+	synchronizer.reset();
 	if (stepper) {
 		delete stepper;
 	}
