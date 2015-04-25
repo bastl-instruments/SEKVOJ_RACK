@@ -85,6 +85,11 @@ void clockInCall() {
 	}
 }
 
+void rstInCall() {
+	//with next clock play the first step
+
+}
+
 void tapStep() {
 	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
 		if (tapper.anyStepDetected()) {
@@ -155,7 +160,7 @@ void settingsChanged() {
 
 void setup() {
 
-	hardware.init(0, &clockInCall);
+	hardware.init(0, &clockInCall, &rstInCall);
 	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 	instrumentBar.init(&hardware, &buttonMap, 6);
 

@@ -25,6 +25,9 @@
 
 #define CLOCK_IN_PIN C,0
 
+#define CLOCK_OUT_PIN D,0
+#define RST_PIN D,1
+
 /*
 #define BUTTON_PIN 	17
 #define BUTTON_2_PIN 4

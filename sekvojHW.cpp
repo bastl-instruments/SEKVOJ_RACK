@@ -37,7 +37,7 @@ const uint8_t trigMap[6]={7,6,5,2,3,4};
 
 
 
-void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)()) {
+void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)(),void(*rstInCallback)()) {
 
 	cli();
 
@@ -70,6 +70,12 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	bit_dir_inp(CLOCK_IN_PIN);
 	bit_clear(CLOCK_IN_PIN);
 
+	bit_dir_outp(CLOCK_OUT_PIN);
+	bit_clear(CLOCK_OUT_PIN);
+
+	bit_dir_outp(RST_PIN);
+	bit_clear(RST_PIN);
+
 
 	// LEDS
 	for (uint8_t row=0; row<leds_rows; row++) {
@@ -86,6 +92,7 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	 this->buttonChangeCallback = buttonChangeCallback;
 
 	 this->clockInCallback = clockInCallback;
+	 this->rstInCallback = rstInCallback;
 
 	// Disable Timer1 interrupt
 	//TIMSK1 &= ~_BV(TOIE1);
@@ -293,9 +300,32 @@ inline void sekvojHW::isr_updateTriggerStates(){
 inline void sekvojHW::isr_updateClockIn(){
 	if(clockInCallback!=0){
 		static bool clockInState;
-		bool newState=!bit_read_in(CLOCK_IN_PIN);
+		bool newState=bit_read_in(CLOCK_IN_PIN);
 		if(newState && !clockInState) clockInCallback();
 		clockInState=newState;
+	}
+}
+
+inline void sekvojHW::isr_updateClockOut(){
+	if(bitRead(trigState,6)) bit_set(CLOCK_OUT_PIN);
+	else bit_clear(CLOCK_OUT_PIN);
+}
+
+inline void sekvojHW::isr_updateReset(){
+	if(rstMaster){
+		bit_dir_outp(RST_PIN);
+		if(bitRead(trigState,7)) bit_set(RST_PIN);
+		else bit_clear(RST_PIN);
+	}
+	else{
+		if(rstInCallback!=0){
+			bit_dir_inp(RST_PIN);
+			bit_clear(RST_PIN);
+			static bool rstInState;
+			bool newState=bit_read_in(RST_PIN);
+			if(newState && !rstInState) rstInCallback();
+			rstInState=newState;
+		}
 	}
 }
 
@@ -318,10 +348,12 @@ ISR(TIMER2_COMPA_vect) {
 	//bit_set(PIN);
 	hardware.incrementBastlCycles();
 	//hardware.isr_sendDisplayBuffer();  // ~156us
-	hardware.isr_updateClockIn();
 	hardware.isr_updateTriggerStates();
 	hardware.isr_updateButtons();      // ~1ms
 	hardware.isr_updateNextLEDRow();   // ~84us
+	hardware.isr_updateClockOut();
+	hardware.isr_updateReset();
+	hardware.isr_updateClockIn();
 
 	//bit_clear(PIN);
 

@@ -19,7 +19,7 @@ public:
 
 	// sets up all the pins, timers and SPI interface
 	// call this before using any other method from this class
-	void init(void(*buttonChangeCallback)(uint8_t number), void(*clockInCallback)());
+	void init(void(*buttonChangeCallback)(uint8_t number), void(*clockInCallback)(),void(*rstInCallback)());
 
 	/***KNOBS***/
 
@@ -76,6 +76,8 @@ public:
 	// use this to map real time processes (like BMP) to bastlCycles
 	uint16_t  getBastlCyclesPerSecond();
 
+	void setResetState(bool _rstMaster){ rstMaster=_rstMaster;};
+
 
 
 
@@ -86,6 +88,9 @@ public:
 	void isr_updateButtons();
 	void isr_updateTriggerStates();
 	void isr_updateClockIn();
+
+	void isr_updateClockOut();
+	void isr_updateReset();
 
 	inline void incrementBastlCycles() {bastlCycles++;}
 
@@ -111,10 +116,13 @@ private:
 	void compareButtonStates();
 	void (*buttonChangeCallback)(uint8_t number);
 	void (*clockInCallback)();
+	void (*rstInCallback)();
 
 	/**TRIGGERS**/
 	uint8_t trigState;
 	uint8_t triggerCountdown[8];
+
+	bool rstMaster;
 
 
 
