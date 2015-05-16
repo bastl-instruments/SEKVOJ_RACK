@@ -192,6 +192,9 @@ void SekvojRackMainMenuView::update() {
 			SekvojModulePool::player_->resetAllInstruments();
 		}
 		isPlaying_ = newPlayValue;
+		if (originalPlayValue != newPlayValue && SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
+			SekvojModulePool::hw_->setTrigger(7, ILEDsAndButtonsHW::TRIGGER);
+		}
 	}
 	ILEDHW::LedState offState = ILEDHW::OFF;
 	switch (currentStatus_) {

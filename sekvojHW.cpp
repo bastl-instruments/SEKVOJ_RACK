@@ -15,7 +15,7 @@
 
 sekvojHW hardware;
 
-
+#define DEFAULT_TRIGGER_LENGTH 20
 #define UINT16_MAX 65535
 #define MAX_ADDR 131067
 
@@ -283,15 +283,15 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
 
 /**** TRIGGER ****/
-void sekvojHW::setTrigger(uint8_t number, sekvojHW::TriggerState state, uint8_t pulseWidth){
-	triggerCountdown[number] = pulseWidth;
-	bitWrite(trigState, trigMap[number], !state);
+void sekvojHW::setTrigger(uint8_t number, ILEDsAndButtonsHW::TriggerState state) {
+	triggerCountdown[number] = (state == TRIGGER) ? DEFAULT_TRIGGER_LENGTH : 0;
+	bitWrite(trigState, trigMap[number], (state == OFF) ? 1 : 0);
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
 	for(int i = 0; i < 8; i++){
 		if(triggerCountdown[i]>0){
-			if(triggerCountdown[i]==1) setTrigger(i,OFF,0);
+			if(triggerCountdown[i]==1) setTrigger(i,OFF);
 			triggerCountdown[i]--;
 		}
 	}

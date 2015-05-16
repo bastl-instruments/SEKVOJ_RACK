@@ -15,7 +15,6 @@ class sekvojHW : public ILEDsAndButtonsHW {
 
 
 public:
-	enum TriggerState{ON,OFF};
 
 	// sets up all the pins, timers and SPI interface
 	// call this before using any other method from this class
@@ -44,7 +43,7 @@ public:
 	// print the read button states to serial terminal
 	void printButtonStates();
 	/***TRIGGER***/
-	void setTrigger(uint8_t number, TriggerState state, uint8_t pulseWidth=0);
+	virtual void setTrigger(uint8_t number, ILEDsAndButtonsHW::TriggerState state);
 
 
 	/***RAM***/

@@ -63,6 +63,9 @@ void stepperStep() {
 		player->stepFourth();
 		synchronizer.doStep();
 		recorder.update();
+		if (synchronizer.getCurrentStepNumber() % 4 == 0) {
+			hardware.setTrigger(6, ILEDsAndButtonsHW::TRIGGER);
+		}
 	}
 }
 
@@ -70,12 +73,12 @@ void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velo
 	instrumentBar.setInstrumentPlaying(instrumentId, isOn);
 	if (isOn) {
 		if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE) {
-			hardware.setTrigger(instrumentId, sekvojHW::ON);
+			hardware.setTrigger(instrumentId, ILEDsAndButtonsHW::ON);
 		} else {
-			hardware.setTrigger(instrumentId, sekvojHW::ON, 20);
+			hardware.setTrigger(instrumentId, ILEDsAndButtonsHW::TRIGGER);
 		}
 	} else if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE){
-		hardware.setTrigger(instrumentId, sekvojHW::OFF);
+		hardware.setTrigger(instrumentId, ILEDsAndButtonsHW::OFF);
 	}
 }
 
@@ -86,8 +89,8 @@ void clockInCall() {
 }
 
 void rstInCall() {
-	//with next clock play the first step
-
+	player->resetAllInstruments();
+	synchronizer.reset();
 }
 
 void tapStep() {
@@ -150,6 +153,7 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 		delete stepper;
 	}
 	stepper = createBastlStepper(mode);
+	hardware.setResetState(mode == PlayerSettings::MASTER);
 }
 
 void settingsChanged() {
@@ -186,6 +190,7 @@ void setup() {
 
 	sdpreset.getPatternData(settings->getCurrentPattern());
 	stepper = createBastlStepper(settings->getPlayerMode());
+	hardware.setResetState(settings->getPlayerMode() == PlayerSettings::MASTER);
 
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
