@@ -33,7 +33,7 @@ static const uint8_t buttons_rows = 8;
 
 static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
-const uint8_t trigMap[6]={7,6,5,2,3,4};
+const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
 
 
 
@@ -283,15 +283,19 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
 
 /**** TRIGGER ****/
-void sekvojHW::setTrigger(uint8_t number, ILEDsAndButtonsHW::TriggerState state) {
-	triggerCountdown[number] = (state == TRIGGER) ? DEFAULT_TRIGGER_LENGTH : 0;
-	bitWrite(trigState, trigMap[number], (state == OFF) ? 1 : 0);
+void sekvojHW::setTrigger(uint8_t number, bool state,uint8_t length){//ILEDsAndButtonsHW::TriggerState state) {
+	//triggerCountdown[number] = (state == ILEDsAndButtonsHW::TRIGGER_ON) ? 20 : 0;
+	//if(state)
+	triggerCountdown[number] = length;
+	bitWrite(trigState, trigMap[number], state);
+			//(state == false) ? 0 : 1); //
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
 	for(int i = 0; i < 8; i++){
 		if(triggerCountdown[i]>0){
-			if(triggerCountdown[i]==1) setTrigger(i,OFF);
+			if(triggerCountdown[i]==1) setTrigger(i,false,0);//ILEDsAndButtonsHW::GATE_OFF);
+				//bitWrite(trigState, trigMap[i], 0);
 			triggerCountdown[i]--;
 		}
 	}
@@ -307,20 +311,20 @@ inline void sekvojHW::isr_updateClockIn(){
 }
 
 inline void sekvojHW::isr_updateClockOut(){
-	if(bitRead(trigState,6)) bit_set(CLOCK_OUT_PIN);
+	if(bitRead(trigState,0)) bit_set(CLOCK_OUT_PIN);
 	else bit_clear(CLOCK_OUT_PIN);
 }
 
 inline void sekvojHW::isr_updateReset(){
 	if(rstMaster){
 		bit_dir_outp(RST_PIN);
-		if(bitRead(trigState,7)) bit_set(RST_PIN);
+		if(bitRead(trigState,1)) bit_set(RST_PIN);
 		else bit_clear(RST_PIN);
 	}
 	else{
 		if(rstInCallback!=0){
 			bit_dir_inp(RST_PIN);
-			bit_clear(RST_PIN);
+			bit_set(RST_PIN);
 			static bool rstInState;
 			bool newState=bit_read_in(RST_PIN);
 			if(newState && !rstInState) rstInCallback();

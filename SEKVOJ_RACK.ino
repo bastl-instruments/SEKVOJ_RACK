@@ -64,7 +64,7 @@ void stepperStep() {
 		synchronizer.doStep();
 		recorder.update();
 		if (synchronizer.getCurrentStepNumber() % 4 == 0) {
-			hardware.setTrigger(6, ILEDsAndButtonsHW::TRIGGER);
+			hardware.setTrigger(6, true,20);// ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	}
 }
@@ -73,12 +73,12 @@ void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velo
 	instrumentBar.setInstrumentPlaying(instrumentId, isOn);
 	if (isOn) {
 		if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE) {
-			hardware.setTrigger(instrumentId, ILEDsAndButtonsHW::ON);
+			hardware.setTrigger(instrumentId, true,0);//ILEDsAndButtonsHW::GATE_ON);
 		} else {
-			hardware.setTrigger(instrumentId, ILEDsAndButtonsHW::TRIGGER);
+			hardware.setTrigger(instrumentId, true,20);//ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	} else if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE){
-		hardware.setTrigger(instrumentId, ILEDsAndButtonsHW::OFF);
+		hardware.setTrigger(instrumentId, false,0);//ILEDsAndButtonsHW::GATE_OFF);
 	}
 }
 

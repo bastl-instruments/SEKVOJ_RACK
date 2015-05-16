@@ -43,7 +43,8 @@ public:
 	// print the read button states to serial terminal
 	void printButtonStates();
 	/***TRIGGER***/
-	virtual void setTrigger(uint8_t number, ILEDsAndButtonsHW::TriggerState state);
+	//void setTrigger(uint8_t number, ILEDsAndButtonsHW::TriggerState state);
+	virtual void setTrigger(uint8_t number, bool state,uint8_t length);
 
 
 	/***RAM***/
