@@ -64,7 +64,7 @@ void stepperStep() {
 		synchronizer.doStep();
 		recorder.update();
 		if (synchronizer.getCurrentStepNumber() % 4 == 0) {
-			hardware.setTrigger(6, true,20);// ILEDsAndButtonsHW::TRIGGER_ON);
+			hardware.setTrigger(6, true,10);// ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	}
 }
@@ -75,7 +75,7 @@ void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velo
 		if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE) {
 			hardware.setTrigger(instrumentId, true,0);//ILEDsAndButtonsHW::GATE_ON);
 		} else {
-			hardware.setTrigger(instrumentId, true,20);//ILEDsAndButtonsHW::TRIGGER_ON);
+			hardware.setTrigger(instrumentId, true,10);//ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	} else if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE){
 		hardware.setTrigger(instrumentId, false,0);//ILEDsAndButtonsHW::GATE_OFF);
@@ -164,7 +164,7 @@ void settingsChanged() {
 
 void setup() {
 
-	hardware.init(0, &clockInCall, &rstInCall);
+
 	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 	instrumentBar.init(&hardware, &buttonMap, 6);
 
@@ -216,6 +216,7 @@ void setup() {
 	//tapper.init(5000, 100); Not called rather made default to save some progeram memory
 	//tapper.setStepsPerTap(16); Not called rather made default to save some progeram memory
 	tapper.setStepCallBack(&tapStep);
+	hardware.init(0, &clockInCall, &rstInCall);
 }
 
 void loop() {

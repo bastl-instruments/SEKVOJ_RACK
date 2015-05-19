@@ -33,7 +33,8 @@ static const uint8_t buttons_rows = 8;
 
 static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
-const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
+//const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
+const uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
 
 
 
@@ -70,11 +71,7 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	bit_dir_inp(CLOCK_IN_PIN);
 	bit_clear(CLOCK_IN_PIN);
 
-	bit_dir_outp(CLOCK_OUT_PIN);
-	bit_clear(CLOCK_OUT_PIN);
 
-	bit_dir_outp(RST_PIN);
-	bit_clear(RST_PIN);
 
 
 	// LEDS
@@ -106,6 +103,11 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 
 
 	sei();
+	bit_dir_outp(CLOCK_OUT_PIN);
+	bit_clear(CLOCK_OUT_PIN);
+
+	//bit_dir_outp(RST_PIN);
+	//bit_clear(RST_PIN);
 }
 
 
@@ -350,6 +352,7 @@ ISR(TIMER2_COMPA_vect) {
 
 
 	//bit_set(PIN);
+//	bit_set(CLOCK_OUT_PIN);
 	hardware.incrementBastlCycles();
 	//hardware.isr_sendDisplayBuffer();  // ~156us
 	hardware.isr_updateTriggerStates();
@@ -358,7 +361,7 @@ ISR(TIMER2_COMPA_vect) {
 	hardware.isr_updateClockOut();
 	hardware.isr_updateReset();
 	hardware.isr_updateClockIn();
-
+//	bit_clear(CLOCK_OUT_PIN);
 	//bit_clear(PIN);
 
 
