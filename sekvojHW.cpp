@@ -36,8 +36,6 @@ static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 //const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
 const uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
 
-
-
 void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)(),void(*rstInCallback)()) {
 
 	cli();
@@ -75,12 +73,12 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 
 
 	// LEDS
-	for (uint8_t row=0; row<leds_rows; row++) {
+	/*for (uint8_t row=0; row<leds_rows; row++) {
 		ledStatesBeg[row] =  1<<(15-row);    				//set row hit high
 		ledStatesBeg[row] |= (B00001111<<8) | (B11111111); //disable all rows
 
 		ledStatesEnd [row] = ledStatesBeg[row]; 			// copy to second set of states
-	}
+	}*/
 
 
 
