@@ -46,7 +46,7 @@
 // the frequency at which the leds are updated.
 // when set too high, resources are wasted, when set too low flikering occurs
 // the value is in hertz and can be set from 16 to 255
-#define FREQ 250 // used to be 50q
+#define FREQ 180 // used to be 50q
 
 
 // properties of the led blinking

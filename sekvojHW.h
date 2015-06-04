@@ -102,6 +102,9 @@ public:
 
 
 private:
+	/**TRIGGERS**/
+	uint8_t trigState;
+	uint8_t triggerCountdown[8];
 	/**TIMING**/
 	uint16_t bastlCycles;
 
@@ -118,9 +121,7 @@ private:
 	void (*clockInCallback)();
 	void (*rstInCallback)();
 
-	/**TRIGGERS**/
-	uint8_t trigState;
-	uint8_t triggerCountdown[8];
+
 
 	bool rstMaster;
 

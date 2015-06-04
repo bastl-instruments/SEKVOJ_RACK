@@ -34,7 +34,7 @@ static const uint8_t buttons_rows = 8;
 static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
 //const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
-const uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
+uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
 
 void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)(),void(*rstInCallback)()) {
 
@@ -110,7 +110,7 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 
 
 /**** LEDS ****/
-
+/*
 void sekvojHW::printLEDStates() {
 	for (uint8_t row=0; row<leds_rows; row++) {
 		Serial.print("Row "); Serial.print(row,DEC);Serial.print(": ");
@@ -133,7 +133,7 @@ void sekvojHW::printLEDStates() {
 		Serial.println("");
 	}
 }
-
+*/
 
 
 /*void sekvojHW::leds_setStates(uint16_t ledStates[]) {
@@ -178,9 +178,13 @@ inline void sekvojHW::isr_updateNextLEDRow() {
 
 
 	uint8_t * statesToWrite = (blinkCounter < blinkCompare[0]) ? ledStatesBeg : ledStatesEnd;
+	bit_clear(SHIFTREGISTER_RCK);
 	shiftRegFast::write_8bit(statesToWrite[currentRow]);
 	shiftRegFast::write_8bit(trigState);
-	shiftRegFast::enableOutput();
+	bit_set(SHIFTREGISTER_RCK);
+
+	//
+	//shiftRegFast::enableOutput();
 
 	// go no next row
 
@@ -220,9 +224,12 @@ inline void sekvojHW::isr_updateButtons() {
 
 
 	for (int8_t row=7; row>=0; row--) {
+		bit_clear(SHIFTREGISTER_RCK);
 		shiftRegFast::write_8bit(~(1<<row));
 		shiftRegFast::write_8bit(trigState);
-		shiftRegFast::enableOutput();
+		bit_set(SHIFTREGISTER_RCK);
+
+		//shiftRegFast::enableOutput();
 
 
 		uint8_t col = 0;
@@ -252,7 +259,7 @@ inline void sekvojHW::isr_updateButtons() {
 	for(int col=0;col<4;col++) buttonStates[col]=newButtonStates[col];*/
 }
 
-
+/*
 void sekvojHW::printButtonStates() {
 	for (uint8_t row=0; row<4; row++) {
 		Serial.print("col "); Serial.print(row,DEC);Serial.print(": ");
@@ -266,7 +273,7 @@ void sekvojHW::printButtonStates() {
 		Serial.println("");
 	}
 }
-
+*/
 bool sekvojHW::isButtonDown(uint8_t number) {
 	return (buttonStates[number/buttons_rows] & (1<<(number%buttons_rows)));
 }
@@ -286,15 +293,18 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 void sekvojHW::setTrigger(uint8_t number, bool state,uint8_t length){//ILEDsAndButtonsHW::TriggerState state) {
 	//triggerCountdown[number] = (state == ILEDsAndButtonsHW::TRIGGER_ON) ? 20 : 0;
 	//if(state)
+	//if(number<8){
 	triggerCountdown[number] = length;
-	bitWrite(trigState, trigMap[number], state);
+	if(length!=0 && state==0);
+	else bitWrite(trigState, trigMap[number], state);
+	//}
 			//(state == false) ? 0 : 1); //
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
-	for(int i = 0; i < 8; i++){
+	for(uint8_t i = 0; i < 8; i++){
 		if(triggerCountdown[i]>0){
-			if(triggerCountdown[i]==1) setTrigger(i,false,0);//ILEDsAndButtonsHW::GATE_OFF);
+			if(triggerCountdown[i]==1) bitWrite(trigState, trigMap[i], 0);//setTrigger(i,false,0);//ILEDsAndButtonsHW::GATE_OFF);
 				//bitWrite(trigState, trigMap[i], 0);
 			triggerCountdown[i]--;
 		}

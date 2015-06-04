@@ -78,7 +78,7 @@ void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velo
 			hardware.setTrigger(instrumentId, true,10);//ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	} else if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE){
-		hardware.setTrigger(instrumentId, false,0);//ILEDsAndButtonsHW::GATE_OFF);
+		hardware.setTrigger(instrumentId, false,2);//ILEDsAndButtonsHW::GATE_OFF);
 	}
 }
 
