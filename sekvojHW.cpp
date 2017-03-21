@@ -178,13 +178,13 @@ inline void sekvojHW::isr_updateNextLEDRow() {
 
 
 	uint8_t * statesToWrite = (blinkCounter < blinkCompare[0]) ? ledStatesBeg : ledStatesEnd;
-	bit_clear(SHIFTREGISTER_RCK);
+	//bit_clear(SHIFTREGISTER_RCK);
 	shiftRegFast::write_8bit(statesToWrite[currentRow]);
 	shiftRegFast::write_8bit(trigState);
-	bit_set(SHIFTREGISTER_RCK);
+	//bit_set(SHIFTREGISTER_RCK);
 
 	//
-	//shiftRegFast::enableOutput();
+	shiftRegFast::enableOutput();
 
 	// go no next row
 
@@ -216,20 +216,22 @@ inline void sekvojHW::isr_updateNextLEDRow() {
 
 
 inline void sekvojHW::isr_updateButtons() {
-
+	static uint8_t row=0;
 	bit_clear(LEDCOL_0);
 	bit_clear(LEDCOL_1);
 	bit_clear(LEDCOL_2);
 	bit_clear(LEDCOL_3);
 
+    row = (row + 1) % 8;
+//if(row>7) row=0;
 
-	for (int8_t row=7; row>=0; row--) {
-		bit_clear(SHIFTREGISTER_RCK);
+	//for (int8_t row=7; row>=0; row--) {
+		//bit_clear(SHIFTREGISTER_RCK);
 		shiftRegFast::write_8bit(~(1<<row));
 		shiftRegFast::write_8bit(trigState);
-		bit_set(SHIFTREGISTER_RCK);
+		//bit_set(SHIFTREGISTER_RCK);
 
-		//shiftRegFast::enableOutput();
+		shiftRegFast::enableOutput();
 
 
 		uint8_t col = 0;
@@ -244,7 +246,7 @@ inline void sekvojHW::isr_updateButtons() {
 
 
 		//col++;
-	}
+//	}
 
 	/*if(buttonChangeCallback!=0){
 		for(int col=0;col<4;col++){
@@ -345,7 +347,7 @@ inline void sekvojHW::isr_updateReset(){
 
 /**** TIMING ****/
 
-uint16_t sekvojHW::getElapsedBastlCycles() {
+uint32_t sekvojHW::getElapsedBastlCycles() {
 	return bastlCycles;
 }
 
@@ -356,20 +358,24 @@ uint16_t sekvojHW::getBastlCyclesPerSecond() {
 
 /**** INTERRUPT ****/
 
-ISR(TIMER2_COMPA_vect) {
+ISR(TIMER2_COMPA_vect) { // 80uS (used to update all 8 rows which took 640uS)
 
 
 	//bit_set(PIN);
-//	bit_set(CLOCK_OUT_PIN);
+	bit_set(CLOCK_OUT_PIN);
 	hardware.incrementBastlCycles();
 	//hardware.isr_sendDisplayBuffer();  // ~156us
-	hardware.isr_updateTriggerStates();
-	hardware.isr_updateButtons();      // ~1ms
+//	hardware.interuptCallback();
+	hardware.isr_updateTriggerStates(); //8uS
+
+	hardware.isr_updateButtons();      // 74uS (used to update all 8 rows which took 560uS)
+
 	hardware.isr_updateNextLEDRow();   // ~84us
-	hardware.isr_updateClockOut();
+//	hardware.isr_updateClockOut();
 	hardware.isr_updateReset();
 	hardware.isr_updateClockIn();
-//	bit_clear(CLOCK_OUT_PIN);
+	bit_clear(CLOCK_OUT_PIN);
+
 	//bit_clear(PIN);
 
 

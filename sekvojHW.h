@@ -69,7 +69,7 @@ public:
 	// the number of bastl cycles elapsed since startup
 	// this number will overflow after some minutes; you have to deal with that in the layer above
 	// using a longer datatype would prevent this but at the cost of longer computation time
-	uint16_t getElapsedBastlCycles();
+	uint32_t getElapsedBastlCycles();
 
 	// returns the relation between bastl cycles and seconds
 	// this value is dependent on the hardware update frequency that you can set by a define
@@ -100,13 +100,12 @@ public:
 	virtual void readEEPROMDirect(uint16_t address, uint8_t* byteArray, uint16_t numbBytes){}
 	virtual bool isEEPROMBusy(){return true;}
 
-
 private:
 	/**TRIGGERS**/
 	uint8_t trigState;
 	uint8_t triggerCountdown[8];
 	/**TIMING**/
-	uint16_t bastlCycles;
+	uint32_t bastlCycles;
 
 	/**LEDS**/
 	uint8_t ledStatesBeg[4];
@@ -120,7 +119,6 @@ private:
 	void (*buttonChangeCallback)(uint8_t number);
 	void (*clockInCallback)();
 	void (*rstInCallback)();
-
 
 
 	bool rstMaster;

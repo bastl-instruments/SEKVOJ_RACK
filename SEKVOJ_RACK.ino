@@ -184,8 +184,9 @@ void setup() {
 	settings->getInByteArray(data);
 	sdpreset.initCard(memoryData, data);
 	sdpreset.getSettingsData(data);
+	//sdpreset.setSettingsData(data);
 	settings->loadFromByteArray(data);
-
+	//sdpreset.setSettingsData(data);
 	//suspicious semicolon - a good name for a band !
 
 	sdpreset.getPatternData(settings->getCurrentPattern());
@@ -217,20 +218,21 @@ void setup() {
 	//tapper.setStepsPerTap(16); Not called rather made default to save some progeram memory
 	tapper.setStepCallBack(&tapStep);
 	hardware.init(0, &clockInCall, &rstInCall);
+	settingsChanged();
 }
 
 void loop() {
 	//sdpreset.debug();
-
-	unsigned int bastlCycles = hardware.getElapsedBastlCycles();
-
 	//Update step keepers
-	stepper->update(bastlCycles);
+	stepper->update(hardware.getElapsedBastlCycles());
 	recorder.update();
-
+	stepper->update(hardware.getElapsedBastlCycles());
 	//Update user interface
 	mainMenu.update();
+	unsigned int bastlCycles = hardware.getElapsedBastlCycles();
+	stepper->update(bastlCycles);
 	player->update(bastlCycles);
+	//stepper->update(bastlCycles);
 }
 
 
