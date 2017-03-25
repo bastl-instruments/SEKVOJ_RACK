@@ -56,7 +56,7 @@ unsigned char localStep = 0;
 extern sekvojHW hardware;
 unsigned int bastlCyclesPerSecond = 0;
 bool slave = false;
-unsigned char memoryData[292];
+unsigned char memoryData[290];
 
 void stepperStep() {
 	if (mainMenu.isPlaying()) {
