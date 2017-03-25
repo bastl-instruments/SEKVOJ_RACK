@@ -19,6 +19,8 @@ sekvojHW hardware;
 #define UINT16_MAX 65535
 #define MAX_ADDR 131067
 
+#define NOP asm volatile("nop\n\t")
+
 // set by defines
 static const uint8_t updateFreq = FREQ;
 static const uint8_t blinkCompare[2] = {blinkDuty,blinkTotal};
@@ -232,7 +234,7 @@ inline void sekvojHW::isr_updateButtons() {
 		//bit_set(SHIFTREGISTER_RCK);
 
 		shiftRegFast::enableOutput();
-
+		for (unsigned char i = 0; i < 10; i++) NOP;
 
 		uint8_t col = 0;
 
@@ -362,7 +364,6 @@ ISR(TIMER2_COMPA_vect) { // 80uS (used to update all 8 rows which took 640uS)
 
 
 	//bit_set(PIN);
-	bit_set(CLOCK_OUT_PIN);
 	hardware.incrementBastlCycles();
 	//hardware.isr_sendDisplayBuffer();  // ~156us
 //	hardware.interuptCallback();
@@ -374,9 +375,8 @@ ISR(TIMER2_COMPA_vect) { // 80uS (used to update all 8 rows which took 640uS)
 //	hardware.isr_updateClockOut();
 	hardware.isr_updateReset();
 	hardware.isr_updateClockIn();
-	bit_clear(CLOCK_OUT_PIN);
-
 	//bit_clear(PIN);
+
 
 
 }
