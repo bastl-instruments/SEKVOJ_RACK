@@ -160,6 +160,8 @@ void settingsChanged() {
 	unsigned char data[8];
 	settings->getInByteArray(data);
 	sdpreset.setSettingsData(data);
+	hardware.setMutes(settings->getInstrumentMuteByte());
+	instrumentBar.setInstrumentsMutes(settings->getInstrumentMuteByte());
 }
 
 void setup() {

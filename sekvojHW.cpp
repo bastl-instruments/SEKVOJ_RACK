@@ -91,6 +91,8 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	 this->clockInCallback = clockInCallback;
 	 this->rstInCallback = rstInCallback;
 
+	 trigMutesState = 255;
+
 	// Disable Timer1 interrupt
 	//TIMSK1 &= ~_BV(TOIE1);
 
@@ -109,42 +111,6 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	//bit_dir_outp(RST_PIN);
 	//bit_clear(RST_PIN);
 }
-
-
-/**** LEDS ****/
-/*
-void sekvojHW::printLEDStates() {
-	for (uint8_t row=0; row<leds_rows; row++) {
-		Serial.print("Row "); Serial.print(row,DEC);Serial.print(": ");
-		for (int8_t col=15; col>=0;col--) {
-			if (bitRead(ledStatesBeg[row],col)) {
-				Serial.print("1");
-			} else {
-				Serial.print("0");
-			}
-		}
-		Serial.println("");
-		Serial.print("    "); Serial.print(row,DEC);Serial.print(": ");
-		for (int8_t col=15; col>=0;col--) {
-			if (bitRead(ledStatesEnd[row],col)) {
-				Serial.print("1");
-			} else {
-				Serial.print("0");
-			}
-		}
-		Serial.println("");
-	}
-}
-*/
-
-
-/*void sekvojHW::leds_setStates(uint16_t ledStates[]) {
-	for (uint8_t row = 0; row<leds_rows; row++) {
-		this->ledStatesBeg[row]=ledStates[row];
-
-	}
-}*/
-
 
 void sekvojHW::setLED(uint8_t number, ILEDHW::LedState state) {
 
@@ -167,45 +133,29 @@ void sekvojHW::setLED(uint8_t number, ILEDHW::LedState state) {
 
 inline void sekvojHW::isr_updateNextLEDRow() {
 
-
-
 	static uint8_t currentRow = 0;
 	static uint8_t blinkCounter = 0;
-	/*
-	bit_clear(LEDCOL_0);
-	bit_clear(LEDCOL_1);
-	bit_clear(LEDCOL_2);
-	bit_clear(LEDCOL_3);
-	*/
-
 
 	uint8_t * statesToWrite = (blinkCounter < blinkCompare[0]) ? ledStatesBeg : ledStatesEnd;
-	//bit_clear(SHIFTREGISTER_RCK);
 	shiftRegFast::write_8bit(statesToWrite[currentRow]);
-	shiftRegFast::write_8bit(trigState);
-	//bit_set(SHIFTREGISTER_RCK);
-
-	//
+	shiftRegFast::write_8bit(trigState & trigMutesState);
 	shiftRegFast::enableOutput();
 
 	// go no next row
 
-
-	switch(currentRow){
-
-	case 0:
-		bit_set(LEDCOL_0);
-		break;
-	case 1:
-		bit_set(LEDCOL_1);
-		break;
-	case 2:
-		bit_set(LEDCOL_2);
-		break;
-	case 3:
-		bit_set(LEDCOL_3);
-		break;
-
+	switch(currentRow) {
+		case 0:
+			bit_set(LEDCOL_0);
+			break;
+		case 1:
+			bit_set(LEDCOL_1);
+			break;
+		case 2:
+			bit_set(LEDCOL_2);
+			break;
+		case 3:
+			bit_set(LEDCOL_3);
+			break;
 	}
 
 	currentRow=(currentRow+1)%leds_rows;
@@ -225,59 +175,21 @@ inline void sekvojHW::isr_updateButtons() {
 	bit_clear(LEDCOL_3);
 
     row = (row + 1) % 8;
-//if(row>7) row=0;
+	shiftRegFast::write_8bit(~(1<<row));
+	shiftRegFast::write_8bit(trigState & trigMutesState);
+	shiftRegFast::enableOutput();
+	for (unsigned char i = 0; i < 10; i++) NOP;
 
-	//for (int8_t row=7; row>=0; row--) {
-		//bit_clear(SHIFTREGISTER_RCK);
-		shiftRegFast::write_8bit(~(1<<row));
-		shiftRegFast::write_8bit(trigState);
-		//bit_set(SHIFTREGISTER_RCK);
-
-		shiftRegFast::enableOutput();
-		for (unsigned char i = 0; i < 10; i++) NOP;
-
-		uint8_t col = 0;
-
-		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_0));
-		col++;
-		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_1));
-		col++;
-		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_2));
-		col++;
-		bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_3));
-
-
-		//col++;
-//	}
-
-	/*if(buttonChangeCallback!=0){
-		for(int col=0;col<4;col++){
-			if(uint8_t xored=newButtonStates[col]^buttonStates[col]){
-				for(int row=0;row<8;row++){
-					if(bitRead(xored,row)) buttonChangeCallback(col*buttons_rows + row);
-				}
-			}
-			buttonStates[col]=newButtonStates[col];
-		}
-	}
-	for(int col=0;col<4;col++) buttonStates[col]=newButtonStates[col];*/
+	uint8_t col = 0;
+	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_0));
+	col++;
+	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_1));
+	col++;
+	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_2));
+	col++;
+	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_3));
 }
 
-/*
-void sekvojHW::printButtonStates() {
-	for (uint8_t row=0; row<4; row++) {
-		Serial.print("col "); Serial.print(row,DEC);Serial.print(": ");
-		for (int8_t col=7; col>=0;col--) {
-			if (bitRead(buttonStates[row],col)) {
-				Serial.print("1");
-			} else {
-				Serial.print("0");
-			}
-		}
-		Serial.println("");
-	}
-}
-*/
 bool sekvojHW::isButtonDown(uint8_t number) {
 	return (buttonStates[number/buttons_rows] & (1<<(number%buttons_rows)));
 }
@@ -295,21 +207,21 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
 /**** TRIGGER ****/
 void sekvojHW::setTrigger(uint8_t number, bool state,uint8_t length){//ILEDsAndButtonsHW::TriggerState state) {
-	//triggerCountdown[number] = (state == ILEDsAndButtonsHW::TRIGGER_ON) ? 20 : 0;
-	//if(state)
-	//if(number<8){
 	triggerCountdown[number] = length;
 	if(length!=0 && state==0);
 	else bitWrite(trigState, trigMap[number], state);
-	//}
-			//(state == false) ? 0 : 1); //
+}
+
+void sekvojHW::setMutes(uint8_t  mutes){
+	for (uint8_t i = 0; i < 6; i++) {
+		bitWrite(trigMutesState, trigMap[i], bitRead(mutes, i));
+	}
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
 	for(uint8_t i = 0; i < 8; i++){
 		if(triggerCountdown[i]>0){
 			if(triggerCountdown[i]==1) bitWrite(trigState, trigMap[i], 0);//setTrigger(i,false,0);//ILEDsAndButtonsHW::GATE_OFF);
-				//bitWrite(trigState, trigMap[i], 0);
 			triggerCountdown[i]--;
 		}
 	}
@@ -361,24 +273,12 @@ uint16_t sekvojHW::getBastlCyclesPerSecond() {
 /**** INTERRUPT ****/
 
 ISR(TIMER2_COMPA_vect) { // 80uS (used to update all 8 rows which took 640uS)
-
-
-	//bit_set(PIN);
 	hardware.incrementBastlCycles();
-	//hardware.isr_sendDisplayBuffer();  // ~156us
-//	hardware.interuptCallback();
 	hardware.isr_updateTriggerStates(); //8uS
-
 	hardware.isr_updateButtons();      // 74uS (used to update all 8 rows which took 560uS)
-
 	hardware.isr_updateNextLEDRow();   // ~84us
-//	hardware.isr_updateClockOut();
 	hardware.isr_updateReset();
 	hardware.isr_updateClockIn();
-	//bit_clear(PIN);
-
-
-
 }
 
 
