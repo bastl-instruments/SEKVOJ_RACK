@@ -73,12 +73,12 @@ void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velo
 	instrumentBar.setInstrumentPlaying(instrumentId, isOn);
 	if (isOn) {
 		if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE) {
-			hardware.setTrigger(instrumentId, true,0);//ILEDsAndButtonsHW::GATE_ON);
+			hardware.setTrigger(instrumentId, true, false);//ILEDsAndButtonsHW::GATE_ON);
 		} else {
-			hardware.setTrigger(instrumentId, true,10);//ILEDsAndButtonsHW::TRIGGER_ON);
+			hardware.setTrigger(instrumentId, true, true);//ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	} else if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE){
-		hardware.setTrigger(instrumentId, false,2);//ILEDsAndButtonsHW::GATE_OFF);
+		hardware.setTrigger(instrumentId, false, false);//ILEDsAndButtonsHW::GATE_OFF);
 	}
 }
 

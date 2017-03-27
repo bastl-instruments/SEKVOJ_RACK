@@ -206,10 +206,13 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
 
 /**** TRIGGER ****/
-void sekvojHW::setTrigger(uint8_t number, bool state,uint8_t length){//ILEDsAndButtonsHW::TriggerState state) {
-	triggerCountdown[number] = length;
-	if(length!=0 && state==0);
-	else bitWrite(trigState, trigMap[number], state);
+void sekvojHW::setTrigger(uint8_t number, bool state, bool autoOff){//ILEDsAndButtonsHW::TriggerState state) {
+
+	bitWrite(trigAutoOff, number, autoOff);
+	if (state)
+		triggerBuffer[number]++;
+	else
+		bitWrite(trigState, trigMap[number], state);
 }
 
 void sekvojHW::setMutes(uint8_t  mutes){
@@ -219,10 +222,22 @@ void sekvojHW::setMutes(uint8_t  mutes){
 }
 
 inline void sekvojHW::isr_updateTriggerStates(){
-	for(uint8_t i = 0; i < 8; i++){
-		if(triggerCountdown[i]>0){
-			if(triggerCountdown[i]==1) bitWrite(trigState, trigMap[i], 0);//setTrigger(i,false,0);//ILEDsAndButtonsHW::GATE_OFF);
-			triggerCountdown[i]--;
+	for (uint8_t i = 0; i < 8; i++){
+		if (triggerBuffer[i] != 0) {
+			if (bitRead(trigState, trigMap[i])) {
+				bitWrite(trigState, trigMap[i], false);
+			} else {
+				bitWrite(trigState, trigMap[i], true);
+				triggerCountdown[i] = 5;
+				triggerBuffer[i]--;
+			}
+		} else {
+			if(triggerCountdown[i] > 0) {
+				if (triggerCountdown[i] == 1 && bitRead(trigAutoOff, i)) {
+					bitWrite(trigState, trigMap[i], 0);
+				}
+				triggerCountdown[i]--;
+			}
 		}
 	}
 }

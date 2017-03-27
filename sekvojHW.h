@@ -44,7 +44,7 @@ public:
 	void printButtonStates();
 	/***TRIGGER***/
 	//void setTrigger(uint8_t number, ILEDsAndButtonsHW::TriggerState state);
-	virtual void setTrigger(uint8_t number, bool state,uint8_t length);
+	virtual void setTrigger(uint8_t number, bool state, bool autoOff);
 
 
 	/***RAM***/
@@ -100,10 +100,13 @@ public:
 	virtual bool isEEPROMBusy(){return true;}
 
 private:
+
 	/**TRIGGERS**/
 	uint8_t trigMutesState;
 	uint8_t trigState;
+	uint8_t trigAutoOff;
 	uint8_t triggerCountdown[8];
+	uint8_t triggerBuffer[8];
 	/**TIMING**/
 	uint32_t bastlCycles;
 
