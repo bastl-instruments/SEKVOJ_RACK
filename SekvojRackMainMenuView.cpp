@@ -122,6 +122,7 @@ inline void SekvojRackMainMenuView::updateInPattern() {
 inline void SekvojRackMainMenuView::updateInFunction() {
 	if (!functionButtonDown_) {
 		delete currentView_;
+		SekvojModulePool::instrumentBar_->setActive(true);
 		activePlayRecordSwitch_.setStatus(0, false);
 		activePlayRecordSwitch_.setStatus(1, isPlaying_);
 		if (currentStatus_ == FUNCTION_FROM_RECORD) {
@@ -136,6 +137,7 @@ inline void SekvojRackMainMenuView::updateInFunction() {
 			delete currentView_;
 			clearBottomPartDiods();
 			FunctionViewExtra * functionView = new FunctionViewExtra();
+			functionView->init();
 			currentView_ = (IView*)functionView;
 			functionInActive_ = true;
 		}
