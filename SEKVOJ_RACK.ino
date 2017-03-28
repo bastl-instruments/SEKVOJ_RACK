@@ -194,6 +194,7 @@ void setup() {
 	sdpreset.getPatternData(settings->getCurrentPattern());
 	stepper = createBastlStepper(settings->getPlayerMode());
 	hardware.setResetState(settings->getPlayerMode() == PlayerSettings::MASTER);
+	hardware.setMutes(settings->getInstrumentMuteByte());
 
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
