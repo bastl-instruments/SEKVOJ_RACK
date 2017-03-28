@@ -40,6 +40,8 @@ private:
 	unsigned char currentViewIndex_;
 	unsigned char currentBarIndex_;
 	bool functionButtonDown_;
+	bool functionInActive_;
+	bool activeButtonDown_;
 	bool patternButtonDown_;
 	UIStatus currentStatus_;
 	unsigned char selectedInstrument_;

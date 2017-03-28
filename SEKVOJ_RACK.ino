@@ -157,11 +157,13 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 }
 
 void settingsChanged() {
-	unsigned char data[8];
+	unsigned char data[11];
 	settings->getInByteArray(data);
 	sdpreset.setSettingsData(data);
 	hardware.setMutes(settings->getInstrumentMuteByte());
+	hardware.setTriggerLength(settings->getTriggerLength());
 	instrumentBar.setInstrumentsMutes(settings->getInstrumentMuteByte());
+
 }
 
 void setup() {
@@ -182,7 +184,7 @@ void setup() {
 	memory.makeAllInstrumentsActiveUpTo(15);
 	memory.clearStepsForAllInstruments();
 
-	unsigned char data[8];
+	unsigned char data[11];
 	settings->getInByteArray(data);
 	sdpreset.initCard(memoryData, data);
 	sdpreset.getSettingsData(data);
@@ -195,6 +197,7 @@ void setup() {
 	stepper = createBastlStepper(settings->getPlayerMode());
 	hardware.setResetState(settings->getPlayerMode() == PlayerSettings::MASTER);
 	hardware.setMutes(settings->getInstrumentMuteByte());
+	hardware.setTriggerLength(settings->getTriggerLength());
 
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 

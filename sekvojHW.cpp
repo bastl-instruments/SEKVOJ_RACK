@@ -15,7 +15,10 @@
 
 sekvojHW hardware;
 
-#define DEFAULT_TRIGGER_LENGTH 20
+//In bastl cycles with perspective that one bastl cycle is 1.5ms
+#define TRIGGER_LENGTH_1 7 		// 10 ms
+#define TRIGGER_LENGTH_2 3		// 5 ms
+#define TRIGGER_LENGTH_3 1		// 1 ms
 #define UINT16_MAX 65535
 #define MAX_ADDR 131067
 
@@ -37,6 +40,20 @@ static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
 //const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
 uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
+
+void sekvojHW::setTriggerLength(uint8_t  triggerLength) {
+	switch (triggerLength) {
+		case 0:
+			trigLength = TRIGGER_LENGTH_1;
+		break;
+		case 1:
+			trigLength = TRIGGER_LENGTH_2;
+		break;
+		case 2:
+			trigLength = TRIGGER_LENGTH_3;
+		break;
+	}
+}
 
 void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)(),void(*rstInCallback)()) {
 
@@ -92,6 +109,7 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	 this->rstInCallback = rstInCallback;
 
 	 trigMutesState = 255;
+	 trigLength = TRIGGER_LENGTH_1;
 
 	// Disable Timer1 interrupt
 	//TIMSK1 &= ~_BV(TOIE1);
@@ -228,7 +246,7 @@ inline void sekvojHW::isr_updateTriggerStates(){
 				bitWrite(trigState, trigMap[i], false);
 			} else {
 				bitWrite(trigState, trigMap[i], true);
-				triggerCountdown[i] = 5;
+				triggerCountdown[i] = trigLength;
 				triggerBuffer[i]--;
 			}
 		} else {

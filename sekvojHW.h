@@ -78,6 +78,7 @@ public:
 
 	void setResetState(bool _rstMaster){ rstMaster=_rstMaster;};
 	void setMutes(uint8_t  mutes);
+	void setTriggerLength(uint8_t  triggerLength);
 
 
 	// only called by ISR routine.
@@ -103,6 +104,7 @@ private:
 
 	/**TRIGGERS**/
 	uint8_t trigMutesState;
+	uint8_t trigLength;
 	uint8_t trigState;
 	uint8_t trigAutoOff;
 	uint8_t triggerCountdown[8];

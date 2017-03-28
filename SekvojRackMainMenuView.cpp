@@ -11,6 +11,7 @@
 #include <SetStepView.h>
 #include <PlayRecordView.h>
 #include <SettingsAndFunctionsView.h>
+#include <FunctionViewExtra.h>
 #include <IButtonHW.h>
 #include <SekvojModulePool.h>
 
@@ -121,6 +122,7 @@ inline void SekvojRackMainMenuView::updateInPattern() {
 inline void SekvojRackMainMenuView::updateInFunction() {
 	if (!functionButtonDown_) {
 		delete currentView_;
+		activePlayRecordSwitch_.setStatus(0, false);
 		activePlayRecordSwitch_.setStatus(1, isPlaying_);
 		if (currentStatus_ == FUNCTION_FROM_RECORD) {
 			activePlayRecordSwitch_.setStatus(2, true);
@@ -128,6 +130,21 @@ inline void SekvojRackMainMenuView::updateInFunction() {
 		} else {
 			activePlayRecordSwitch_.setStatus(2, false);
 			createSetStepView();
+		}
+	} else if (activeButtonDown_) {
+		if (!functionInActive_) {
+			delete currentView_;
+			clearBottomPartDiods();
+			FunctionViewExtra * functionView = new FunctionViewExtra();
+			currentView_ = (IView*)functionView;
+			functionInActive_ = true;
+		}
+	} else {
+		if (functionInActive_) {
+			delete currentView_;
+			activePlayRecordSwitch_.setStatus(0, false);
+			createFunctionView(currentStatus_ == FUNCTION_FROM_RECORD);
+			functionInActive_ = false;
 		}
 	}
 }
@@ -179,6 +196,7 @@ void SekvojRackMainMenuView::update() {
 
 	functionButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
 	patternButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getPatternButtonIndex());
+	activeButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getActiveButtonIndex());
 	SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 	SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getPatternButtonIndex(), patternButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 
