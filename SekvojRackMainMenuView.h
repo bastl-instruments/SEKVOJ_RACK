@@ -33,7 +33,7 @@ public:
 	bool isPlaying();
 private:
 
-	enum UIStatus{INIT, ACTIVE, RECORDING, PATTERN, PATTERN_FROM_ACTIVE, PATTERN_FROM_RECORD, FUNCTION, FUNCTION_FROM_RECORD};
+	enum UIStatus{INIT, INIT_FROM_PATTERN, ACTIVE, RECORDING, PATTERN, PATTERN_FROM_ACTIVE, PATTERN_FROM_RECORD, FUNCTION, FUNCTION_FROM_RECORD};
 
 	Switches activePlayRecordSwitch_;
 	IView * currentView_;
@@ -43,16 +43,19 @@ private:
 	bool functionInActive_;
 	bool activeButtonDown_;
 	bool patternButtonDown_;
+	bool jumpButtonDown_;
+
 	UIStatus currentStatus_;
 	unsigned char selectedInstrument_;
 	bool isPlaying_;
 
 	void updateInInit();
+	void updateInJumpInit();
 	void updateInActive();
 	void updateInRecording();
 	void updateInPattern();
 	void updateInFunction();
-	void createSetStepView();
+	void createSetStepView(bool fromPattern);
 	void destroyInitView();
 	void createFunctionView(bool fromRecord);
 	void createRecordView();

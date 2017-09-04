@@ -26,20 +26,20 @@ SekvojRackMainMenuView::~SekvojRackMainMenuView() {
 void SekvojRackMainMenuView::init() {
 
 	clearAllDiods();
-	createSetStepView();
+	createSetStepView(false);
 
 	isPlaying_ = true;
 	unsigned char * activeButton = SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 1;
-	activePlayRecordSwitch_.init(SekvojModulePool::hw_, activeButton, 3, true, IButtonHW::DOWN);
+	activePlayRecordSwitch_.init(SekvojModulePool::hw_, activeButton, 4, true, IButtonHW::DOWN);
 	activePlayRecordSwitch_.setStatus(1, isPlaying_);
 }
 
-void SekvojRackMainMenuView::createSetStepView() {
+void SekvojRackMainMenuView::createSetStepView(bool fromPattern) {
 	SetStepView * setStepView = new SetStepView();
 	setStepView->init(SekvojModulePool::settings_->getCurrentPattern(), 6,
 					  selectedInstrument_, currentBarIndex_);
 	currentView_ = (IView*)setStepView;
-	currentStatus_ = INIT;
+	currentStatus_ = fromPattern ? INIT_FROM_PATTERN : INIT;
 }
 
 void SekvojRackMainMenuView::createFunctionView(bool fromRecord) {
@@ -88,7 +88,10 @@ inline void SekvojRackMainMenuView::updateInInit() {
 		createActiveView();
 		return;
 	}
-	if (patternButtonDown_) {
+	//ToPatternView
+	bool switchToPatternView = SekvojModulePool::settings_->isPatternMomentary() ?
+			activePlayRecordSwitch_.getStatus(3) : patternButtonDown_;
+	if (switchToPatternView) {
 		destroyInitView();
 		createPatternView(false, false);
 		return;
@@ -107,16 +110,26 @@ void SekvojRackMainMenuView::destroyInitView() {
 }
 
 inline void SekvojRackMainMenuView::updateInPattern() {
-	if (!patternButtonDown_) {
+	bool modeOn = SekvojModulePool::settings_->isPatternMomentary() ?
+			activePlayRecordSwitch_.getStatus(3) :
+			patternButtonDown_;
+	if (!modeOn) {
 		delete currentView_;
+		if (!SekvojModulePool::settings_->isPatternMomentary()) {
+			activePlayRecordSwitch_.setStatus(3, false);
+		}
 		if (currentStatus_ == PATTERN_FROM_RECORD) {
 			createRecordView();
 		} else if (currentStatus_ == PATTERN_FROM_ACTIVE) {
 			createActiveView();
 		} else {
-			createSetStepView();
+			createSetStepView(false);
 		}
+	} else if (jumpButtonDown_ && SekvojModulePool::settings_->isPatternMomentary()) {
+		delete currentView_;
+		createSetStepView(true);
 	}
+
 }
 
 inline void SekvojRackMainMenuView::updateInFunction() {
@@ -130,7 +143,7 @@ inline void SekvojRackMainMenuView::updateInFunction() {
 			createRecordView();
 		} else {
 			activePlayRecordSwitch_.setStatus(2, false);
-			createSetStepView();
+			createSetStepView(false);
 		}
 	} else if (activeButtonDown_) {
 		if (!functionInActive_) {
@@ -157,10 +170,10 @@ inline void SekvojRackMainMenuView::updateInActive() {
 		selectedInstrument_ = ((SetActiveView *) currentView_)->getSelectedInstrumentIndex();
 		currentBarIndex_ = ((SetActiveView *) currentView_)->getSelectedBarIndex();
 		delete currentView_;
-		if (patternButtonDown_) {
+		if (patternButtonDown_ && !SekvojModulePool::settings_->isPatternMomentary()) {
 			createPatternView(false, true);
 		} else {
-			createSetStepView();
+			createSetStepView(false);
 		}
 	}
 }
@@ -182,15 +195,24 @@ void SekvojRackMainMenuView::clearBottomPartDiods() {
 inline void SekvojRackMainMenuView::updateInRecording() {
 	activePlayRecordSwitch_.setStatus(0, false);
 	bool playRecordSwitchOn = activePlayRecordSwitch_.getStatus(2);
-	if (functionButtonDown_ || patternButtonDown_ || !playRecordSwitchOn ) {
+	bool switchToPattern = patternButtonDown_ && ! SekvojModulePool::settings_->isPatternMomentary();
+	if (functionButtonDown_ || switchToPattern || !playRecordSwitchOn ) {
 		delete currentView_;
 		if (functionButtonDown_)  {
 			createFunctionView(true);
-		} else if (patternButtonDown_) {
+		} else if (switchToPattern) {
 			createPatternView(true, false);
 		} else {
-			createSetStepView();
+			createSetStepView(false);
 		}
+	}
+}
+
+inline void SekvojRackMainMenuView::updateInJumpInit() {
+	((SetStepView*)currentView_)->setPlaying(activePlayRecordSwitch_.getStatus(1));
+	if (!jumpButtonDown_) {
+		destroyInitView();
+		createPatternView(false, false);
 	}
 }
 
@@ -199,8 +221,8 @@ void SekvojRackMainMenuView::update() {
 	functionButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
 	patternButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getPatternButtonIndex());
 	activeButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getActiveButtonIndex());
+	jumpButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getJumpButtonIndex());
 	SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
-	SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getPatternButtonIndex(), patternButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 
 	//Reset all counters in case play has been just pressed
 	bool originalPlayValue = activePlayRecordSwitch_.getStatus(1);
@@ -218,6 +240,9 @@ void SekvojRackMainMenuView::update() {
 	}
 	ILEDHW::LedState offState = ILEDHW::OFF;
 	switch (currentStatus_) {
+		case INIT_FROM_PATTERN:
+			updateInJumpInit();
+			break;
 		case INIT:
 			updateInInit();
 			break;
