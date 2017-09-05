@@ -48,6 +48,7 @@ void SekvojRackMainMenuView::createFunctionView(bool fromRecord) {
 	SettingsAndFunctionsView * functionView = new SettingsAndFunctionsView();
 	functionView->init(selectedInstrument_, currentBarIndex_);
 	currentView_ = (IView*)functionView;
+	activePlayRecordSwitch_.setStatus(3, SekvojModulePool::settings_->isPatternMomentary());
 }
 
 void SekvojRackMainMenuView::createPatternView(bool fromRecord, bool fromActive) {
@@ -133,7 +134,9 @@ inline void SekvojRackMainMenuView::updateInPattern() {
 }
 
 inline void SekvojRackMainMenuView::updateInFunction() {
+	SekvojModulePool::settings_->setPatternMomentary(activePlayRecordSwitch_.getStatus(3));
 	if (!functionButtonDown_) {
+		activePlayRecordSwitch_.setStatus(3, false);
 		delete currentView_;
 		SekvojModulePool::instrumentBar_->setActive(true);
 		activePlayRecordSwitch_.setStatus(0, false);
