@@ -140,7 +140,7 @@ BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 		generator->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(settings->getBPM(), bastlCyclesPerSecond));
 		return generator;
 	} else {
-		StepMultiplier * multiplier = new StepMultiplier(&stepperStep, &swinger, 1, bastlCyclesPerSecond);
+		StepMultiplier * multiplier = new StepMultiplier(&stepperStep, &swinger, bastlCyclesPerSecond);
 		multiplier->setMultiplication(getMultiplicationFromEnum(settings->getMultiplication()));
 		return multiplier;
 	}
