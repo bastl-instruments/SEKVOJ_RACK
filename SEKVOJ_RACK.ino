@@ -37,7 +37,6 @@ int main(void) {
 #include <StepMultiplier.h>
 #include <EEPROM.h>
 #include <SimplifiedTapper.h>
-#include <StepSwinger.h>
 
 Player * player;
 ArduinoMIDICommandProcessor * processor;
@@ -51,7 +50,6 @@ SekvojRackButtonMap buttonMap;
 StepSynchronizer synchronizer;
 SekvojRackSDPreset sdpreset;
 SimplifiedTapper tapper;
-StepSwinger swinger;
 
 unsigned char localStep = 0;
 
@@ -93,7 +91,6 @@ void clockInCall() {
 void rstInCall() {
 	player->resetAllInstruments();
 	synchronizer.reset();
-	stepper->reset();
 }
 
 void tapStep() {
@@ -136,13 +133,15 @@ void bpmChanged(unsigned int bpm) {
 BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 
 	if (mode == PlayerSettings::MASTER) {
-		StepGenerator * generator = new StepGenerator(&stepperStep, &swinger);
+		StepGenerator * generator = new StepGenerator();
 		//generator->init(&stepperStep, BPMConverter::bpmToTimeUnits(settings->getBPM(), hardware.getBastlCyclesPerSecond()));
+		generator->setStepCallback(&stepperStep);
 		generator->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(settings->getBPM(), bastlCyclesPerSecond));
 		return generator;
 	} else {
-		StepMultiplier * multiplier = new StepMultiplier(&stepperStep, &swinger, bastlCyclesPerSecond);
-		multiplier->setMultiplication(getMultiplicationFromEnum(settings->getMultiplication()));
+		StepMultiplier * multiplier = new StepMultiplier();
+		multiplier->init(getMultiplicationFromEnum(settings->getMultiplication()), 1, bastlCyclesPerSecond);
+		multiplier->setStepCallback(&stepperStep);
 		return multiplier;
 	}
 }
@@ -164,14 +163,11 @@ void settingsChanged() {
 	hardware.setMutes(settings->getInstrumentMuteByte());
 	hardware.setTriggerLength(settings->getTriggerLength());
 	instrumentBar.setInstrumentsMutes(settings->getInstrumentMuteByte());
-	swinger.setSwing(settings->getSwing());
 
 }
 
 void setup() {
 
-	swinger.init(& synchronizer);
-	swinger.setSwing(80);
 
 	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 	instrumentBar.init(&hardware, &buttonMap, 6);
@@ -217,7 +213,7 @@ void setup() {
 	SekvojModulePool::synchronizer_ = 	&synchronizer;
 	SekvojModulePool::tapper_ = 		&tapper;
 	SekvojModulePool::sd_ = 			&sdpreset;
-	mainMenu.init(rstInCall);
+	mainMenu.init();
 
 	//Serial.begin(9600);
 	//Serial.println("s");
