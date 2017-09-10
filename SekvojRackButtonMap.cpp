@@ -30,8 +30,8 @@ SekvojRackButtonMap::SekvojRackButtonMap() {
 	buttonIndexes_[17] = 16; //active
 	buttonIndexes_[18] = 18; //play
 	buttonIndexes_[19] = 26; //rec
-	buttonIndexes_[20] = 24; //jump
-	buttonIndexes_[21] = 25; //pattern
+	buttonIndexes_[20] = 25; //pattern
+	buttonIndexes_[21] = 24; //jump
 
 	buttonIndexes_[22] = 1;
 	buttonIndexes_[23] = 0;
