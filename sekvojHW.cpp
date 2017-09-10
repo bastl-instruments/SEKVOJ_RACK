@@ -16,9 +16,10 @@
 sekvojHW hardware;
 
 //In bastl cycles with perspective that one bastl cycle is 1.5ms
-#define TRIGGER_LENGTH_1 7 		// 10 ms
-#define TRIGGER_LENGTH_2 3		// 5 ms
-#define TRIGGER_LENGTH_3 1		// 1 ms
+#define TRIGGER_LENGTH_1 14 	// 20 ms
+#define TRIGGER_LENGTH_2 7 		// 10 ms
+#define TRIGGER_LENGTH_3 3		// 5 ms
+#define TRIGGER_LENGTH_4 1		// 1 ms
 #define UINT16_MAX 65535
 #define MAX_ADDR 131067
 
@@ -51,6 +52,9 @@ void sekvojHW::setTriggerLength(uint8_t  triggerLength) {
 		break;
 		case 2:
 			trigLength = TRIGGER_LENGTH_3;
+		break;
+		case 4:
+			trigLength = TRIGGER_LENGTH_4;
 		break;
 	}
 }
@@ -310,6 +314,7 @@ ISR(TIMER2_COMPA_vect) { // 80uS (used to update all 8 rows which took 640uS)
 	hardware.isr_updateTriggerStates(); //8uS
 	hardware.isr_updateButtons();      // 74uS (used to update all 8 rows which took 560uS)
 	hardware.isr_updateNextLEDRow();   // ~84us
+	hardware.isr_updateClockOut();
 	hardware.isr_updateReset();
 	hardware.isr_updateClockIn();
 }
