@@ -93,6 +93,7 @@ void clockInCall() {
 void rstInCall() {
 	player->resetAllInstruments();
 	synchronizer.reset();
+	stepper->reset();
 }
 
 void tapStep() {
@@ -216,7 +217,7 @@ void setup() {
 	SekvojModulePool::synchronizer_ = 	&synchronizer;
 	SekvojModulePool::tapper_ = 		&tapper;
 	SekvojModulePool::sd_ = 			&sdpreset;
-	mainMenu.init();
+	mainMenu.init(rstInCall);
 
 	//Serial.begin(9600);
 	//Serial.println("s");

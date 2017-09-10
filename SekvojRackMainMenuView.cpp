@@ -17,16 +17,15 @@
 
 SekvojRackMainMenuView::SekvojRackMainMenuView() : currentView_(0), currentViewIndex_(0), currentBarIndex_(0),
 												   functionButtonDown_(false), patternButtonDown_(false),
-												   currentStatus_(INIT), selectedInstrument_(0) {
+												   currentStatus_(INIT), selectedInstrument_(0){
 }
 
-SekvojRackMainMenuView::~SekvojRackMainMenuView() {
-}
-
-void SekvojRackMainMenuView::init() {
+void SekvojRackMainMenuView::init(void (*playerStatusChangedCallback)()) {
 
 	clearAllDiods();
 	createSetStepView();
+
+	playerStatusChangedCallback_ = playerStatusChangedCallback;
 
 	isPlaying_ = true;
 	unsigned char * activeButton = SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 1;
@@ -208,8 +207,7 @@ void SekvojRackMainMenuView::update() {
 	bool newPlayValue = activePlayRecordSwitch_.getStatus(1);
 	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD)) {
 		if (originalPlayValue && !newPlayValue) {
-			SekvojModulePool::synchronizer_->reset();
-			SekvojModulePool::player_->resetAllInstruments();
+			playerStatusChangedCallback_();
 		}
 		isPlaying_ = newPlayValue;
 		if (originalPlayValue != newPlayValue && SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
