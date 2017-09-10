@@ -310,6 +310,7 @@ ISR(TIMER2_COMPA_vect) { // 80uS (used to update all 8 rows which took 640uS)
 	hardware.isr_updateTriggerStates(); //8uS
 	hardware.isr_updateButtons();      // 74uS (used to update all 8 rows which took 560uS)
 	hardware.isr_updateNextLEDRow();   // ~84us
+	hardware.isr_updateClockOut();
 	hardware.isr_updateReset();
 	hardware.isr_updateClockIn();
 }
