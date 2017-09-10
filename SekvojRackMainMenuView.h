@@ -27,8 +27,7 @@
 class SekvojRackMainMenuView : public IView {
 public:
 	SekvojRackMainMenuView();
-	~SekvojRackMainMenuView();
-	void init();
+	void init(void (*playerStatusChangedCallback)());
 	void update();
 	bool isPlaying();
 private:
@@ -46,6 +45,8 @@ private:
 	UIStatus currentStatus_;
 	unsigned char selectedInstrument_;
 	bool isPlaying_;
+
+	void (*playerStatusChangedCallback_)();
 
 	void updateInInit();
 	void updateInActive();
