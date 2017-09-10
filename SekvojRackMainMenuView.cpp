@@ -111,6 +111,10 @@ void SekvojRackMainMenuView::destroyInitView() {
 }
 
 inline void SekvojRackMainMenuView::updateInPattern() {
+	if (SekvojModulePool::settings_->isPatternMomentary()) {
+		activePlayRecordSwitch_.setStatus(0, false);
+	}
+	activePlayRecordSwitch_.setStatus(2, false);
 	bool modeOn = SekvojModulePool::settings_->isPatternMomentary() ?
 			activePlayRecordSwitch_.getStatus(3) :
 			patternButtonDown_;
@@ -169,11 +173,15 @@ inline void SekvojRackMainMenuView::updateInFunction() {
 
 inline void SekvojRackMainMenuView::updateInActive() {
 	activePlayRecordSwitch_.setStatus(2, false);
-	if (patternButtonDown_ || !activePlayRecordSwitch_.getStatus(0)) {
+	if (SekvojModulePool::settings_->isPatternMomentary()) {
+		activePlayRecordSwitch_.setStatus(3, false);
+	}
+	bool switchToPattern = (patternButtonDown_ && !SekvojModulePool::settings_->isPatternMomentary());
+	if (switchToPattern || !activePlayRecordSwitch_.getStatus(0)) {
 		selectedInstrument_ = ((SetActiveView *) currentView_)->getSelectedInstrumentIndex();
 		currentBarIndex_ = ((SetActiveView *) currentView_)->getSelectedBarIndex();
 		delete currentView_;
-		if (patternButtonDown_ && !SekvojModulePool::settings_->isPatternMomentary()) {
+		if (switchToPattern) {
 			createPatternView(false, true);
 		} else {
 			createSetStepView(false);
