@@ -299,7 +299,10 @@ inline void sekvojHW::isr_updateReset(){
 /**** TIMING ****/
 
 uint32_t sekvojHW::getElapsedBastlCycles() {
-	return bastlCycles;
+	noInterrupts();
+	long cycles = bastlCycles;
+	interrupts();
+	return cycles;
 }
 
 uint16_t sekvojHW::getBastlCyclesPerSecond() {
