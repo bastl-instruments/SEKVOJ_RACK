@@ -267,8 +267,14 @@ void sekvojHW::setTrigger(uint8_t number, bool state, bool autoOff){//ILEDsAndBu
 	bitWrite(trigAutoOff, number, autoOff);
 	if (state)
 		triggerBuffer[number]++;
-	else
-		bitWrite(trigState, trigMap[number], state);
+	else {
+		if (trigLength < 4) {
+			bitWrite(trigState, trigMap[number], state);
+		} else {
+			triggerCountdown[number] = getTriggerLength() * 4;
+			bitWrite(trigAutoOff, number, true);
+		}
+	}
 }
 
 void sekvojHW::setMutes(uint8_t  mutes){
@@ -280,7 +286,7 @@ void sekvojHW::setMutes(uint8_t  mutes){
 inline void sekvojHW::isr_updateTriggerStates(){
 	for (uint8_t i = 0; i < 8; i++){
 		if (triggerBuffer[i] != 0) {
-			if (bitRead(trigState, trigMap[i])) {
+			if (bitRead(trigState, trigMap[i]) && bitRead(trigAutoOff, i)) {
 				bitWrite(trigState, trigMap[i], false);
 			} else {
 				bitWrite(trigState, trigMap[i], true);
