@@ -36,47 +36,47 @@ private:
 };
 
 inline unsigned char SekvojRackButtonMap::getButtonIndex(unsigned char index) {
-	return buttonIndexes_[index];
+	return buttonIndexes_[4 + index];
 }
 
 inline unsigned char SekvojRackButtonMap::getMainMenuButtonIndex(unsigned char index) {
-	return buttonIndexes_[16 + index];
+	return buttonIndexes_[20 + index];
 }
 
 inline unsigned char SekvojRackButtonMap::getInstrumentButtonIndex(unsigned char index) {
-	return buttonIndexes_[22 + index];
+	return buttonIndexes_[26 + index];
 }
 
 inline unsigned char SekvojRackButtonMap::getStepButtonIndex(unsigned char index) {
-	return buttonIndexes_[0 + index];
+	return buttonIndexes_[4 + index];
 }
 
 inline unsigned char SekvojRackButtonMap::getSubStepButtonIndex(unsigned char index) {
-	return buttonIndexes_[28 + index];
+	return buttonIndexes_[index];
 }
 
 inline unsigned char SekvojRackButtonMap::getVelocityButtonIndex(unsigned char index) {
-	return buttonIndexes_[28 + index];
+	return buttonIndexes_[index];
 }
 
 inline unsigned char* SekvojRackButtonMap::getMainMenuButtonArray() {
-	return &buttonIndexes_[16];
+	return &buttonIndexes_[20];
 }
 
 inline unsigned char* SekvojRackButtonMap::getInstrumentButtonArray() {
-	return &buttonIndexes_[22];
+	return &buttonIndexes_[26];
 }
 
 inline unsigned char* SekvojRackButtonMap::getStepButtonArray() {
-	return &buttonIndexes_[0];
+	return &buttonIndexes_[4];
 }
 
 inline unsigned char* SekvojRackButtonMap::getSubStepButtonArray() {
-	return &buttonIndexes_[28];
+	return &buttonIndexes_[0];
 }
 
 inline unsigned char* SekvojRackButtonMap::getVelocityButtonArray() {
-	return &buttonIndexes_[28];
+	return &buttonIndexes_[0];
 }
 
 inline unsigned char SekvojRackButtonMap::getPlayButtonIndex() {
