@@ -69,7 +69,7 @@ public:
 	// the number of bastl cycles elapsed since startup
 	// this number will overflow after some minutes; you have to deal with that in the layer above
 	// using a longer datatype would prevent this but at the cost of longer computation time
-	uint32_t getElapsedBastlCycles();
+	uint16_t getElapsedBastlCycles();
 
 	// returns the relation between bastl cycles and seconds
 	// this value is dependent on the hardware update frequency that you can set by a define
@@ -79,6 +79,7 @@ public:
 	void setResetState(bool _rstMaster){ rstMaster=_rstMaster;};
 	void setMutes(uint8_t  mutes);
 	void setTriggerLength(uint8_t  triggerLength);
+	uint8_t getTriggerLength();
 
 
 	// only called by ISR routine.
@@ -99,6 +100,8 @@ public:
 	virtual void readEEPROM(uint8_t pageNumb, uint8_t* byteArray, uint16_t numbBytes){}
 	virtual void readEEPROMDirect(uint16_t address, uint8_t* byteArray, uint16_t numbBytes){}
 	virtual bool isEEPROMBusy(){return true;}
+	uint32_t xorshift96();
+	unsigned char getRandom(unsigned char min, unsigned char max);
 
 private:
 
@@ -110,7 +113,7 @@ private:
 	uint8_t triggerCountdown[8];
 	uint8_t triggerBuffer[8];
 	/**TIMING**/
-	uint32_t bastlCycles;
+	uint16_t bastlCycles;
 
 	/**LEDS**/
 	uint8_t ledStatesBeg[4];
@@ -124,6 +127,8 @@ private:
 	void (*buttonChangeCallback)(uint8_t number);
 	void (*clockInCallback)();
 	void (*rstInCallback)();
+
+	uint32_t rnd_x, rnd_y, rnd_z;
 
 
 	bool rstMaster;

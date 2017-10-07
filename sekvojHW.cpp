@@ -16,10 +16,10 @@
 sekvojHW hardware;
 
 //In bastl cycles with perspective that one bastl cycle is 1.5ms
-#define TRIGGER_LENGTH_1 14 	// 20 ms
-#define TRIGGER_LENGTH_2 7 		// 10 ms
-#define TRIGGER_LENGTH_3 3		// 5 ms
-#define TRIGGER_LENGTH_4 1		// 1 ms
+#define TRIGGER_LENGTH_1 1 	// 1 ms
+#define TRIGGER_LENGTH_2 3 	// 5 ms
+#define TRIGGER_LENGTH_3 7	// 10 ms
+#define TRIGGER_LENGTH_4 14	// 20 ms
 #define UINT16_MAX 65535
 #define MAX_ADDR 131067
 
@@ -39,27 +39,61 @@ static const uint8_t buttons_rows = 8;
 
 static const uint8_t rowsTotal = 4; // for calculation of update frequency timer
 
+
+
 //const uint8_t trigMap[8]={7,6,5,2,3,4,0,1};
 uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
 
-void sekvojHW::setTriggerLength(uint8_t  triggerLength) {
-	switch (triggerLength) {
-		case 0:
-			trigLength = TRIGGER_LENGTH_1;
-		break;
-		case 1:
-			trigLength = TRIGGER_LENGTH_2;
-		break;
-		case 2:
-			trigLength = TRIGGER_LENGTH_3;
-		break;
-		case 4:
-			trigLength = TRIGGER_LENGTH_4;
-		break;
+uint8_t sekvojHW::getTriggerLength() {
+	switch (trigLength) {
+			case 0:
+				return TRIGGER_LENGTH_1;
+			case 1:
+				return TRIGGER_LENGTH_2;
+			case 2:
+				return TRIGGER_LENGTH_3;
+			case 3:
+				return TRIGGER_LENGTH_4;
+			case 4:
+				return getRandom(1,3);
+			case 5:
+				return getRandom(3,10);
+			case 6:
+				return getRandom(1,14);
+			case 7:
+				return getRandom(7,14);
 	}
 }
 
+void sekvojHW::setTriggerLength(uint8_t  triggerLength) {
+	trigLength = triggerLength;
+}
+
+uint32_t sekvojHW::xorshift96() { //period 2^96-1
+	// static unsigned long x=123456789, y=362436069, z=521288629;
+	uint32_t t;
+
+	rnd_x ^= rnd_x << 16;
+	rnd_x ^= rnd_x >> 5;
+	rnd_x ^= rnd_x << 1;
+
+	t = rnd_x;
+	rnd_x = rnd_y;
+	rnd_y = rnd_z;
+	rnd_z = t ^ rnd_x ^ rnd_y;
+
+	return rnd_z;
+}
+uint8_t sekvojHW::getRandom(unsigned char min, unsigned char max) {
+	return (unsigned char) ((((xorshift96() & 0xFFFF) * (max-min))>>16) + min);
+}
+
+
 void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)(),void(*rstInCallback)()) {
+
+	rnd_x=170;
+	rnd_y=229;
+	rnd_z=181;
 
 	cli();
 
@@ -113,7 +147,7 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	 this->rstInCallback = rstInCallback;
 
 	 trigMutesState = 255;
-	 trigLength = TRIGGER_LENGTH_1;
+	 trigLength = 0;
 
 	// Disable Timer1 interrupt
 	//TIMSK1 &= ~_BV(TOIE1);
@@ -250,7 +284,7 @@ inline void sekvojHW::isr_updateTriggerStates(){
 				bitWrite(trigState, trigMap[i], false);
 			} else {
 				bitWrite(trigState, trigMap[i], true);
-				triggerCountdown[i] = trigLength;
+				triggerCountdown[i] = getTriggerLength();
 				triggerBuffer[i]--;
 			}
 		} else {
@@ -298,7 +332,7 @@ inline void sekvojHW::isr_updateReset(){
 
 /**** TIMING ****/
 
-uint32_t sekvojHW::getElapsedBastlCycles() {
+uint16_t sekvojHW::getElapsedBastlCycles() {
 	noInterrupts();
 	long cycles = bastlCycles;
 	interrupts();
