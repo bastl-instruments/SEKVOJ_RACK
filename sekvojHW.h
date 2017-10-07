@@ -102,6 +102,8 @@ public:
 	virtual bool isEEPROMBusy(){return true;}
 	uint32_t xorshift96();
 	unsigned char getRandom(unsigned char min, unsigned char max);
+	void setBitWrapper(unsigned char &variable, unsigned char index, bool value);
+
 
 private:
 

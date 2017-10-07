@@ -237,13 +237,13 @@ inline void sekvojHW::isr_updateButtons() {
 	for (unsigned char i = 0; i < 10; i++) NOP;
 
 	uint8_t col = 0;
-	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_0));
+	setBitWrapper(buttonStates[col], row, !bit_read_in(BUTTONCOL_0));
 	col++;
-	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_1));
+	setBitWrapper(buttonStates[col], row, !bit_read_in(BUTTONCOL_1));
 	col++;
-	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_2));
+	setBitWrapper(buttonStates[col], row, !bit_read_in(BUTTONCOL_2));
 	col++;
-	bitWrite(buttonStates[col], row, !bit_read_in(BUTTONCOL_3));
+	setBitWrapper(buttonStates[col], row, !bit_read_in(BUTTONCOL_3));
 }
 
 bool sekvojHW::isButtonDown(uint8_t number) {
@@ -260,26 +260,29 @@ IButtonHW::ButtonState sekvojHW::getButtonState(uint8_t number) {
 
 }
 
+void sekvojHW::setBitWrapper(unsigned char &variable, unsigned char index, bool value) {
+	bitWrite(variable, index, value);
+}
 
 /**** TRIGGER ****/
 void sekvojHW::setTrigger(uint8_t number, bool state, bool autoOff){//ILEDsAndButtonsHW::TriggerState state) {
 
-	bitWrite(trigAutoOff, number, autoOff);
+	setBitWrapper(trigAutoOff, number, autoOff);
 	if (state)
 		triggerBuffer[number]++;
 	else {
 		if (trigLength < 4) {
-			bitWrite(trigState, trigMap[number], state);
+			setBitWrapper(trigState, trigMap[number], state);
 		} else {
 			triggerCountdown[number] = getTriggerLength() * 4;
-			bitWrite(trigAutoOff, number, true);
+			setBitWrapper(trigAutoOff, number, true);
 		}
 	}
 }
 
 void sekvojHW::setMutes(uint8_t  mutes){
 	for (uint8_t i = 0; i < 6; i++) {
-		bitWrite(trigMutesState, trigMap[i], bitRead(mutes, i));
+		setBitWrapper(trigMutesState, trigMap[i], bitRead(mutes, i));
 	}
 }
 
@@ -287,16 +290,16 @@ inline void sekvojHW::isr_updateTriggerStates(){
 	for (uint8_t i = 0; i < 8; i++){
 		if (triggerBuffer[i] != 0) {
 			if (bitRead(trigState, trigMap[i]) && bitRead(trigAutoOff, i)) {
-				bitWrite(trigState, trigMap[i], false);
+				setBitWrapper(trigState, trigMap[i], false);
 			} else {
-				bitWrite(trigState, trigMap[i], true);
+				setBitWrapper(trigState, trigMap[i], true);
 				triggerCountdown[i] = getTriggerLength();
 				triggerBuffer[i]--;
 			}
 		} else {
 			if(triggerCountdown[i] > 0) {
 				if (triggerCountdown[i] == 1 && bitRead(trigAutoOff, i)) {
-					bitWrite(trigState, trigMap[i], 0);
+					setBitWrapper(trigState, trigMap[i], 0);
 				}
 				triggerCountdown[i]--;
 			}
