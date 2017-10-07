@@ -32,13 +32,14 @@ public:
 	bool isPlaying();
 private:
 
-	enum UIStatus{INIT, INIT_FROM_PATTERN, ACTIVE, RECORDING, PATTERN, PATTERN_FROM_ACTIVE, PATTERN_FROM_RECORD, FUNCTION, FUNCTION_FROM_RECORD};
+	enum UIStatus{INIT, INIT_FROM_PATTERN, ACTIVE, RECORDING, PATTERN, PATTERN_FROM_ACTIVE, PATTERN_FROM_RECORD, FUNCTION_FROM_PATTERN, FUNCTION, FUNCTION_FROM_RECORD};
 
 	Switches activePlayRecordSwitch_;
 	IView * currentView_;
 	unsigned char currentViewIndex_;
 	unsigned char currentBarIndex_;
 	bool functionButtonDown_;
+	bool patternButtonMomentary_;
 	bool functionInActive_;
 	bool activeButtonDown_;
 	bool patternButtonDown_;
@@ -57,9 +58,9 @@ private:
 	void updateInFunction();
 	void createSetStepView(bool fromPattern);
 	void destroyInitView();
-	void createFunctionView(bool fromRecord);
+	void createFunctionView(UIStatus viewSourceDefinition);
 	void createRecordView();
-	void createPatternView(bool fromRecord, bool fromActive);
+	void createPatternView(UIStatus viewSourceDefinition);
 	void createActiveView();
 	void clearAllDiods();
 	void clearBottomPartDiods();
