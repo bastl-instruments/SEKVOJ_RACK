@@ -170,7 +170,7 @@ void settingsChanged() {
 void setup() {
 
 	swinger.init(& synchronizer);
-	swinger.setSwing(80);
+	swinger.setSwing(0);
 
 	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
 	instrumentBar.init(&hardware, &buttonMap, 6);
