@@ -293,7 +293,7 @@ inline void sekvojHW::isr_updateTriggerStates(){
 				setBitWrapper(trigState, trigMap[i], false);
 			} else {
 				setBitWrapper(trigState, trigMap[i], true);
-				triggerCountdown[i] = getTriggerLength();
+				triggerCountdown[i] = (i == 6) ? 10 : getTriggerLength();
 				triggerBuffer[i]--;
 			}
 		} else {
