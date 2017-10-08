@@ -85,7 +85,7 @@ void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velo
 }
 
 void clockInCall() {
-	if (settings->getPlayerMode() == PlayerSettings::SLAVE && mainMenu.isPlaying()) {
+	if (settings->getPlayerMode() == PlayerSettings::SLAVE) {
 		stepper->doStep(hardware.getElapsedBastlCycles());
 	}
 }

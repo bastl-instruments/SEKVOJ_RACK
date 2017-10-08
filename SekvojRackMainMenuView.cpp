@@ -241,8 +241,8 @@ void SekvojRackMainMenuView::update() {
 	bool originalPlayValue = activePlayRecordSwitch_.getStatus(1);
 	activePlayRecordSwitch_.update();
 	bool newPlayValue = activePlayRecordSwitch_.getStatus(1);
-	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD)) {
-		if (originalPlayValue && !newPlayValue) {
+	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD) && (currentStatus_ != FUNCTION_FROM_PATTERN)) {
+		if (!originalPlayValue && newPlayValue) {
 			playerStatusChangedCallback_();
 		}
 		isPlaying_ = newPlayValue;
