@@ -28,7 +28,7 @@ void SekvojRackMainMenuView::init(void (*playerStatusChangedCallback)()) {
 	playerStatusChangedCallback_ = playerStatusChangedCallback;
 	isPlaying_ = true;
 	unsigned char * activeButton = SekvojModulePool::buttonMap_->getMainMenuButtonArray() + 1;
-	activePlayRecordSwitch_.init(SekvojModulePool::hw_, activeButton, 4, true, IButtonHW::DOWN);
+	activePlayRecordSwitch_.init(activeButton, 4, true, IButtonHW::DOWN);
 	activePlayRecordSwitch_.setStatus(1, isPlaying_);
 }
 

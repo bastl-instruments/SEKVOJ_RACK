@@ -16,6 +16,7 @@ int main(void) {
 #endif
 
 #include <SekvojModulePool.h>
+#include <LEDsAndButtonsHWWrapper.h>
 #include <portManipulations.h>
 #include "sekvojHW.h"
 #include <Player.h>
@@ -205,6 +206,8 @@ void setup() {
 	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
 
 	recorder.init(player, &memory, settings, stepper);
+
+	LEDsAndButtonsHWWrapper::hw_ = &hardware;
 
 	SekvojModulePool::buttonMap_ = 		&buttonMap;
 	SekvojModulePool::hw_ = 			&hardware;
