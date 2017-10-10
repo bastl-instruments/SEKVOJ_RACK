@@ -348,7 +348,7 @@ uint16_t sekvojHW::getElapsedBastlCycles() {
 	return cycles;
 }
 
-uint16_t sekvojHW::getBastlCyclesPerSecond(unsigned int & comparatorValue, unsigned int & leftovers) {
+uint16_t sekvojHW::getBastlCyclesPerSecond(unsigned int & leftovers) {
 	unsigned int divider = (1024 * 17);
 	unsigned int value = F_CPU / divider;
 	leftovers = ((F_CPU % divider) * 1000) / divider;

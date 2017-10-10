@@ -56,7 +56,6 @@ unsigned char localStep = 0;
 extern sekvojHW hardware;
 unsigned int bastlCyclesPerSecond = 0;
 unsigned int bastlCyclesLeftovers = 0;
-unsigned int comparator = 0;
 bool slave = false;
 unsigned char memoryData[290];
 
@@ -178,7 +177,7 @@ void setup() {
 	swinger.init(& SekvojModulePool::synchronizer_);
 	swinger.setSwing(0);
 
-	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond(comparator, bastlCyclesLeftovers);
+	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond(bastlCyclesLeftovers);
 	instrumentBar.init(&hardware, &buttonMap, 6);
 
 	settings = new PlayerSettings();
