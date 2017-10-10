@@ -46,11 +46,8 @@ NoVelocityStepMemory memory;
 PlayerSettings * settings;
 SekvojRackMainMenuView mainMenu;
 BastlStepper * stepper;
-StepRecorder recorder;
 InstrumentBar instrumentBar;
 SekvojRackButtonMap buttonMap;
-StepSynchronizer synchronizer;
-SekvojRackSDPreset sdpreset;
 SimplifiedTapper tapper;
 StepSwinger swinger;
 
@@ -64,15 +61,17 @@ unsigned char memoryData[290];
 void stepperStep() {
 	if (mainMenu.isPlaying()) {
 		player->stepFourth();
-		synchronizer.doStep();
-		recorder.update();
-		if (synchronizer.getCurrentStepNumber() % 4 == 0) {
+		SekvojModulePool::synchronizer_.doStep();
+		SekvojModulePool::recorder_.update();
+		if (SekvojModulePool::synchronizer_.getCurrentStepNumber() % 4 == 0) {
 			hardware.setTrigger(6, true,10);// ILEDsAndButtonsHW::TRIGGER_ON);
 		}
 	}
 }
 
 void instrumentEvent(unsigned char instrumentId, DrumStep::DrumVelocityType velocity, bool isOn) {
+
+	//Serial.println(".");
 	instrumentBar.setInstrumentPlaying(instrumentId, isOn);
 	if (isOn) {
 		if (settings->getDrumInstrumentEventType(instrumentId) == PlayerSettings::GATE) {
@@ -93,7 +92,7 @@ void clockInCall() {
 
 void rstInCall() {
 	player->resetAllInstruments();
-	synchronizer.reset();
+	SekvojModulePool::synchronizer_.reset();
 	stepper->reset();
 }
 
@@ -109,8 +108,8 @@ void tapStep() {
 }
 
 void patternChanged(unsigned char originalPattenrIndex, unsigned char newPatternIndex) {
-	sdpreset.setPatternData(originalPattenrIndex);
-	sdpreset.getPatternData(newPatternIndex);
+	SekvojModulePool::sd_.setPatternData(originalPattenrIndex);
+	SekvojModulePool::sd_.getPatternData(newPatternIndex);
 
 }
 
@@ -149,7 +148,7 @@ BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 
 void playerModeChanged(PlayerSettings::PlayerMode mode) {
 	player->resetAllInstruments();
-	synchronizer.reset();
+	SekvojModulePool::synchronizer_.reset();
 	if (stepper) {
 		delete stepper;
 	}
@@ -160,7 +159,7 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 void settingsChanged() {
 	unsigned char data[11];
 	settings->getInByteArray(data);
-	sdpreset.setSettingsData(data);
+	SekvojModulePool::sd_.setSettingsData(data);
 	hardware.setMutes(settings->getInstrumentMuteByte());
 	hardware.setTriggerLength(settings->getTriggerLength());
 	instrumentBar.setInstrumentsMutes(settings->getInstrumentMuteByte());
@@ -170,7 +169,7 @@ void settingsChanged() {
 
 void setup() {
 
-	swinger.init(& synchronizer);
+	swinger.init(& SekvojModulePool::synchronizer_);
 	swinger.setSwing(0);
 
 	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
@@ -190,35 +189,29 @@ void setup() {
 
 	unsigned char data[11];
 	settings->getInByteArray(data);
-	sdpreset.initCard(memoryData, data);
-	sdpreset.getSettingsData(data);
+	SekvojModulePool::sd_.initCard(memoryData, data);
+	SekvojModulePool::sd_.getSettingsData(data);
 	//sdpreset.setSettingsData(data);
 	settings->loadFromByteArray(data);
 	//sdpreset.setSettingsData(data);
 	//suspicious semicolon - a good name for a band !
 
-	sdpreset.getPatternData(settings->getCurrentPattern());
+	SekvojModulePool::sd_.getPatternData(settings->getCurrentPattern());
 	stepper = createBastlStepper(settings->getPlayerMode());
 	hardware.setResetState(settings->getPlayerMode() == PlayerSettings::MASTER);
 	hardware.setMutes(settings->getInstrumentMuteByte());
 	hardware.setTriggerLength(settings->getTriggerLength());
 
-	player = new Player(&memory, settings, &synchronizer, &instrumentEvent);
-
-	recorder.init(player, &memory, settings, stepper);
+	player = new Player(&memory, settings, &SekvojModulePool::synchronizer_, &instrumentEvent);
 
 	LEDsAndButtonsHWWrapper::hw_ = &hardware;
 
 	SekvojModulePool::buttonMap_ = 		&buttonMap;
-	SekvojModulePool::hw_ = 			&hardware;
-	SekvojModulePool::player_ = 		player;
-	SekvojModulePool::recorder_ = 		&recorder;
+	SekvojModulePool::player_ = 			player;
 	SekvojModulePool::memory_ =			&memory;
 	SekvojModulePool::settings_ = 		settings;
 	SekvojModulePool::instrumentBar_ = 	&instrumentBar;
-	SekvojModulePool::synchronizer_ = 	&synchronizer;
 	SekvojModulePool::tapper_ = 		&tapper;
-	SekvojModulePool::sd_ = 			&sdpreset;
 	mainMenu.init(rstInCall);
 
 	//Serial.begin(9600);
@@ -237,7 +230,7 @@ void loop() {
 	//sdpreset.debug();
 	//Update step keepers
 	stepper->update(hardware.getElapsedBastlCycles());
-	recorder.update();
+	SekvojModulePool::recorder_.update();
 	stepper->update(hardware.getElapsedBastlCycles());
 	//Update user interface
 	mainMenu.update();

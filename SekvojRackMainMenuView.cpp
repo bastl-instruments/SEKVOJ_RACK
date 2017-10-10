@@ -6,6 +6,7 @@
  */
 
 #include "SekvojRackMainMenuView.h"
+#include <LEDsAndButtonsHWWrapper.h>
 #include <SetActiveView.h>
 #include <PatternView.h>
 #include <SetStepView.h>
@@ -192,7 +193,7 @@ inline void SekvojRackMainMenuView::updateInActive() {
 
 void SekvojRackMainMenuView::clearAllDiods() {
 	for (int i = 0; i < 32; i++) {
-		SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getButtonIndex(i), ILEDHW::OFF);
+		LEDsAndButtonsHWWrapper::setLED(SekvojModulePool::buttonMap_->getButtonIndex(i), ILEDHW::OFF);
 	}
 }
 
@@ -200,7 +201,7 @@ void SekvojRackMainMenuView::clearBottomPartDiods() {
 	for (unsigned char button = 0; button < 20; button++) {
 		unsigned char index = button < 16 ? SekvojModulePool::buttonMap_->getStepButtonIndex(button) :
 											SekvojModulePool::buttonMap_->getSubStepButtonIndex(button - 16);
-		SekvojModulePool::setLED(index, ILEDHW::OFF);
+		LEDsAndButtonsHWWrapper::setLED(index, ILEDHW::OFF);
 	}
 }
 
@@ -230,12 +231,12 @@ inline void SekvojRackMainMenuView::updateInJumpInit() {
 
 void SekvojRackMainMenuView::update() {
 
-	functionButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
-	patternButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getPatternButtonIndex());
-	activeButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getActiveButtonIndex());
-	jumpButtonDown_ = SekvojModulePool::hw_->isButtonDown(SekvojModulePool::buttonMap_->getJumpButtonIndex());
+	functionButtonDown_ = LEDsAndButtonsHWWrapper::hw_->isButtonDown(SekvojModulePool::buttonMap_->getFunctionButtonIndex());
+	patternButtonDown_ = LEDsAndButtonsHWWrapper::hw_->isButtonDown(SekvojModulePool::buttonMap_->getPatternButtonIndex());
+	activeButtonDown_ = LEDsAndButtonsHWWrapper::hw_->isButtonDown(SekvojModulePool::buttonMap_->getActiveButtonIndex());
+	jumpButtonDown_ = LEDsAndButtonsHWWrapper::hw_->isButtonDown(SekvojModulePool::buttonMap_->getJumpButtonIndex());
 	patternButtonMomentary_ = SekvojModulePool::settings_->isPatternMomentary();
-	SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
+	LEDsAndButtonsHWWrapper::setLED(SekvojModulePool::buttonMap_->getFunctionButtonIndex(), functionButtonDown_ ? ILEDHW::ON : ILEDHW::OFF);
 
 	//Reset all counters in case play has been just pressed
 	bool originalPlayValue = activePlayRecordSwitch_.getStatus(1);
@@ -247,7 +248,7 @@ void SekvojRackMainMenuView::update() {
 		}
 		isPlaying_ = newPlayValue;
 		if (originalPlayValue != newPlayValue && SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
-			SekvojModulePool::hw_->setTrigger(7, true, 20);
+			LEDsAndButtonsHWWrapper::hw_->setTrigger(7, true, 20);
 		}
 	}
 	ILEDHW::LedState offState = ILEDHW::OFF;
@@ -281,7 +282,7 @@ void SekvojRackMainMenuView::update() {
 	if (currentView_) {
 		currentView_->update();
 	}
-	SekvojModulePool::setLED(SekvojModulePool::buttonMap_->getPlayButtonIndex(), SekvojModulePool::synchronizer_->getCurrentStepNumber() % 16 == 0 && isPlaying_ ? ILEDHW::ON : offState);
+	LEDsAndButtonsHWWrapper::setLED(SekvojModulePool::buttonMap_->getPlayButtonIndex(), SekvojModulePool::synchronizer_.getCurrentStepNumber() % 16 == 0 && isPlaying_ ? ILEDHW::ON : offState);
 }
 
 
