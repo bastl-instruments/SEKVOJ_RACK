@@ -18,7 +18,8 @@ public:
 
 	// sets up all the pins, timers and SPI interface
 	// call this before using any other method from this class
-	void init(void(*buttonChangeCallback)(uint8_t number), void(*clockInCallback)(),void(*rstInCallback)());
+	void init();
+	void setup(void(*clockInCallback)(),void(*rstInCallback)());
 
 	/***KNOBS***/
 

@@ -174,6 +174,8 @@ void settingsChanged() {
 
 void setup() {
 
+	hardware.init();
+
 	swinger.init(& SekvojModulePool::synchronizer_);
 	swinger.setSwing(0);
 
@@ -227,8 +229,10 @@ void setup() {
 	//tapper.init(5000, 100); Not called rather made default to save some progeram memory
 	//tapper.setStepsPerTap(16); Not called rather made default to save some progeram memory
 	tapper.setStepCallBack(&tapStep);
-	hardware.init(0, &clockInCall, &rstInCall);
+
 	settingsChanged();
+
+	hardware.setup(&clockInCall, &rstInCall);
 }
 
 void loop() {

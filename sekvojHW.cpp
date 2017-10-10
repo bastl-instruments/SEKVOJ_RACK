@@ -88,8 +88,15 @@ uint8_t sekvojHW::getRandom(unsigned char min, unsigned char max) {
 	return (unsigned char) ((((xorshift96() & 0xFFFF) * (max-min))>>16) + min);
 }
 
+void sekvojHW::setup(void(*clockInCallback)(),void(*rstInCallback)()) {
 
-void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCallback)(),void(*rstInCallback)()) {
+	// store callback pointer for changed buttons
+	this->clockInCallback = clockInCallback;
+	this->rstInCallback = rstInCallback;
+
+}
+
+void sekvojHW::init() {
 
 	rnd_x=170;
 	rnd_y=229;
@@ -137,14 +144,6 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 		ledStatesEnd [row] = ledStatesBeg[row]; 			// copy to second set of states
 	}*/
 
-
-
-
-	// store callback pointer for changed buttons
-	 this->buttonChangeCallback = buttonChangeCallback;
-
-	 this->clockInCallback = clockInCallback;
-	 this->rstInCallback = rstInCallback;
 
 	 trigMutesState = 255;
 	 trigLength = 0;
