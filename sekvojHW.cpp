@@ -16,10 +16,10 @@
 sekvojHW hardware;
 
 //In bastl cycles with perspective that one bastl cycle is 1.5ms
-#define TRIGGER_LENGTH_1 1 	// 1 ms
-#define TRIGGER_LENGTH_2 3 	// 5 ms
-#define TRIGGER_LENGTH_3 7	// 10 ms
-#define TRIGGER_LENGTH_4 14	// 20 ms
+#define TRIGGER_LENGTH_1MS 1 	// 1 ms
+#define TRIGGER_LENGTH_5MS 5 	// 5 ms
+#define TRIGGER_LENGTH_10MS 10	// 10 ms
+#define TRIGGER_LENGTH_20MS 20	// 20 ms
 #define UINT16_MAX 65535
 #define MAX_ADDR 131067
 
@@ -47,21 +47,21 @@ uint8_t trigMap[8]={2,4,3,7,6,5,0,1};
 uint8_t sekvojHW::getTriggerLength() {
 	switch (trigLength) {
 			case 0:
-				return TRIGGER_LENGTH_1;
+				return TRIGGER_LENGTH_1MS;
 			case 1:
-				return TRIGGER_LENGTH_2;
+				return TRIGGER_LENGTH_5MS;
 			case 2:
-				return TRIGGER_LENGTH_3;
+				return TRIGGER_LENGTH_10MS;
 			case 3:
-				return TRIGGER_LENGTH_4;
+				return TRIGGER_LENGTH_20MS;
 			case 4:
-				return getRandom(1,3);
+				return getRandom(TRIGGER_LENGTH_1MS, TRIGGER_LENGTH_5MS);
 			case 5:
-				return getRandom(3,10);
+				return getRandom(TRIGGER_LENGTH_5MS, TRIGGER_LENGTH_10MS);
 			case 6:
-				return getRandom(1,14);
+				return getRandom(TRIGGER_LENGTH_10MS, TRIGGER_LENGTH_20MS);
 			case 7:
-				return getRandom(7,14);
+				return getRandom(TRIGGER_LENGTH_1MS, TRIGGER_LENGTH_20MS);
 	}
 }
 
