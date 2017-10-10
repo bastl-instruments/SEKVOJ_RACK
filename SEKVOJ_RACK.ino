@@ -55,6 +55,8 @@ unsigned char localStep = 0;
 
 extern sekvojHW hardware;
 unsigned int bastlCyclesPerSecond = 0;
+unsigned int bastlCyclesLeftovers = 0;
+unsigned int comparator = 0;
 bool slave = false;
 unsigned char memoryData[290];
 
@@ -100,7 +102,7 @@ void tapStep() {
 	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
 		if (tapper.anyStepDetected()) {
 			unsigned char timeUnitsPerStep = tapper.getTimeUnitsPerStep();
-			((StepGenerator *)stepper)->setTimeUnitsPerStep(timeUnitsPerStep);
+			((StepGenerator *)stepper)->setTimeUnitsPerStep(timeUnitsPerStep, 0);
 			settings->setBPM(BPMConverter::timeUnitsToBPM(timeUnitsPerStep, bastlCyclesPerSecond), false);
 		}
 		stepper->doStep(hardware.getElapsedBastlCycles());
@@ -129,7 +131,9 @@ void multiplicationChanged(PlayerSettings::MultiplicationType type) {
 
 void bpmChanged(unsigned int bpm) {
 	if (settings->getPlayerMode() == PlayerSettings::MASTER) {
-		((StepGenerator *)stepper)->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(bpm, bastlCyclesPerSecond));
+		unsigned int leftovers;
+		unsigned int time = BPMConverter::bpmToTimeUnits(bpm, bastlCyclesPerSecond, bastlCyclesLeftovers, leftovers);
+		((StepGenerator *)stepper)->setTimeUnitsPerStep(time, leftovers);
 	}
 }
 
@@ -137,7 +141,9 @@ BastlStepper * createBastlStepper(PlayerSettings::PlayerMode mode) {
 	 if (mode == PlayerSettings::MASTER) {
 	    StepGenerator * generator = new StepGenerator(&stepperStep, &swinger);
 	    //generator->init(&stepperStep, BPMConverter::bpmToTimeUnits(settings->getBPM(), hardware.getBastlCyclesPerSecond()));
-	    generator->setTimeUnitsPerStep(BPMConverter::bpmToTimeUnits(settings->getBPM(), bastlCyclesPerSecond));
+	    unsigned int leftovers;
+	    unsigned int time = BPMConverter::bpmToTimeUnits(settings->getBPM(), bastlCyclesPerSecond, bastlCyclesLeftovers, leftovers);
+	    generator->setTimeUnitsPerStep(time, leftovers);
 	    return generator;
 	  } else {
 	    StepMultiplier * multiplier = new StepMultiplier(&stepperStep, &swinger, bastlCyclesPerSecond);
@@ -172,7 +178,7 @@ void setup() {
 	swinger.init(& SekvojModulePool::synchronizer_);
 	swinger.setSwing(0);
 
-	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond();
+	bastlCyclesPerSecond = hardware.getBastlCyclesPerSecond(comparator, bastlCyclesLeftovers);
 	instrumentBar.init(&hardware, &buttonMap, 6);
 
 	settings = new PlayerSettings();

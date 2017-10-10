@@ -156,7 +156,7 @@ void sekvojHW::init(void(*buttonChangeCallback)(uint8_t number),void(*clockInCal
 	TCCR2A = (1 << WGM21);  // turn on CTC mode
 	TIMSK2 |= (1 << OCIE2A);// enable interrupt
 	TCCR2B = B00000111;	    //prescaler = 1024
-	OCR2A = (F_CPU/1024)/(updateFreq*rowsTotal);
+	OCR2A = 16;
 	TCNT2  = 0;
 
 
@@ -348,8 +348,11 @@ uint16_t sekvojHW::getElapsedBastlCycles() {
 	return cycles;
 }
 
-uint16_t sekvojHW::getBastlCyclesPerSecond() {
-	return (F_CPU/1024)/OCR2A;
+uint16_t sekvojHW::getBastlCyclesPerSecond(unsigned int & comparatorValue, unsigned int & leftovers) {
+	unsigned int divider = (1024 * 17);
+	unsigned int value = F_CPU / divider;
+	leftovers = ((F_CPU % divider) * 1000) / divider;
+	return value;
 }
 
 
