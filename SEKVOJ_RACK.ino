@@ -158,6 +158,7 @@ void playerModeChanged(PlayerSettings::PlayerMode mode) {
 		delete stepper;
 	}
 	stepper = createBastlStepper(mode);
+	SekvojModulePool::recorder_.setCurrentStepper(stepper);
 	hardware.setResetState(mode == PlayerSettings::MASTER);
 }
 
@@ -220,6 +221,7 @@ void setup() {
 	SekvojModulePool::instrumentBar_ = 	&instrumentBar;
 	SekvojModulePool::tapper_ = 		&tapper;
 	mainMenu.init(rstInCall);
+	SekvojModulePool::recorder_.init(player, &memory, settings, stepper);
 
 	//Serial.begin(9600);
 	//Serial.println("s");
