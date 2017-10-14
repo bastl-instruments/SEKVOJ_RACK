@@ -267,9 +267,13 @@ void sekvojHW::setBitWrapper(unsigned char &variable, unsigned char index, bool 
 void sekvojHW::setTrigger(uint8_t number, bool state, bool autoOff){//ILEDsAndButtonsHW::TriggerState state) {
 
 	setBitWrapper(trigAutoOff, number, autoOff);
-	if (state)
-		triggerBuffer[number]++;
-	else {
+	if (state) {
+		if (autoOff) {
+			triggerBuffer[number]++;
+		} else {
+			setBitWrapper(trigState, trigMap[number], true);
+		}
+	} else {
 		if (trigLength < 4) {
 			setBitWrapper(trigState, trigMap[number], state);
 		} else {
