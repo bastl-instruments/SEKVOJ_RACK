@@ -94,7 +94,9 @@ void clockInCall() {
 void rstInCall() {
 	player->resetAllInstruments();
 	SekvojModulePool::synchronizer_.reset();
-	stepper->reset();
+	if (mainMenu.isPlaying()) {
+		stepper->reset();
+	}
 }
 
 void tapStep() {

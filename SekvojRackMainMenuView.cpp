@@ -243,12 +243,12 @@ void SekvojRackMainMenuView::update() {
 	activePlayRecordSwitch_.update();
 	bool newPlayValue = activePlayRecordSwitch_.getStatus(1);
 	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD) && (currentStatus_ != FUNCTION_FROM_PATTERN)) {
-		if (!originalPlayValue && newPlayValue) {
+		if (originalPlayValue != newPlayValue) {
 			playerStatusChangedCallback_();
-		}
-		isPlaying_ = newPlayValue;
-		if (originalPlayValue != newPlayValue && SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
-			LEDsAndButtonsHWWrapper::hw_->setTrigger(7, true, 20);
+			isPlaying_ = newPlayValue;
+			if (SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
+				LEDsAndButtonsHWWrapper::hw_->setTrigger(7, true, 20);
+			}
 		}
 	}
 	ILEDHW::LedState offState = ILEDHW::OFF;
