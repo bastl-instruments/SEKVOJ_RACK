@@ -104,12 +104,14 @@ public:
 	uint32_t xorshift96();
 	unsigned char getRandom(unsigned char min, unsigned char max);
 	void setBitWrapper(unsigned char &variable, unsigned char index, bool value);
+	void setIgnoreMutes(bool ignoreMutes);
 
 
 private:
 
 	/**TRIGGERS**/
 	uint8_t trigMutesState;
+	uint8_t ignoredTrigMutes;
 	uint8_t trigLength;
 	uint8_t trigState;
 	uint8_t trigAutoOff;

@@ -96,7 +96,13 @@ void sekvojHW::setup(void(*clockInCallback)(),void(*rstInCallback)()) {
 
 }
 
+void sekvojHW::setIgnoreMutes(bool ignoreMutes) {
+	ignoredTrigMutes = ignoreMutes ? 255: 0;
+}
+
 void sekvojHW::init() {
+
+	ignoredTrigMutes = 0;
 
 	rnd_x=170;
 	rnd_y=229;
@@ -193,7 +199,7 @@ inline void sekvojHW::isr_updateNextLEDRow() {
 
 	uint8_t * statesToWrite = (blinkCounter < blinkCompare[0]) ? ledStatesBeg : ledStatesEnd;
 	shiftRegFast::write_8bit(statesToWrite[currentRow]);
-	shiftRegFast::write_8bit(trigState & trigMutesState);
+	shiftRegFast::write_8bit(trigState & (trigMutesState | ignoredTrigMutes));
 	shiftRegFast::enableOutput();
 
 	// go no next row
@@ -231,7 +237,7 @@ inline void sekvojHW::isr_updateButtons() {
 
     row = (row + 1) % 8;
 	shiftRegFast::write_8bit(~(1<<row));
-	shiftRegFast::write_8bit(trigState & trigMutesState);
+	shiftRegFast::write_8bit(trigState & (trigMutesState | ignoredTrigMutes));
 	shiftRegFast::enableOutput();
 	for (unsigned char i = 0; i < 10; i++) NOP;
 

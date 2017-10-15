@@ -96,6 +96,9 @@ void rstInCall() {
 	SekvojModulePool::synchronizer_.reset();
 	if (mainMenu.isPlaying()) {
 		stepper->reset();
+		hardware.setIgnoreMutes(false);
+	} else {
+		hardware.setIgnoreMutes(true);
 	}
 }
 

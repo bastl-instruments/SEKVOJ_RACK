@@ -244,8 +244,8 @@ void SekvojRackMainMenuView::update() {
 	bool newPlayValue = activePlayRecordSwitch_.getStatus(1);
 	if ((currentStatus_ != FUNCTION) && (currentStatus_ != FUNCTION_FROM_RECORD) && (currentStatus_ != FUNCTION_FROM_PATTERN)) {
 		if (originalPlayValue != newPlayValue) {
-			playerStatusChangedCallback_();
 			isPlaying_ = newPlayValue;
+			playerStatusChangedCallback_();
 			if (SekvojModulePool::settings_->getPlayerMode() == PlayerSettings::MASTER) {
 				LEDsAndButtonsHWWrapper::hw_->setTrigger(7, true, 20);
 			}
