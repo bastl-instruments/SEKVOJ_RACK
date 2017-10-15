@@ -94,12 +94,12 @@ void clockInCall() {
 void rstInCall() {
 	player->resetAllInstruments();
 	SekvojModulePool::synchronizer_.reset();
-	if (mainMenu.isPlaying()) {
+	bool playing = mainMenu.isPlaying();
+	if (playing) {
 		stepper->reset();
-		hardware.setIgnoreMutes(false);
-	} else {
-		hardware.setIgnoreMutes(true);
 	}
+	hardware.setIgnoreMutes(!playing);
+	SekvojModulePool::recorder_.record(playing);
 }
 
 void tapStep() {
