@@ -119,9 +119,7 @@ inline void SekvojRackMainMenuView::updateInPattern() {
 		if (!patternButtonMomentary_) {
 			activePlayRecordSwitch_.setStatus(3, false);
 		}
-		if (currentStatus_ == PATTERN_FROM_RECORD) {
-			createRecordView();
-		} else if (currentStatus_ == PATTERN_FROM_ACTIVE) {
+		if (currentStatus_ == PATTERN_FROM_ACTIVE) {
 			createActiveView();
 		} else {
 			createSetStepView(false);
@@ -207,14 +205,12 @@ void SekvojRackMainMenuView::clearBottomPartDiods() {
 
 inline void SekvojRackMainMenuView::updateInRecording() {
 	activePlayRecordSwitch_.setStatus(0, false);
+	activePlayRecordSwitch_.setStatus(3, false);
 	bool playRecordSwitchOn = activePlayRecordSwitch_.getStatus(2);
-	bool switchToPattern = patternButtonDown_ && ! patternButtonMomentary_;
-	if (functionButtonDown_ || switchToPattern || !playRecordSwitchOn ) {
+	if (functionButtonDown_ || !playRecordSwitchOn ) {
 		delete currentView_;
 		if (functionButtonDown_)  {
 			createFunctionView(FUNCTION_FROM_RECORD);
-		} else if (switchToPattern) {
-			createPatternView(PATTERN_FROM_RECORD);
 		} else {
 			createSetStepView(false);
 		}
@@ -265,7 +261,6 @@ void SekvojRackMainMenuView::update() {
 		case RECORDING:
 			updateInRecording();
 			break;
-		case PATTERN_FROM_RECORD:
 		case PATTERN:
 		case PATTERN_FROM_ACTIVE:
 			updateInPattern();
